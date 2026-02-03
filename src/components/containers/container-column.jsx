@@ -91,7 +91,7 @@ export const getContainerColumns = ({ onDelete, onToggleStatus, onEdit }) => [
           <div>
             <div className="font-medium text-sm">{baseUnit?.name || "N/A"}</div>
             <div className="text-xs text-muted-foreground">
-              {baseUnit?.short_code || "No code"}
+              {baseUnit?.short_name || "No code"}
             </div>
           </div>
         </div>
@@ -116,8 +116,7 @@ export const getContainerColumns = ({ onDelete, onToggleStatus, onEdit }) => [
               {measurementUnit?.name || "N/A"}
             </div>
             <div className="text-xs text-muted-foreground">
-              {measurementUnit?.type || "No type"} •{" "}
-              {measurementUnit?.short_code || "No code"}
+              {measurementUnit?.short_name || "No code"}
             </div>
           </div>
         </div>
@@ -137,7 +136,7 @@ export const getContainerColumns = ({ onDelete, onToggleStatus, onEdit }) => [
         <div className="text-center">
           <div className="font-medium">{container.capacity}</div>
           <div className="text-xs text-muted-foreground">
-            {measurementUnit?.short_code || "units"}
+            {measurementUnit?.short_name || "units"}
           </div>
         </div>
       );
@@ -159,16 +158,6 @@ export const getContainerColumns = ({ onDelete, onToggleStatus, onEdit }) => [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active");
       return <StatusBadge value={isActive} />;
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created At" />
-    ),
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      return date.toLocaleDateString();
     },
   },
   {

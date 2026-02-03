@@ -155,7 +155,12 @@ export default function CreateReturn() {
     }
 
     const subscription = form.watch((value, { name }) => {
-        if (name === "purchaseOrderId" && value.purchaseOrderId) {
+        if (name === "supplierId") {
+            // Clear selections when supplier changes
+            form.setValue("purchaseOrderId", "");
+            form.setValue("grnId", "");
+            form.setValue("items", []);
+        } else if (name === "purchaseOrderId" && value.purchaseOrderId) {
             form.setValue("grnId", ""); // Mutually exclusive
             fetchItems();
         } else if (name === "grnId" && value.grnId) {
@@ -164,24 +169,23 @@ export default function CreateReturn() {
         }
     });
     return () => subscription.unsubscribe();
-  }, [form.watch, session]);
+  }, [form.watch, session, form.setValue]);
 
   // Initial Fetch for dropdowns
   useEffect(() => {
     async function fetchData() {
-        if (!session?.accessToken) return;
+        if (!session?.accessToken) {
+            if (status === 'unauthenticated') {
+                setLoadingInitial(false);
+            }
+            return;
+        }
         try {
-            const [suppliersRes, productsRes, poRes, grnRes, branchesRes] = await Promise.all([
+            const [suppliersRes, productsRes, branchesRes] = await Promise.all([
                 fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/suppliers/active/list`, {
                     headers: { Authorization: `Bearer ${session.accessToken}` },
                 }),
                 fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products?size=100`, { 
-                    headers: { Authorization: `Bearer ${session.accessToken}` },
-                }),
-                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/purchase-orders?status=received`, {
-                    headers: { Authorization: `Bearer ${session.accessToken}` },
-                }),
-                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/suppliers/grn`, {
                     headers: { Authorization: `Bearer ${session.accessToken}` },
                 }),
                 fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/branches/active/list`, {
@@ -191,26 +195,20 @@ export default function CreateReturn() {
 
             const suppliersData = await suppliersRes.json();
             const productsData = await productsRes.json();
-            const poData = await poRes.json();
-            const grnData = await grnRes.json();
-            const branchesData = await branchesRes.json();
-
             if (suppliersData.status === 'success') {
                 setSuppliers(suppliersData.data || []);
             }
             if (productsData.status === 'success') {
                 setProducts(productsData.data?.data || productsData.data || []);
             }
-            if (poData.status === 'success') {
-                setPurchaseOrders(poData.data?.data || poData.data || []);
-            }
-            if (grnData.status === 'success') {
-                setGrns(grnData.data?.data || grnData.data || []);
-            }
-            if (branchesData.status === 'success') {
-                setBranches(branchesData.data || []);
-                if (branchesData.data?.length === 1 && !form.getValues("branchId")) {
-                    form.setValue("branchId", branchesData.data[0].id);
+
+            if (branchesRes.ok) {
+                const branchesData = await branchesRes.json();
+                if (branchesData.status === 'success') {
+                    setBranches(branchesData.data || []);
+                    if (branchesData.data?.length === 1 && !form.getValues("branchId")) {
+                        form.setValue("branchId", branchesData.data[0].id);
+                    }
                 }
             }
 
@@ -224,7 +222,45 @@ export default function CreateReturn() {
     if (status === 'authenticated') {
         fetchData();
     }
-  }, [session, status]);
+  }, [session, status, form]);
+
+  // Watch supplierId for linked docs fetch
+  const selectedSupplierId = form.watch("supplierId");
+
+  // Fetch POs and GRNs when Supplier is selected
+  useEffect(() => {
+    async function fetchLinkedDocs() {
+        if (!session?.accessToken || !selectedSupplierId) {
+            setPurchaseOrders([]);
+            setGrns([]);
+            return;
+        }
+
+        try {
+            const [poRes, grnRes] = await Promise.all([
+                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/purchase-orders?supplier_id=${supplierId}`, {
+                    headers: { Authorization: `Bearer ${session.accessToken}` },
+                }),
+                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/suppliers/grn?supplier_id=${supplierId}`, {
+                    headers: { Authorization: `Bearer ${session.accessToken}` },
+                })
+            ]);
+
+            const poData = await poRes.json();
+            const grnData = await grnRes.json();
+
+            if (poData.status === 'success') {
+                setPurchaseOrders(poData.data?.data || poData.data || []);
+            }
+            if (grnData.status === 'success') {
+                setGrns(grnData.data?.data || grnData.data || []);
+            }
+        } catch (error) {
+            console.error("Failed to fetch linked docs", error);
+        }
+    }
+    fetchLinkedDocs();
+  }, [selectedSupplierId, session?.accessToken]);
 
   const onSubmit = async (data) => {
     try {

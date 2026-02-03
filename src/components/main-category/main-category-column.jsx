@@ -99,16 +99,6 @@ export const getMainCategoryColumns = ({
     },
   },
   {
-    accessorKey: "created_at",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created At" />
-    ),
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      return date.toLocaleDateString();
-    },
-  },
-  {
     id: "actions",
     cell: ({ row }) => {
       const category = row.original;

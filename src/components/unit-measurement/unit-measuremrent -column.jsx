@@ -82,14 +82,14 @@ export const getMeasurementUnitColumns = ({
     },
   },
   {
-    accessorKey: "short_code",
+    accessorKey: "short_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Code" />
     ),
     cell: ({ row }) => {
-      // Displaying the short_code
+      // Displaying the short_name
       return (
-        <div className="font-mono text-sm">{row.getValue("short_code")}</div>
+        <div className="font-mono text-sm">{row.getValue("short_name")}</div>
       );
     },
   },
@@ -124,16 +124,6 @@ export const getMeasurementUnitColumns = ({
     cell: ({ row }) => {
       const isActive = row.getValue("is_active");
       return <StatusBadge value={isActive} />;
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created At" />
-    ),
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      return date.toLocaleDateString();
     },
   },
   {

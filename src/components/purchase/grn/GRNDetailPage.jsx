@@ -40,7 +40,14 @@ export default function GRNDetailPage() {
 
   useEffect(() => {
     async function fetchGRNDetails() {
-      if (!params.id || !session?.accessToken) return;
+      if (!params.id || !session?.accessToken) {
+          if (params.id === undefined || session?.accessToken === undefined) {
+             // Still initializing
+          } else {
+             setLoading(false);
+          }
+          return;
+      }
       try {
         setLoading(true);
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/suppliers/grn/${params.id}`, {

@@ -78,12 +78,12 @@ export const getUnitColumns = ({ onDelete, onToggleStatus, onEdit }) => [
   },
   // --- NEW COLUMN ---
   {
-    accessorKey: "short_code",
+    accessorKey: "short_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Short Code" />
     ),
     cell: ({ row }) => {
-      return row.getValue("short_code");
+      return row.getValue("short_name");
     },
   },
   {
@@ -111,16 +111,6 @@ export const getUnitColumns = ({ onDelete, onToggleStatus, onEdit }) => [
     cell: ({ row }) => {
       const isBase = row.getValue("is_base_unit");
       return isBase ? <Badge variant="outline">Base Unit</Badge> : null;
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created At" />
-    ),
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      return date.toLocaleDateString();
     },
   },
   {

@@ -16,7 +16,8 @@ export function StatusBadge({ value, className, label }) {
   const isTrue = value === true || val === "active" || val === "true" || val === "cleared" || val === "completed" || val === "received" || val === "approved";
   const isPending = val === "pending" || val === "processing";
   const isVoid = val === "void" || val === "cancelled" || val === "bounced" || val === "destructive";
-  const isPaid = val === "paid" || val === "success";
+  const isPaid = val === "paid";
+  const isSuccess = val === "success" || val === "failed" || val === "failure";
 
   let badgeStyles = "text-[10px] font-black uppercase tracking-widest px-3 py-1 shadow-sm border-none leading-none h-6 flex items-center justify-center";
   let statusLabel = label || (isTrue ? (val === "cleared" ? "Cleared" : val === "completed" ? "Completed" : val === "received" ? "Received" : val === "approved" ? "Approved" : "Active") : "Inactive");
@@ -32,6 +33,14 @@ export function StatusBadge({ value, className, label }) {
   } else if (isPaid) {
     badgeStyles = cn(badgeStyles, "bg-blue-500 hover:bg-blue-600 text-white");
     statusLabel = label || "Paid";
+  } else if (isSuccess) {
+    if (val === "success") {
+      badgeStyles = cn(badgeStyles, "bg-emerald-500 hover:bg-emerald-600 text-white");
+      statusLabel = label || "Success";
+    } else {
+      badgeStyles = cn(badgeStyles, "bg-red-500 hover:bg-red-600 text-white");
+      statusLabel = label || (val === "failed" ? "Failed" : "Failure");
+    }
   } else {
     // Default/Inactive
     badgeStyles = cn(badgeStyles, "bg-slate-400 hover:bg-slate-500 text-white");

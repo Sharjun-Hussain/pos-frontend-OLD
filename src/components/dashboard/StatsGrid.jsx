@@ -13,6 +13,9 @@ import {
 import { useCurrency } from "@/hooks/useCurrency";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 
 // Helper for Number Animation
 const AnimatedNumber = ({ value, isCurrency, formatCurrency }) => {
@@ -41,16 +44,39 @@ const AnimatedNumber = ({ value, isCurrency, formatCurrency }) => {
 };
 
 export default function StatsGrid() {
+  const { data: session } = useSession();
   const { formatCurrency } = useCurrency();
   const containerRef = useRef(null);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!session?.accessToken) return;
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/dashboard/summary`, {
+          headers: { Authorization: `Bearer ${session.accessToken}` }
+        });
+        if (res.data.status === "success") {
+          setData(res.data.data);
+        }
+      } catch (error) {
+        console.error("Dashboard Stats Fetch Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [session]);
 
   const stats = [
     {
       name: "Today Revenue",
-      value: 2847.50,
+      value: data?.todayRevenue?.value || 0,
       isCurrency: true,
-      change: "12.5%",
-      trend: "up",
+      change: data?.todayRevenue?.change || "0%",
+      trend: data?.todayRevenue?.trend || "up",
       icon: DollarSign,
       gradient: "from-emerald-500 to-teal-400",
       shadow: "shadow-emerald-100",
@@ -58,10 +84,10 @@ export default function StatsGrid() {
     },
     {
       name: "Pending Invoices",
-      value: 12,
+      value: data?.pendingInvoices?.value || 0,
       isCurrency: false,
-      change: "2.1%",
-      trend: "down",
+      change: data?.pendingInvoices?.change || "0%",
+      trend: data?.pendingInvoices?.trend || "stable",
       icon: FileText,
       gradient: "from-blue-500 to-indigo-400",
       shadow: "shadow-blue-100",
@@ -69,10 +95,10 @@ export default function StatsGrid() {
     },
     {
       name: "Low Stock Items",
-      value: 8,
+      value: data?.lowStockCount?.value || 0,
       isCurrency: false,
-      change: "3.2%",
-      trend: "up",
+      change: data?.lowStockCount?.change || "Alert",
+      trend: data?.lowStockCount?.trend || "up",
       icon: Package,
       gradient: "from-orange-500 to-amber-400",
       shadow: "shadow-orange-100",
@@ -80,10 +106,10 @@ export default function StatsGrid() {
     },
     {
       name: "New Customers",
-      value: 24,
+      value: data?.newCustomers?.value || 0,
       isCurrency: false,
-      change: "8.7%",
-      trend: "up",
+      change: data?.newCustomers?.change || "Monthly",
+      trend: data?.newCustomers?.trend || "up",
       icon: Users,
       gradient: "from-violet-500 to-purple-400",
       shadow: "shadow-violet-100",

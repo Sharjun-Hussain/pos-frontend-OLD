@@ -37,15 +37,26 @@ const formatCurrency = (amount) => {
   }).format(parseFloat(amount || 0));
 };
 
-export default function ReturnDetails({ id }) {
+export default function ReturnDetails({ id: propId }) {
   const router = useRouter();
+  const params = useParams();
+  const id = propId || params?.id;
+  
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [returnData, setReturnData] = useState(null);
 
   useEffect(() => {
     const load = async () => {
-      if (!session?.accessToken || !id) return;
+      if (!session?.accessToken || !id) {
+          // If we don't have what we need, stop loading so we don't hang
+          if (session?.accessToken === undefined || id === undefined) {
+             // Still waiting for hooks to initialize
+          } else {
+             setIsLoading(false);
+          }
+          return;
+      }
       setIsLoading(true);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/purchase-returns/${id}`, {

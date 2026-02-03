@@ -583,7 +583,9 @@ if (!poData) return <div>Not Found</div>;
                                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 capitalize">{grn.status}</Badge>
                                     </TableCell>
                                     <TableCell className="text-right pr-6">
-                                        <Button variant="ghost" size="sm" className="h-7 text-xs border">View GRN</Button>
+                                        <Link href={`/purchase/grn/view/${grn.id}`}>
+                                            <Button variant="ghost" size="sm" className="h-7 text-xs border">View GRN</Button>
+                                        </Link>
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -594,6 +596,41 @@ if (!poData) return <div>Not Found</div>;
                                 </TableCell>
                             </TableRow>
                         )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+      )}
+
+      {/* --- Return History --- */}
+      {poData.returns && poData.returns.length > 0 && (
+        <Card className="border-none shadow-sm bg-white">
+            <CardHeader className="px-6 py-4">
+                <CardTitle className="text-base font-semibold text-red-600">Return History</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pb-2">
+                <Table>
+                    <TableHeader className="bg-red-50/50">
+                        <TableRow>
+                            <TableHead className="pl-6 text-xs uppercase text-red-700">Return #</TableHead>
+                            <TableHead className="text-xs uppercase text-red-700">Date</TableHead>
+                            <TableHead className="text-xs uppercase text-red-700">Amount</TableHead>
+                            <TableHead className="text-right pr-6 text-xs uppercase text-red-700">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {poData.returns.map((ret) => (
+                            <TableRow key={ret.id}>
+                                <TableCell className="pl-6 font-medium text-red-600">{ret.return_number}</TableCell>
+                                <TableCell>{format(new Date(ret.return_date), "MMM dd, yyyy")}</TableCell>
+                                <TableCell className="font-semibold">{formatCurrency(ret.total_amount)}</TableCell>
+                                <TableCell className="text-right pr-6">
+                                    <Link href={`/purchase/returns/${ret.id}`}>
+                                        <Button variant="ghost" size="sm" className="h-7 text-xs border border-red-100 text-red-600 hover:bg-red-50">View Return</Button>
+                                    </Link>
+                                </TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </CardContent>

@@ -105,24 +105,6 @@ export const getBrandColumns = ({
     },
   },
   {
-    accessorKey: "updated_at",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Last Updated" />
-    ),
-    cell: ({ row }) => {
-      const date = new Date(row.original.updated_at || row.original.created_at);
-      return (
-        <div className="text-xs text-slate-500">
-          {date.toLocaleDateString(undefined, { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-          })}
-        </div>
-      );
-    },
-  },
-  {
     id: "actions",
     cell: ({ row }) => {
       const brand = row.original;

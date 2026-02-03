@@ -44,9 +44,9 @@ import { cn } from "@/lib/utils";
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().optional(),
-  base_unit_id: z.string().min(1, "Base Unit is required"),
-  measurement_unit_id: z.string().min(1, "Measurement Unit is required"),
-  capacity: z.coerce.number().min(0, "Capacity must be positive"),
+  base_unit_id: z.string().optional(),
+  measurement_unit_id: z.string().optional(),
+  capacity: z.coerce.number().min(0, "Capacity must be positive").optional(),
   description: z.string().optional(),
 });
 
@@ -79,27 +79,27 @@ export function ContainerDialog({ open, onOpenChange, onSuccess, session, initia
       
       setLoadingData(true);
       try {
-        const [unitsRes, measurementUnitsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/units`, {
+        const [mUnitsRes, unitsRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/measurement-units/active/list`, {
             headers: { Authorization: `Bearer ${session.accessToken}` },
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/measurement-units`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/units/active/list`, {
             headers: { Authorization: `Bearer ${session.accessToken}` },
           })
         ]);
 
+        const mUnitsData = await mUnitsRes.json();
         const unitsData = await unitsRes.json();
-        const measurementUnitsData = await measurementUnitsRes.json();
 
-        if (unitsData.status === "success") {
-          setUnits(unitsData.data.data || []);
+        if (mUnitsData.status === "success") {
+          setMeasurementUnits(mUnitsData.data || []);
         }
-        if (measurementUnitsData.status === "success") {
-          setMeasurementUnits(measurementUnitsData.data.data || []);
+        if (unitsData.status === "success") {
+          setUnits(unitsData.data || []);
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
-        toast.error("Failed to load required data");
+        toast.error("Failed to load unit data");
       } finally {
         setLoadingData(false);
       }

@@ -176,7 +176,14 @@ export default function GRNPage() {
 
   useEffect(() => {
     async function loadData() {
-      if (!params.poid || status !== "authenticated" || !session?.accessToken) return;
+      if (!params.poid || status !== "authenticated" || !session?.accessToken) {
+          if (params.poid === undefined || session?.accessToken === undefined) {
+             // Still initializing
+          } else {
+             setIsDataLoading(false);
+          }
+          return;
+      }
       try {
         setIsDataLoading(true);
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/purchase-orders/${params.poid}`, {
