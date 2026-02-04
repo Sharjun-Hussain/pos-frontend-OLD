@@ -9,6 +9,6 @@ const page = () => {
 export default page;
 
 export const metadata = {
-  title: "Sales Report | Returns History | EMI-POS  ",
+  title: "Sales Report | Returns History | Inzeedo POS  ",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

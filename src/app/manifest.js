@@ -1,8 +1,8 @@
 export default function manifest() {
   return {
-    name: 'EMI-POS',
-    short_name: 'EMI-POS',
-    description: 'Eminence Point of Sale Developed By: Inzeedo',
+    name: 'Inzeedo POS',
+    short_name: 'Inzeedo POS',
+    description: 'Inzeedo Point of Sale Developed By: Inzeedo',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

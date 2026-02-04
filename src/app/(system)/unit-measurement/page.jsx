@@ -8,6 +8,6 @@ const page = () => {
 export default page;
 
 export const metadata = {
-  title: "Unit Measurement | EMI-POS  ",
+  title: "Unit Measurement | Inzeedo POS  ",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

@@ -8,6 +8,6 @@ const page = () => {
 export default page;
 
 export const metadata = {
-  title: "Sales History | EMI-POS",
+  title: "Sales History | Inzeedo POS",
   description: "View and manage completed sales history",
 };

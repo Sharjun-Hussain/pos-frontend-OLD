@@ -11,6 +11,6 @@ export default function Page() {
 }
 
 export const metadata = {
-  title: "Branches | EMI-POS  ",
+  title: "Branches | Inzeedo POS  ",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

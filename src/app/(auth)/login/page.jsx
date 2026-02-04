@@ -8,6 +8,6 @@ const Login = () => {
 export default Login;
 
 export const metadata = {
-  title: "Login  | EMI-POS  ",
+  title: "Login  | Inzeedo POS  ",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

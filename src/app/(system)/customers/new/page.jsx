@@ -31,6 +31,6 @@ export default function AddEmployeePage() {
 }
 
 export const metadata = {
-  title: "Add New Employee | EMI-POS",
+  title: "Add New Employee | Inzeedo POS",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

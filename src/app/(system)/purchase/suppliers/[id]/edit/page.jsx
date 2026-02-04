@@ -66,7 +66,7 @@ export default function EditSupplierPage() {
             const label = data.data.name || `Supplier #${data.data.id}`;
             setBreadcrumb(supplierId, label);
             // Set Document Title
-            document.title = `Edit ${label} | EMI-POS`;
+            document.title = `Edit ${label} | Inzeedo POS`;
           } else {
             throw new Error(data.message || "Failed to fetch");
           }

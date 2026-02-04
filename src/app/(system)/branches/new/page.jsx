@@ -21,6 +21,6 @@ export default function AddBranchPage() {
 }
 
 export const metadata = {
-  title: "Add New Branch | EMI-POS",
+  title: "Add New Branch | Inzeedo POS",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

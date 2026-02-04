@@ -45,8 +45,8 @@ export default function Header() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">POS</span>
               </div>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                EMI<span className="text-blue-600">POS</span>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 italic">
+                Inzeedo <span className="text-blue-600 not-italic">POS</span>
               </h1>
             </div>
           </div>

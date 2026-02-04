@@ -191,6 +191,7 @@ const CustomerSelector = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showCreateFields, setShowCreateFields] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newCustomerPhone, setNewCustomerPhone] = useState("");
@@ -199,7 +200,7 @@ const CustomerSelector = ({
   const filteredCustomers = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.phone.includes(searchTerm)
+      (c.phone && c.phone.includes(searchTerm))
   );
 
   const handleCreateCustomer = async () => {
@@ -233,6 +234,8 @@ const CustomerSelector = ({
         onSelectCustomer(result.data);
         setNewCustomerName("");
         setNewCustomerPhone("");
+        setSearchTerm("");
+        setShowCreateFields(false);
         setIsOpen(false);
       } else {
         toast.error(result.message || "Failed to create customer");
@@ -245,12 +248,21 @@ const CustomerSelector = ({
     }
   };
 
+  const openCreateForm = (initialName = "") => {
+    setNewCustomerName(initialName);
+    setShowCreateFields(true);
+    setIsOpen(true);
+  };
+
   return (
     <div className="relative flex gap-2">
       <Button
         variant="outline"
         className="h-11 flex-1 justify-start gap-3 text-left bg-white"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setShowCreateFields(false);
+        }}
       >
         <Users className="h-5 w-5 text-slate-400" />
         <div className="flex-1">
@@ -269,90 +281,136 @@ const CustomerSelector = ({
         size="icon"
         className="h-11 w-11 bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700"
         onClick={() => {
-          setIsOpen(true);
-          setSearchTerm("");
+          openCreateForm("");
         }}
         title="Add New Customer"
       >
         <Plus className="h-5 w-5" />
       </Button>
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-10 p-2">
-          <Input
-            placeholder="Search customers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="mb-2"
-          />
-          <div className="max-h-48 overflow-y-auto mb-2">
-            {filteredCustomers.map((customer) => (
-              <Button
-                key={customer.id}
-                variant="ghost"
-                className="w-full justify-start h-auto py-2"
-                onClick={() => {
-                  onSelectCustomer(customer);
-                  setIsOpen(false);
-                  setSearchTerm("");
-                }}
-              >
-                <div className="text-left">
-                  <p className="font-medium">{customer.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {customer.phone}
-                  </p>
-                </div>
-              </Button>
-            ))}
-          </div>
-          <Separator className="my-2" />
-          <div className="space-y-2 p-2 bg-blue-50/50 rounded-lg border border-blue-100">
-            <p className="text-xs font-bold text-blue-700 uppercase">Quick Add Customer</p>
-            <Input
-              placeholder="Customer Name *"
-              value={newCustomerName}
-              onChange={(e) => setNewCustomerName(e.target.value)}
-              className="h-9 text-sm bg-white"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleCreateCustomer();
-              }}
-            />
-            <Input
-              placeholder="Phone Number (Optional)"
-              value={newCustomerPhone}
-              onChange={(e) => setNewCustomerPhone(e.target.value)}
-              className="h-9 text-sm bg-white"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleCreateCustomer();
-              }}
-            />
-            <Button
-              size="sm"
-              className="w-full h-9 bg-blue-600 hover:bg-blue-700"
-              onClick={handleCreateCustomer}
-              disabled={isCreating}
-            >
-              {isCreating ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Customer
-                </>
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-20 p-2 min-w-[280px]">
+          {!showCreateFields ? (
+            <>
+              <Input
+                placeholder="Search customers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-2"
+                autoFocus
+              />
+              <div className="max-h-60 overflow-y-auto mb-2">
+                {filteredCustomers.length > 0 ? (
+                  filteredCustomers.map((customer) => (
+                    <Button
+                      key={customer.id}
+                      variant="ghost"
+                      className="w-full justify-start h-auto py-2 px-3 hover:bg-slate-100"
+                      onClick={() => {
+                        onSelectCustomer(customer);
+                        setIsOpen(false);
+                        setSearchTerm("");
+                      }}
+                    >
+                      <div className="text-left">
+                        <p className="font-medium text-sm">{customer.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {customer.phone || "No phone"}
+                        </p>
+                      </div>
+                    </Button>
+                  ))
+                ) : (
+                  <div className="py-4 px-2 text-center">
+                    <p className="text-sm text-slate-500 mb-3">No customers found</p>
+                    {searchTerm.trim() !== "" && (
+                      <Button 
+                        variant="soft" 
+                        size="sm" 
+                        className="w-full bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                        onClick={() => openCreateForm(searchTerm)}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create "{searchTerm}"
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+              {filteredCustomers.length > 0 && (
+                 <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs py-1"
+                    onClick={() => openCreateForm(searchTerm)}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    New Customer
+                  </Button>
               )}
-            </Button>
-            <p className="text-[10px] text-slate-500 italic">
-              You can add more details later via the Customers dashboard
-            </p>
-          </div>
+            </>
+          ) : (
+            <div className="space-y-3 p-2 bg-blue-50/50 rounded-lg border border-blue-100">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-blue-700 uppercase">New Customer</p>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 text-slate-400 hover:text-slate-600"
+                  onClick={() => setShowCreateFields(false)}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="space-y-2">
+                <Input
+                  placeholder="Customer Name *"
+                  value={newCustomerName}
+                  onChange={(e) => setNewCustomerName(e.target.value)}
+                  className="h-9 text-sm bg-white"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCreateCustomer();
+                  }}
+                  autoFocus
+                />
+                <Input
+                  placeholder="Phone Number (Optional)"
+                  value={newCustomerPhone}
+                  onChange={(e) => setNewCustomerPhone(e.target.value)}
+                  className="h-9 text-sm bg-white"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCreateCustomer();
+                  }}
+                />
+                <Button
+                  size="sm"
+                  className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleCreateCustomer}
+                  disabled={isCreating}
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Customer
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-[10px] text-slate-500 italic text-center">
+                Full profile can be added in Customers dashboard
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 };
+
 
 const ProductCardWithImage = ({ product, onAddToCart }) => (
   <Card

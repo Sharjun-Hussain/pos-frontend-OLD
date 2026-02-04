@@ -9,6 +9,6 @@ const Page = async ({ params }) => {
 export default Page;
 
 export const metadata = {
-    title: "Return Details | EMI-POS",
+    title: "Return Details | Inzeedo POS",
     description: "View purchase return details",
 };

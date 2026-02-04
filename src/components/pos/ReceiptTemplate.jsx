@@ -49,7 +49,7 @@ export const ReceiptTemplate = forwardRef(({ sale, settings, business, branch },
             className="w-16 h-16 mx-auto mb-2 object-contain"
           />
         )}
-        <h1 className="text-lg font-black uppercase tracking-tight">{business?.name || "EMI-POS"}</h1>
+        <h1 className="text-lg font-black uppercase tracking-tight">{business?.name || "Inzeedo POS"}</h1>
         <div className="leading-tight opacity-80">
           <p>{business?.address || branch?.address}</p>
           <p>Tel: {business?.phone || branch?.phone}</p>
@@ -177,7 +177,7 @@ export const ReceiptTemplate = forwardRef(({ sale, settings, business, branch },
           <div className="whitespace-pre-wrap leading-relaxed">{footerText}</div>
         )}
         <div className="pt-4 opacity-40">
-           <p className="font-black text-[9px] tracking-[0.2em]">POWERED BY EMI-POS</p>
+           <p className="font-black text-[9px] tracking-[0.2em]">POWERED BY Inzeedo POS</p>
            <p className="text-[8px]">{new Date().getFullYear()} © INZEEDO PVT LTD</p>
         </div>
       </div>

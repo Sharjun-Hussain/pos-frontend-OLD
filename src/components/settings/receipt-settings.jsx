@@ -222,7 +222,7 @@ export function ReceiptSettings() {
                         {/* Mock Receipt Content */}
                         <div className="text-center space-y-1 mb-6">
                             {receipt.showLogo && <div className="w-12 h-12 bg-slate-100 rounded-full mx-auto mb-2 flex items-center justify-center font-bold text-slate-300">LOGO</div>}
-                            <h4 className="font-black text-slate-900 text-base uppercase">Business Name</h4>
+                            <h4 className="font-black text-slate-900 text-base uppercase">Inzeedo POS</h4>
                             <p className="text-[10px] text-slate-400">123 Business Street, City, State</p>
                             <p className="text-[10px] text-slate-400">Phone: +1 234 567 890</p>
                             {receipt.headerText && <p className="mt-2 italic border-t border-slate-100 pt-1">{receipt.headerText}</p>}
@@ -287,7 +287,7 @@ export function ReceiptSettings() {
 
                         <div className="mt-8 text-center space-y-2">
                              {receipt.footerText && <p className="text-[10px] whitespace-pre-wrap">{receipt.footerText}</p>}
-                             <p className="font-bold text-[8px] opacity-40">POWERED BY EMI-POS</p>
+                             <p className="font-bold text-[8px] opacity-40">POWERED BY Inzeedo POS</p>
                         </div>
                     </div>
                 </div>

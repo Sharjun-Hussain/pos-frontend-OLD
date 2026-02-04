@@ -9,6 +9,6 @@ const page = () => {
 export default page;
 
 export const metadata = {
-  title: "Inventory Insights | One Eye View | EMI-POS",
+  title: "Inventory Insights | One Eye View | Inzeedo POS",
   description: "Real-time product status and stock alerts dashboard.",
 };

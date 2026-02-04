@@ -57,7 +57,7 @@ export default function EditProductPage() {
             const label = data.data.name || `Product #${data.data.id}`;
             setBreadcrumb(productId, label);
             // Set Document Title
-            document.title = `Edit ${label} | EMI-POS`;
+            document.title = `Edit ${label} | Inzeedo POS`;
           } else {
             throw new Error(data.message || "Failed to fetch");
           }

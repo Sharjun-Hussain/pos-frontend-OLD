@@ -9,6 +9,6 @@ export default function AddPurchaseOrderPage() {
 }
 
 export const metadata = {
-  title: "Create New Purchase Order | EMI-POS",
+  title: "Create New Purchase Order | Inzeedo POS",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

@@ -54,7 +54,7 @@ export default function EditPurchaseOrderPage() {
             const label = result.data.po_number || `PO #${result.data.id}`;
             setBreadcrumb(id, label);
             // Set Document Title
-            document.title = `Edit ${label} | EMI-POS`;
+            document.title = `Edit ${label} | Inzeedo POS`;
           } else {
             throw new Error(result.message || "Failed to load data");
           }

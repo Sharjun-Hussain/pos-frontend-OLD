@@ -32,6 +32,6 @@ export default function AddOrganizationPage() {
 }
 
 export const metadata = {
-  title: "Add New Organization | EMI-POS",
+  title: "Add New Organization | Inzeedo POS",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

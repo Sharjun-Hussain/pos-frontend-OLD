@@ -58,7 +58,7 @@ export default function EditOrganizationPage() {
             const label = data.data.name || `Organization #${data.data.id}`;
             setBreadcrumb(organizationId, label);
             // Set Document Title
-            document.title = `Edit ${label} | EMI-POS`;
+            document.title = `Edit ${label} | Inzeedo POS`;
           } else {
             throw new Error(data.message || "Failed to fetch");
           }

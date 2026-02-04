@@ -8,6 +8,6 @@ const page = () => {
 export default page;
 
 export const metadata = {
-  title: "GRN Create | EMI-POS  ",
+  title: "GRN Create | Inzeedo POS  ",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

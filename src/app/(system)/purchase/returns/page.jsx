@@ -8,6 +8,6 @@ const Page = () => {
 export default Page;
 
 export const metadata = {
-    title: "Purchase Returns | EMI-POS",
+    title: "Purchase Returns | Inzeedo POS",
     description: "Manage purchase returns",
 };
