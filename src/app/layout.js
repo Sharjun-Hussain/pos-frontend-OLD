@@ -8,6 +8,7 @@ import { useSettingsStore } from "@/store/useSettingsStore";
 
 import { Ubuntu } from 'next/font/google'
 import { useEffect } from "react";
+import NextTopLoader from "nextjs-toploader";
 
 const ubuntu = Ubuntu({
   subsets: ['latin'],
@@ -38,6 +39,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={ubuntu.variable} style={{ zoom: zoomLevel }}>
+        <NextTopLoader showSpinner={false} color="#2563eb" />
         <Providers>
           {children}
           <Toaster position="top-right" richColors /> {/* Add the Toaster here */}
