@@ -117,14 +117,14 @@ export default function RecordCheque() {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3 text-slate-900">
-            <div className="h-10 w-10 bg-slate-900 text-white flex items-center justify-center rounded-xl shadow-lg">
+            <div className="h-10 w-10 bg-blue-600 text-white flex items-center justify-center rounded-xl shadow-lg">
                 <Landmark className="h-6 w-6" />
             </div>
             Record Cheque
           </h1>
           <p className="text-sm text-slate-500 font-medium">Capture details for receivable or payable cheques.</p>
         </div>
-        <Button variant="outline" className="rounded-xl font-black text-[10px] uppercase tracking-widest gap-2" asChild>
+        <Button variant="outline" className="rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 border-blue-200 text-blue-700 hover:bg-blue-50" asChild>
           <Link href="/cheques">
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
@@ -148,7 +148,7 @@ export default function RecordCheque() {
                     <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500">Cheque Type</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-12 rounded-xl border-slate-200">
+                        <SelectTrigger className="h-12 rounded-xl border-slate-200 focus:ring-blue-600 focus:border-blue-600">
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                       </FormControl>
@@ -169,7 +169,7 @@ export default function RecordCheque() {
                   <FormItem>
                     <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500">Cheque Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter cheque number" className="h-12 rounded-xl border-slate-200" {...field} />
+                      <Input placeholder="Enter cheque number" className="h-12 rounded-xl border-slate-200 focus:ring-blue-600 focus:border-blue-600" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -183,7 +183,7 @@ export default function RecordCheque() {
                   <FormItem>
                     <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500">Bank Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. BOC, Sampath Bank" className="h-12 rounded-xl border-slate-200" {...field} />
+                      <Input placeholder="e.g. BOC, Sampath Bank" className="h-12 rounded-xl border-slate-200 focus:ring-blue-600 focus:border-blue-600" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -197,7 +197,7 @@ export default function RecordCheque() {
                   <FormItem>
                     <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500">Branch Name (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter branch name" className="h-12 rounded-xl border-slate-200" {...field} />
+                      <Input placeholder="Enter branch name" className="h-12 rounded-xl border-slate-200 focus:ring-blue-600 focus:border-blue-600" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -211,7 +211,7 @@ export default function RecordCheque() {
                   <FormItem>
                     <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500">Amount (LKR)</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" placeholder="0.00" className="h-12 rounded-xl border-slate-200 font-bold" {...field} />
+                      <Input type="number" step="0.01" placeholder="0.00" className="h-12 rounded-xl border-slate-200 font-bold focus:ring-blue-600 focus:border-blue-600" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -227,7 +227,7 @@ export default function RecordCheque() {
                         {form.watch("type") === "receivable" ? "Payor (Received From)" : "Payee (Issued To)"}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter name" className="h-12 rounded-xl border-slate-200" {...field} />
+                      <Input placeholder="Enter name" className="h-12 rounded-xl border-slate-200 focus:ring-blue-600 focus:border-blue-600" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -347,7 +347,7 @@ export default function RecordCheque() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest px-10 bg-slate-900 hover:bg-slate-800 shadow-xl">
+            <Button type="submit" disabled={isSubmitting} className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest px-10 bg-blue-600 hover:bg-blue-700 shadow-xl transition-all">
               {isSubmitting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

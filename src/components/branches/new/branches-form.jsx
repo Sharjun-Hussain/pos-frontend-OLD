@@ -40,9 +40,7 @@ import { Separator } from "@/components/ui/separator";
 
 // --- 1. ZOD SCHEMA (Unchanged) ---
 const formSchema = z.object({
-  organization_id: z.coerce
-    .number({ required_error: "Please select an organization." })
-    .min(1, "Please select an organization."),
+  organization_id: z.string().optional(), // UUID string
   name: z.string().min(3, "Branch name must be at least 3 characters."),
   code: z.string().min(1, "Branch code is required."),
   phone: z.string().min(10, "A valid phone number is required."),
@@ -82,7 +80,7 @@ const organizationFetcher = async ([url, token]) => {
   const data = await response.json();
   if (data.status === "success") {
     return data?.data?.data?.filter(
-      (org) => org?.is_active && org?.is_multi_branch
+      (org) => org?.is_active
     );
   } else {
     throw new Error(data?.message || "Failed to fetch");
@@ -103,11 +101,16 @@ export function BranchForm({ initialData }) {
       ? {
           ...initialData,
           email: initialData.email || "",
+          code: initialData.code || "",
+          city: initialData.city || "",
           manager_name: initialData.manager_name || "",
           manager_email: initialData.manager_email || "",
           manager_phone: initialData.manager_phone || "",
           opening_time: initialData.opening_time || "",
           closing_time: initialData.closing_time || "",
+          is_active: initialData.is_active !== undefined ? initialData.is_active : true,
+          is_main_branch: initialData.is_main || false, // Map backend 'is_main' to form 'is_main_branch'
+          organization_id: initialData.organization_id // Ensure org ID is set
         }
       : {
           organization_id: undefined,
@@ -148,6 +151,8 @@ export function BranchForm({ initialData }) {
   }, [error]);
 
   // --- 5. UPDATED ONSUBMIT ---
+  const isSuperAdmin = session?.user?.roles?.includes("Super Admin");
+
   const onSubmit = async (values) => {
     if (!accessToken) {
       toast.error("Authentication failed. Please log in again.");
@@ -162,7 +167,7 @@ export function BranchForm({ initialData }) {
       ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/branches/${initialData?.id}`
       : `${process.env.NEXT_PUBLIC_API_BASE_URL}/branches`;
 
-    const method = isEditMode ? "PATCH" : "POST";
+    const method = isEditMode ? "PUT" : "POST";
 
     try {
       const response = await fetch(url, {
@@ -252,6 +257,7 @@ export function BranchForm({ initialData }) {
             <div>
               <h3 className="text-lg font-medium mb-4">Branch Details</h3>
               <div className="space-y-4">
+                {isSuperAdmin && (
                 <FormField
                   control={form.control}
                   name="organization_id"
@@ -261,7 +267,7 @@ export function BranchForm({ initialData }) {
                       <Select
                         value={field.value ? String(field.value) : undefined}
                         onValueChange={field.onChange}
-                        disabled={isFetchingOrgs || isEditMode}
+                        disabled={isFetchingOrgs} // Allow editing even in edit mode for Super Admin
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -289,12 +295,13 @@ export function BranchForm({ initialData }) {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Organization cannot be changed after creation.
+                        Assign this branch to an organization.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
@@ -533,7 +540,7 @@ export function BranchForm({ initialData }) {
               >
                 <X/> Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || isFetchingOrgs}>
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...

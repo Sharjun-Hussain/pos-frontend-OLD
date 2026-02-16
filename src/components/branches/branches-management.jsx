@@ -186,10 +186,13 @@ export default function BranchesPage() {
   };
 
   // 7. Get the columns by passing the handlers (with permission checks)
+  // 7. Get the columns by passing the handlers (with permission checks)
+  const isSuperAdmin = session?.user?.roles?.includes("Super Admin");
   const columns = getBranchColumns({
     onDelete: canDelete(MODULES.BRANCH) ? handleDelete : null,
     onToggleStatus: canUpdate(MODULES.BRANCH) ? handleToggleStatus : null,
     onEdit: canUpdate(MODULES.BRANCH) ? handleEditClick : null,
+    isSuperAdmin,
   });
 
   return (
