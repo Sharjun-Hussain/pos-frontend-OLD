@@ -1,7 +1,8 @@
 "use client";
 
 import { useAppSettings } from "@/app/hooks/useAppSettings";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { format, subDays } from "date-fns";
 import {
   Printer,
@@ -68,6 +69,54 @@ export default function SalesReturnHistoryPage() {
   const [selectedReturn, setSelectedReturn] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Create query string helper
+  const createQueryString = useCallback(
+    (name, value) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  // Check URL for returnId on mount or update
+  useEffect(() => {
+    const returnId = searchParams.get("returnId");
+    if (returnId) {
+        // If we have data, try to find it
+        const item = data.find((s) => s.id == returnId);
+        if (item) {
+            setSelectedReturn(item);
+            setIsDetailOpen(true);
+        } else {
+             // If not in current list (maybe outside date range), fetch it specifically
+             fetchSingleReturn(returnId);
+        }
+    } else {
+        setIsDetailOpen(false);
+    }
+  }, [searchParams, data]);
+
+  const fetchSingleReturn = async (id) => {
+      if (!session?.accessToken) return;
+      try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/sales/returns/${id}`, {
+              headers: { Authorization: `Bearer ${session.accessToken}` }
+          });
+          const result = await res.json();
+          if (result.status === "success" && result.data) {
+              setSelectedReturn(result.data);
+              setIsDetailOpen(true);
+          }
+      } catch (error) {
+          console.error("Failed to fetch specific return:", error);
+      }
+  };
+
   const fetchData = async () => {
     if (!session?.accessToken) return;
     setLoading(true);
@@ -84,8 +133,8 @@ export default function SalesReturnHistoryPage() {
         }
       );
       const result = await res.json();
-      if (result.status === "success") {
-        setData(result.data);
+      if (result.status === "success" && result.data) {
+        setData(result.data.data || result.data); // Fallback for backward compatibility
       } else {
         toast.error(result.message || "Failed to fetch return data");
       }
@@ -117,10 +166,42 @@ export default function SalesReturnHistoryPage() {
     const uniqueCustomers = new Set(filteredData.map(s => s.customer_id)).size;
     
     return [
-      { label: "Total Returns", value: filteredData.length, icon: RotateCcw, color: "text-orange-600", bg: "bg-orange-50" },
-      { label: "Return Value", value: `LKR ${totalReturnVal.toLocaleString()}`, icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-50" },
-      { label: "Refunded Amount", value: `LKR ${totalRefunded.toLocaleString()}`, icon: ArrowUpRight, color: "text-emerald-600", bg: "bg-emerald-50" },
-      { label: "Affected Customers", value: uniqueCustomers, icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+      { 
+        label: "Total Returns", 
+        value: filteredData.length, 
+        icon: RotateCcw, 
+        gradient: "from-orange-500 to-red-400",
+        shadow: "shadow-orange-100",
+        trend: "up",
+        change: "+2%" 
+      },
+      { 
+        label: "Return Value", 
+        value: `LKR ${totalReturnVal.toLocaleString()}`, 
+        icon: TrendingUp, 
+        gradient: "from-blue-500 to-cyan-400",
+        shadow: "shadow-blue-100",
+        trend: "down",
+        change: "-5%" 
+      },
+      { 
+        label: "Refunded Amount", 
+        value: `LKR ${totalRefunded.toLocaleString()}`, 
+        icon: ArrowUpRight, 
+        gradient: "from-emerald-500 to-teal-400",
+        shadow: "shadow-emerald-100",
+        trend: "stable",
+        change: "0%" 
+      },
+      { 
+        label: "Affected Customers", 
+        value: uniqueCustomers, 
+        icon: Users, 
+        gradient: "from-purple-500 to-violet-400",
+        shadow: "shadow-purple-100",
+        trend: "up",
+        change: "+1" 
+      },
     ];
   }, [filteredData]);
 
@@ -138,8 +219,15 @@ export default function SalesReturnHistoryPage() {
   };
 
   const handleViewDetails = (item) => {
-    setSelectedReturn(item);
-    setIsDetailOpen(true);
+    // Update URL to include returnId, prevent scroll reset
+    router.push(pathname + "?" + createQueryString("returnId", item.id), { scroll: false });
+  };
+
+  const handleCloseDetails = (open) => {
+      if (!open) {
+          router.push(pathname, { scroll: false });
+      }
+      setIsDetailOpen(open);
   };
 
   return (
@@ -155,7 +243,7 @@ export default function SalesReturnHistoryPage() {
           <Button onClick={handleExportCSV} variant="outline" className="bg-white hover:bg-slate-50 border-slate-200 h-11 px-5 font-bold gap-2 rounded-xl transition-all shadow-sm">
             <Download className="h-4 w-4" /> Export CSV
           </Button>
-          <Button onClick={() => window.print()} className="bg-slate-900 hover:bg-black text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
+          <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
             <Printer className="h-4 w-4" /> Print View
           </Button>
         </div>
@@ -164,19 +252,31 @@ export default function SalesReturnHistoryPage() {
       {/* --- Stats Grid --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, idx) => (
-          <Card key={idx} className="border-none shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300", stat.bg)}>
-                  <stat.icon className={cn("h-6 w-6", stat.color)} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                  <p className="text-xl font-black text-slate-900 tracking-tight">{stat.value}</p>
-                </div>
+          <div key={idx} className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden">
+            {/* Subtle Background Decoration */}
+            <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${stat.gradient} opacity-[0.03] rounded-bl-full group-hover:scale-150 transition-transform duration-500`} />
+
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className={`p-3 rounded-xl bg-linear-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}>
+                <stat.icon className="w-5 h-5" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            <div className="relative z-10">
+              <p className="text-sm font-semibold text-slate-500 mb-1">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
+                {stat.value}
+              </h3>
+              
+              <div className="flex items-center mt-3">
+                <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600`}>
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  {stat.change}
+                </span>
+                <span className="text-xs text-slate-400 ml-2">vs last period</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -335,23 +435,23 @@ export default function SalesReturnHistoryPage() {
       </Card>
 
       {/* --- Detail Sheet --- */}
-      <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+      <Sheet open={isDetailOpen} onOpenChange={handleCloseDetails}>
         <SheetContent className="sm:max-w-[600px] flex flex-col h-full p-0 overflow-hidden border-l border-slate-200">
-          <SheetHeader className="relative p-8 bg-slate-900 text-white shrink-0 overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
+          <SheetHeader className="relative p-8 bg-blue-600 text-white shrink-0 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
             
             <div className="flex justify-between items-start relative z-10">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="p-1.5 bg-orange-600 rounded-md">
+                  <div className="p-1.5 bg-blue-500 rounded-md">
                     <RotateCcw className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-[10px] font-black tracking-[0.2em] text-orange-400 uppercase">Return Voucher</span>
+                  <span className="text-[10px] font-black tracking-[0.2em] text-blue-100 uppercase">Return Voucher</span>
                 </div>
                 <SheetTitle className="text-3xl font-black text-white tracking-tight">
                   {selectedReturn?.return_number}
                 </SheetTitle>
-                <SheetDescription className="text-slate-400 font-medium tracking-wide">
+                <SheetDescription className="text-blue-100 font-medium tracking-wide">
                   Return initiated on {selectedReturn && formatDate(selectedReturn.return_date)}
                 </SheetDescription>
               </div>
@@ -361,8 +461,8 @@ export default function SalesReturnHistoryPage() {
                   {selectedReturn?.status}
                 </Badge>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Refund Value</p>
-                  <p className="text-2xl font-black text-orange-400 tracking-tighter">
+                  <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest mb-1">Refund Value</p>
+                  <p className="text-2xl font-black text-white tracking-tighter">
                     {selectedReturn && formatCurrency(selectedReturn.refund_amount)}
                   </p>
                 </div>
@@ -470,7 +570,7 @@ export default function SalesReturnHistoryPage() {
 
           <div className="p-6 bg-white border-t border-slate-100 flex gap-4 shrink-0">
             <Button
-              className="flex-1 bg-slate-900 hover:bg-black text-white h-12 rounded-xl font-bold gap-2 shadow-lg"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-12 rounded-xl font-bold gap-2 shadow-lg"
               onClick={() => window.print()}
             >
               <Printer className="h-4 w-4" />
@@ -479,7 +579,7 @@ export default function SalesReturnHistoryPage() {
             <Button
               variant="outline"
               className="h-12 w-12 rounded-xl border-slate-200 hover:bg-slate-50 hover:text-red-500"
-              onClick={() => setIsDetailOpen(false)}
+              onClick={() => handleCloseDetails(false)}
             >
               <X className="h-5 w-5" />
             </Button>

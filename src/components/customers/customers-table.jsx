@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) {
   return (
     <Card className="border-none shadow-sm bg-white overflow-hidden rounded-2xl">
-      <ScrollArea className="h-[calc(100vh-420px)]">
+      <div className="overflow-x-auto">
         <Table>
-          <TableHeader className="bg-slate-50/50 border-b border-slate-100 sticky top-0 z-10">
+          <TableHeader className="bg-slate-50/50 border-b border-slate-100">
             <TableRow className="hover:bg-transparent">
               <TableHead className="pl-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Client Profile</TableHead>
               <TableHead className="py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Contact Identity</TableHead>
@@ -54,9 +54,12 @@ export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) 
                         {customer.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-[14px] font-black text-slate-900 leading-tight">
+                        <button 
+                          onClick={() => onViewLedger(customer)}
+                          className="text-[14px] font-black text-slate-900 leading-tight hover:text-blue-600 transition-colors text-left"
+                        >
                           {customer.name}
-                        </span>
+                        </button>
                         <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           <MapPin className="h-3 w-3" />
                           {customer.address?.split(",")[0] || "No primary address"}
@@ -140,7 +143,7 @@ export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) 
             )}
           </TableBody>
         </Table>
-      </ScrollArea>
+      </div>
     </Card>
   );
 }

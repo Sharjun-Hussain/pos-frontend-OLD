@@ -67,6 +67,12 @@ export function AppSidebar({ ...props }) {
           },
           {
             title: "Sales Return History",
+            url: "/sales/returns",
+            icon: History,
+            requiredPermission: "POS Access",
+          },
+          {
+            title: "Sales Return Report",
             url: "/reports/sales/returns",
             icon: Undo2,
             requiredPermission: "Report View",

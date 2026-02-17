@@ -8,7 +8,8 @@ import {
   Search, 
   AlertTriangle,
   ShoppingCart,
-  ArrowRight
+  ArrowRight,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";

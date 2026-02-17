@@ -17,6 +17,8 @@ import {
   Loader2,
 } from "lucide-react";
 
+import { useFormRestore } from "@/hooks/use-form-restore";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -159,6 +161,8 @@ export default function GRNPage() {
     },
   });
 
+  const { clearSavedData } = useFormRestore(form);
+
   // Set default branch if user has only one
   useEffect(() => {
     if (session?.user?.branches?.length === 1) {
@@ -288,6 +292,7 @@ export default function GRNPage() {
       }
 
       toast.success("GRN Created Successfully");
+      clearSavedData();
       router.push("/purchase/grn"); // Redirect to GRN list
     } catch (error) {
       console.error(error);

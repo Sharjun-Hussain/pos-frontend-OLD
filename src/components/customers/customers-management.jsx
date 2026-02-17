@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, Search, Users, RefreshCcw, Download, Printer, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,55 @@ export function CustomersManagement() {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isLedgerOpen, setIsLedgerOpen] = useState(false);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Create query string helper
+  const createQueryString = useCallback(
+    (name, value) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  // Check URL for customerId on mount or update
+  useEffect(() => {
+    const customerId = searchParams.get("customerId");
+    if (customerId) {
+        // Try to find in current list
+        const customer = customers.find((c) => c.id == customerId);
+        if (customer) {
+            setSelectedCustomer(customer);
+            setIsLedgerOpen(true);
+        } else if (customers.length > 0) {
+            // Only try to fetch if we have loaded customers but didn't find this one
+            // This prevents duplicate fetches or race conditions during initial load
+             fetchSingleCustomer(customerId);
+        }
+    } else {
+        setIsLedgerOpen(false);
+    }
+  }, [searchParams, customers]);
+
+  const fetchSingleCustomer = async (id) => {
+      if (!session?.accessToken) return;
+      try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/customers/${id}`, {
+              headers: { Authorization: `Bearer ${session.accessToken}` }
+          });
+          const result = await res.json();
+          if (result.status === "success") {
+              setSelectedCustomer(result.data);
+              setIsLedgerOpen(true);
+          }
+      } catch (error) {
+          console.error("Failed to fetch specific customer:", error);
+      }
+  };
 
   const fetchCustomers = useCallback(async () => {
     if (!session?.accessToken) return;
@@ -108,8 +158,15 @@ export function CustomersManagement() {
   };
 
   const handleViewLedger = (customer) => {
-    setSelectedCustomer(customer);
-    setIsLedgerOpen(true);
+    // Update URL to include customerId, prevent scroll reset
+    router.push(pathname + "?" + createQueryString("customerId", customer.id), { scroll: false });
+  };
+
+  const handleCloseLedger = (open) => {
+      if (!open) {
+          router.push(pathname, { scroll: false });
+      }
+      setIsLedgerOpen(open);
   };
 
   if (loading && customers.length === 0) {
@@ -137,7 +194,7 @@ export function CustomersManagement() {
             <Download className="h-4 w-4" /> Export CSV
           </Button>
           <AddCustomerDialog onAdd={fetchCustomers}>
-            <Button className="bg-slate-900 hover:bg-black text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
               <Plus className="h-5 w-5" /> Register Client
             </Button>
           </AddCustomerDialog>
@@ -153,14 +210,27 @@ export function CustomersManagement() {
           <div className="flex flex-col lg:flex-row gap-6 items-end">
             <div className="w-full lg:w-72 space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Profile Filter</label>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-4 bg-slate-100/50 p-1 h-12 rounded-xl">
-                  <TabsTrigger value="all" className="text-[10px] font-black uppercase rounded-lg">All</TabsTrigger>
-                  <TabsTrigger value="active" className="text-[10px] font-black uppercase rounded-lg">Live</TabsTrigger>
-                  <TabsTrigger value="vip" className="text-[10px] font-black uppercase rounded-lg">VIP</TabsTrigger>
-                  <TabsTrigger value="inactive" className="text-[10px] font-black uppercase rounded-lg">Idle</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: "all", label: "All Clients" },
+                  { id: "active", label: "Active Status" },
+                  { id: "vip", label: "VIP Tier" },
+                  { id: "inactive", label: "Inactive" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all border",
+                      activeTab === tab.id
+                        ? "bg-slate-900 text-white border-slate-900 shadow-md transform scale-105"
+                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="flex-1 space-y-2 w-full">
@@ -194,7 +264,7 @@ export function CustomersManagement() {
       <CustomerLedgerSheet
         customer={selectedCustomer}
         open={isLedgerOpen}
-        onOpenChange={setIsLedgerOpen}
+        onOpenChange={handleCloseLedger}
         accessToken={session?.accessToken}
       />
     </div>

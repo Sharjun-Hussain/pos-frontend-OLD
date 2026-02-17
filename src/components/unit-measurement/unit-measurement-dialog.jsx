@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, Save, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +48,8 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
       description: "",
     },
   });
+
+  const { clearSavedData } = useFormRestore(form, "measurement_unit_dialog_form");
 
   useEffect(() => {
     if (initialData) {
@@ -92,6 +95,7 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
         toast.success(`Measurement Unit ${isEditing ? "updated" : "created"} successfully`);
         onSuccess(result.data);
         onOpenChange(false);
+        clearSavedData();
         form.reset();
       } else {
         toast.error(result.message || `Failed to ${isEditing ? "update" : "create"} measurement unit`);

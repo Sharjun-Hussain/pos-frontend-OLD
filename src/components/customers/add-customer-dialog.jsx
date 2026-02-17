@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +51,8 @@ export function AddCustomerDialog({ children, onAdd }) {
     },
   });
 
+  const { clearSavedData } = useFormRestore(form);
+
   const { data: session } = useSession();
 
   const onSubmit = async (data) => {
@@ -70,6 +73,7 @@ export function AddCustomerDialog({ children, onAdd }) {
         toast.success("Customer added successfully");
         onAdd();
         setOpen(false);
+        clearSavedData();
         form.reset();
       } else {
         toast.error(result.message || "Failed to add customer");

@@ -86,6 +86,7 @@ import { useRouter } from "next/navigation";
 
 import { ProductFormSkeleton } from "@/app/skeletons/product-form-skeleton";
 import { toast } from "sonner";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 // --- ZOD SCHEMA ---
 const variantSchema = z.object({
@@ -272,16 +273,12 @@ export function ProductForm({ initialData = null }) {
           is_active: true,
           product_attributes: [],
         },
-  });
+        });
+
+  const { clearSavedData } = useFormRestore(form);
 
   const hasVariants = form.watch("is_variant");
   const selectedMainCategory = form.watch("main_category_id");
-
-  // --- FETCH DROPDOWN OPTIONS ---
-  // ... (existing code) ...
-
-  // --- RENDER VARIANTS UI ---
-  // ... (inside the JSX) ...
 
   useEffect(() => {
     let isMounted = true;
@@ -488,7 +485,9 @@ export function ProductForm({ initialData = null }) {
 
       if (resetAfter && !isEditing) {
         // Create Mode: Reset and stay
+        clearSavedData();
         form.reset({
+          code: "",
           code: "",
           name: "",
           description: "",
@@ -505,6 +504,7 @@ export function ProductForm({ initialData = null }) {
         if (codeInput) codeInput.focus();
       } else {
         // Edit Mode OR Create & Exit: Go back
+        clearSavedData();
         router.push("/products");
       }
     } catch (error) {

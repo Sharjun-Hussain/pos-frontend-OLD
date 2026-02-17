@@ -24,6 +24,8 @@ import {
   Loader2,
 } from "lucide-react";
 
+import { useFormRestore } from "@/hooks/use-form-restore";
+
 import CreatePOSkeleton from "@/app/skeletons/CreatePOSkeleton";
 import { CreateSupplierSheet } from "@/components/purchase/suppliers/create-supplier-sheet";
 
@@ -256,6 +258,8 @@ export default function CreatePurchaseOrder({ initialData }) {
     },
   });
 
+  const { clearSavedData } = useFormRestore(form);
+
   const { fields, prepend, remove } = useFieldArray({
     control: form.control,
     name: "items",
@@ -469,6 +473,7 @@ export default function CreatePurchaseOrder({ initialData }) {
         toast.success(
           `Purchase Order ${isEditing ? "updated" : "created"} successfully!`
         );
+        clearSavedData();
         router.push("/purchase/purchase-orders"); // Redirect to list
       } else {
         toast.error(

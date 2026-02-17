@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SupplierLedgerSheet } from "./SupplierLedgerSheet";
+import { SupplierDetailSheet } from "./SupplierDetailSheet";
 import {
   Card,
   CardContent,
@@ -130,6 +131,7 @@ export default function SupplierPage() {
   const [error, setError] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [settleOpen, setSettleOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -272,6 +274,10 @@ export default function SupplierPage() {
       setSelectedSupplier(supplier);
       setLedgerOpen(true); // Open ledger which contains settle button
     },
+    onViewDetails: (supplier) => {
+      setSelectedSupplier(supplier);
+      setDetailOpen(true);
+    },
   });
 
   // Updated stats calculation
@@ -329,6 +335,12 @@ export default function SupplierPage() {
         supplier={selectedSupplier}
         open={ledgerOpen}
         onOpenChange={setLedgerOpen}
+        accessToken={session?.accessToken}
+      />
+      <SupplierDetailSheet
+        supplier={selectedSupplier}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
         accessToken={session?.accessToken}
       />
     </ResourceManagementLayout>

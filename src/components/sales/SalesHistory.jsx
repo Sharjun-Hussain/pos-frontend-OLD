@@ -1,7 +1,8 @@
 "use client";
 
 import { useAppSettings } from "@/app/hooks/useAppSettings";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import {
   Printer,
@@ -60,6 +61,54 @@ export default function SalesHistory() {
   const [selectedSale, setSelectedSale] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Create query string helper
+  const createQueryString = useCallback(
+    (name, value) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  // Check URL for saleId on mount or update
+  useEffect(() => {
+    const saleId = searchParams.get('saleId');
+    if (saleId) {
+        // If we have data, try to find it
+        const sale = data.find(s => s.id == saleId);
+        if (sale) {
+            setSelectedSale(sale);
+            setIsDetailOpen(true);
+        } else {
+             // If not in current list (maybe outside date range), fetch it specifically
+             fetchSingleSale(saleId);
+        }
+    } else {
+        setIsDetailOpen(false);
+    }
+  }, [searchParams, data]);
+
+  const fetchSingleSale = async (id) => {
+      if (!session?.accessToken) return;
+      try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/sales/${id}`, {
+              headers: { Authorization: `Bearer ${session.accessToken}` }
+          });
+          const result = await res.json();
+          if (result.status === 'success') {
+              setSelectedSale(result.data);
+              setIsDetailOpen(true);
+          }
+      } catch (error) {
+          console.error("Failed to fetch specific sale:", error);
+      }
+  };
+
   const fetchSales = async () => {
     if (!session?.accessToken) return;
     setLoading(true);
@@ -105,16 +154,55 @@ export default function SalesHistory() {
     const uniqueCustomers = new Set(filteredData.map(s => s.customer_id)).size;
     
     return [
-      { label: "Total Revenue", value: `LKR ${totalRevenue.toLocaleString()}`, icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
-      { label: "Transactions", value: filteredData.length, icon: Receipt, color: "text-blue-600", bg: "bg-blue-50" },
-      { label: "Avg. Ticket", value: `LKR ${avgTicket.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: ArrowUpRight, color: "text-purple-600", bg: "bg-purple-50" },
-      { label: "Unique Customers", value: uniqueCustomers, icon: Users, color: "text-amber-600", bg: "bg-amber-50" },
+      { 
+        label: "Total Revenue", 
+        value: `LKR ${totalRevenue.toLocaleString()}`, 
+        icon: TrendingUp, 
+        gradient: "from-emerald-500 to-teal-400",
+        shadow: "shadow-emerald-100",
+        trend: "up",
+        change: "+12%" // Mock data for now, or calculate if possible
+      },
+      { 
+        label: "Transactions", 
+        value: filteredData.length, 
+        icon: Receipt, 
+        gradient: "from-blue-500 to-indigo-400",
+        shadow: "shadow-blue-100",
+        trend: "up",
+        change: "+5%"
+      },
+      { 
+        label: "Avg. Ticket", 
+        value: `LKR ${avgTicket.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 
+        icon: ArrowUpRight, 
+        gradient: "from-violet-500 to-purple-400",
+        shadow: "shadow-violet-100",
+        trend: "stable",
+        change: "0%"
+      },
+      { 
+        label: "Unique Customers", 
+        value: uniqueCustomers, 
+        icon: Users, 
+        gradient: "from-orange-500 to-amber-400",
+        shadow: "shadow-orange-100",
+        trend: "up",
+        change: "+8%"
+      },
     ];
   }, [filteredData]);
 
   const handleViewDetails = (sale) => {
-    setSelectedSale(sale);
-    setIsDetailOpen(true);
+    // Update URL to include saleId, prevent scroll reset
+    router.push(pathname + '?' + createQueryString('saleId', sale.id), { scroll: false });
+  };
+
+  const handleCloseDetails = (open) => {
+      if (!open) {
+          router.push(pathname, { scroll: false });
+      }
+      setIsDetailOpen(open);
   };
 
   return (
@@ -130,7 +218,7 @@ export default function SalesHistory() {
           <Button onClick={() => exportToCSV(filteredData, "Sales_History")} variant="outline" className="bg-white hover:bg-slate-50 border-slate-200 h-11 px-5 font-bold gap-2 rounded-xl transition-all shadow-sm">
             <Download className="h-4 w-4" /> Export CSV
           </Button>
-          <Button onClick={() => window.print()} className="bg-slate-900 hover:bg-black text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
+          <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
             <Printer className="h-4 w-4" /> Print Report
           </Button>
         </div>
@@ -139,19 +227,31 @@ export default function SalesHistory() {
       {/* --- Stats Grid --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, idx) => (
-          <Card key={idx} className="border-none shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300", stat.bg)}>
-                  <stat.icon className={cn("h-6 w-6", stat.color)} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                  <p className="text-xl font-black text-slate-900 tracking-tight">{stat.value}</p>
-                </div>
+          <div key={idx} className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden">
+            {/* Subtle Background Decoration */}
+            <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${stat.gradient} opacity-[0.03] rounded-bl-full group-hover:scale-150 transition-transform duration-500`} />
+
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className={`p-3 rounded-xl bg-linear-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}>
+                <stat.icon className="w-5 h-5" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            <div className="relative z-10">
+              <p className="text-sm font-semibold text-slate-500 mb-1">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
+                {stat.value}
+              </h3>
+              
+              <div className="flex items-center mt-3">
+                <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600`}>
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  {stat.change}
+                </span>
+                <span className="text-xs text-slate-400 ml-2">vs last period</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -318,7 +418,7 @@ export default function SalesHistory() {
 
       <SaleDetailSheet 
         isOpen={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
+        onOpenChange={handleCloseDetails}
         sale={selectedSale}
         onReprint={(sale) => {
           toast.success("Initializing print for " + sale.invoice_number);

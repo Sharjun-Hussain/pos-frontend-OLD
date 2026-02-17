@@ -37,7 +37,7 @@ const DataTableColumnHeader = ({ column, title }) => {
   );
 };
 
-export const getSupplierColumns = ({ onDelete, onToggleStatus, onEdit, onViewLedger, onSettle }) => [
+export const getSupplierColumns = ({ onDelete, onToggleStatus, onEdit, onViewLedger, onSettle, onViewDetails }) => [
   {
     id: "select",
     header: ({ table }) => (
@@ -69,15 +69,15 @@ export const getSupplierColumns = ({ onDelete, onToggleStatus, onEdit, onViewLed
       const supplier = row.original;
 
       return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => onViewDetails(supplier)}>
           <Avatar>
-            <AvatarFallback className="bg-blue-100 text-blue-600">
+            <AvatarFallback className="bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
               <Building className="h-5 w-5" />
             </AvatarFallback>
           </Avatar>
           <div>
-            <div className="font-medium">{supplier.name}</div>
-            <div className="text-sm text-muted-foreground">
+            <div className="font-bold group-hover:text-blue-600 group-hover:underline transition-all decoration-blue-300 underline-offset-4">{supplier.name}</div>
+            <div className="text-sm text-muted-foreground group-hover:text-blue-400">
               {supplier.company_name}
             </div>
           </div>

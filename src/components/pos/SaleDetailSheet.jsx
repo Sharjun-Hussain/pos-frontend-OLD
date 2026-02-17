@@ -37,22 +37,22 @@ const SaleDetailSheet = ({ isOpen, onOpenChange, sale, onReprint }) => {
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-[600px] flex flex-col h-full p-0 overflow-hidden border-l border-slate-200">
         {/* --- Premium Header --- */}
-        <SheetHeader className="relative p-8 bg-slate-900 text-white shrink-0 overflow-hidden">
+        <SheetHeader className="relative p-8 bg-blue-600 text-white shrink-0 overflow-hidden">
           {/* Subtle background pattern/shape */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
           
           <div className="flex justify-between items-start relative z-10">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-1">
-                <div className="p-1.5 bg-blue-600 rounded-md">
+                <div className="p-1.5 bg-blue-500 rounded-md">
                   <Hash className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-[10px] font-black tracking-[0.2em] text-blue-400 uppercase">Transaction ID</span>
+                <span className="text-[10px] font-black tracking-[0.2em] text-blue-100 uppercase">Transaction ID</span>
               </div>
               <SheetTitle className="text-3xl font-black text-white tracking-tight">
                 {sale.invoice_number}
               </SheetTitle>
-              <SheetDescription className="text-slate-400 font-medium tracking-wide">
+              <SheetDescription className="text-blue-100 font-medium tracking-wide">
                 Processed on {new Date(sale.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })}
               </SheetDescription>
             </div>
@@ -65,8 +65,8 @@ const SaleDetailSheet = ({ isOpen, onOpenChange, sale, onReprint }) => {
                 {sale.payment_status || 'COMPLETED'}
               </Badge>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Amount</p>
-                <p className="text-2xl font-black text-blue-400 tracking-tighter">
+                <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest mb-1">Total Amount</p>
+                <p className="text-2xl font-black text-white tracking-tighter">
                   LKR {payable.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
               </div>
@@ -208,7 +208,7 @@ const SaleDetailSheet = ({ isOpen, onOpenChange, sale, onReprint }) => {
         {/* --- Sticky Footer --- */}
         <div className="p-6 bg-white border-t border-slate-100 flex gap-4 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
           <Button
-            className="flex-1 bg-slate-900 hover:bg-black text-white h-12 rounded-xl font-bold gap-2 shadow-lg transition-all active:scale-[0.98]"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-12 rounded-xl font-bold gap-2 shadow-lg transition-all active:scale-[0.98]"
             onClick={() => onReprint(sale)}
           >
             <Printer className="h-4 w-4" />

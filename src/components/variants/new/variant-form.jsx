@@ -41,6 +41,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useFormRestore } from "@/hooks/use-form-restore";
 import { useSession } from "next-auth/react";
 import {
   Command,
@@ -240,6 +241,8 @@ export function ProductVariantForm({ initialData = null }) {
         },
   });
 
+  const { clearSavedData } = useFormRestore(form);
+
   const selectedProductId = form.watch("product_id");
 
   // Fetch Parent Products
@@ -412,6 +415,7 @@ export function ProductVariantForm({ initialData = null }) {
       toast.success(isEditing ? "Variant Updated" : "Variant Created");
 
       if (resetAfter && !isEditing) {
+        clearSavedData();
         form.reset({
           ...data,
           sku: "",
@@ -423,6 +427,7 @@ export function ProductVariantForm({ initialData = null }) {
         setSelectedFiles([]);
         setImagePreviews([]);
       } else {
+        clearSavedData();
         router.push("/variants");
       }
     } catch (error) {

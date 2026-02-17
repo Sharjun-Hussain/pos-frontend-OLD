@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, Save, Plus, Check, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -63,6 +64,8 @@ export function SubCategoryDialog({ open, onOpenChange, onSuccess, session, init
       description: "",
     },
   });
+
+  const { clearSavedData } = useFormRestore(form, "sub_category_dialog_form");
 
   // Fetch Main Categories
   useEffect(() => {
@@ -131,6 +134,7 @@ export function SubCategoryDialog({ open, onOpenChange, onSuccess, session, init
         toast.success(`Sub Category ${isEditing ? "updated" : "created"} successfully`);
         onSuccess(result.data);
         onOpenChange(false);
+        clearSavedData();
         form.reset();
       } else {
         toast.error(result.message || `Failed to ${isEditing ? "update" : "create"} sub category`);

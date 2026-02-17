@@ -9,6 +9,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ArrowLeft, Loader2, Save, Calendar as CalendarIcon, Upload, X, Receipt } from "lucide-react";
+import { useFormRestore } from "@/hooks/use-form-restore";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -79,6 +80,8 @@ export default function CreateExpense() {
     },
 });
 
+  const { clearSavedData } = useFormRestore(form);
+
   useEffect(() => {
     async function fetchCategories() {
       if (!session?.accessToken) return;
@@ -145,6 +148,7 @@ export default function CreateExpense() {
       }
 
       toast.success("Expense recorded successfully");
+      clearSavedData();
       router.push("/expenses");
     } catch (error) {
       console.error(error);

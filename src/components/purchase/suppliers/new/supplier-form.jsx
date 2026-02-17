@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -143,6 +144,8 @@ export function SupplierForm({ initialData }) {
         },
   });
 
+  const { clearSavedData } = useFormRestore(form);
+
   // --- NEW --- `useFieldArray` for dynamic bank account fields
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -224,6 +227,8 @@ export function SupplierForm({ initialData }) {
         `Supplier ${isEditMode ? "updated" : "created"} successfully!`
       );
 
+      router.refresh();
+      clearSavedData();
       router.back(); // Navigate back on success
     } catch (error) {
       console.error("Submission error:", error);

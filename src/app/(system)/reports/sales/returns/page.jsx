@@ -1,14 +1,14 @@
 
-import SalesReturnHistoryPage from "@/components/reports/sales/returns/SalesReturnHistory";
+import SalesReturnReport from "@/components/reports/sales/returns/SalesReturnReport";
 import React from "react";
 
 const page = () => {
-  return <SalesReturnHistoryPage />;
+  return <SalesReturnReport />;
 };
 
 export default page;
 
 export const metadata = {
-  title: "Sales Report | Returns History | Inzeedo POS  ",
-  description: "Developed By : Inzeedo (PVT) Ltd.",
+  title: "Sales Return Analysis | Inzeedo POS",
+  description: "Advanced analytical report for sales returns",
 };

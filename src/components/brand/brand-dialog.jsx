@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, Save, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +46,8 @@ export function BrandDialog({ open, onOpenChange, onSuccess, session, initialDat
       description: "",
     },
   });
+
+  const { clearSavedData } = useFormRestore(form, "brand_dialog_form");
 
   useEffect(() => {
     if (initialData) {
@@ -88,6 +91,7 @@ export function BrandDialog({ open, onOpenChange, onSuccess, session, initialDat
         toast.success(`Brand ${isEditing ? "updated" : "created"} successfully`);
         onSuccess(result.data);
         onOpenChange(false);
+        clearSavedData();
         form.reset();
       } else {
         toast.error(result.message || `Failed to ${isEditing ? "update" : "create"} brand`);

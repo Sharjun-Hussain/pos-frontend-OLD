@@ -19,55 +19,68 @@ export function CustomerStats({ customers }) {
       label: "Client Base",
       value: totalCustomers,
       icon: Users,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      description: "Total registered profiles"
+      gradient: "from-blue-500 to-indigo-400",
+      shadow: "shadow-blue-100",
+      trend: "up",
+      change: "+12%"
     },
     {
       label: "Active Retention",
       value: activeCustomers,
       icon: UserCheck,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
-      description: "High-engagement customers"
+      gradient: "from-emerald-500 to-teal-400",
+      shadow: "shadow-emerald-100",
+      trend: "up",
+      change: "+5%"
     },
     {
       label: "Premium Tier",
       value: vipCustomers,
       icon: Star,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
-      description: "Loyalty point leaders"
+      gradient: "from-amber-500 to-orange-400",
+      shadow: "shadow-amber-100",
+      trend: "stable",
+      change: "0%"
     },
     {
       label: "Avg. Portfolio Value",
       value: `LKR ${avgSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
       icon: Zap,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-      description: "Mean revenue per client"
+      gradient: "from-purple-500 to-violet-400",
+      shadow: "shadow-purple-100",
+      trend: "up",
+      change: "+8%"
     },
   ];
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, idx) => (
-        <Card key={idx} className="border-none shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300", stat.bg)}>
-                <stat.icon className={cn("h-6 w-6", stat.color)} />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                <p className="text-xl font-black text-slate-900 tracking-tight">{stat.value}</p>
+        <div key={idx} className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden">
+            {/* Subtle Background Decoration */}
+            <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${stat.gradient} opacity-[0.03] rounded-bl-full group-hover:scale-150 transition-transform duration-500`} />
+
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className={`p-3 rounded-xl bg-linear-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}>
+                <stat.icon className="w-5 h-5" />
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-slate-50">
-              <p className="text-[11px] text-slate-400 font-medium italic">{stat.description}</p>
+
+            <div className="relative z-10">
+              <p className="text-sm font-semibold text-slate-500 mb-1">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
+                {stat.value}
+              </h3>
+              
+              <div className="flex items-center mt-3">
+                <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600`}>
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  {stat.change}
+                </span>
+                <span className="text-xs text-slate-400 ml-2">vs last month</span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
       ))}
     </div>
   );

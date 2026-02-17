@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { User } from "lucide-react";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -111,6 +112,8 @@ export function EmployeeForm() {
     },
   });
 
+  const { clearSavedData } = useFormRestore(form);
+
   // Handle image preview
   const profilePicture = form.watch("profilePicture");
   const previewUrl = profilePicture
@@ -121,6 +124,7 @@ export function EmployeeForm() {
   function onSubmit(data) {
     // In a real app, you'd send this data to your API
     console.log("Employee data submitted:", data);
+    clearSavedData();
     alert("Employee saved! Check the console for the data.");
   }
 

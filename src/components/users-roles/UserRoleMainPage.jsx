@@ -22,6 +22,10 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +91,12 @@ const groupPermissionsBySection = (permissions) => {
   }, {});
 };
 
+// --- ZOD SCHEMA ---
+const roleSchema = z.object({
+  name: z.string().min(1, "Role name is required"),
+  permissions: z.array(z.number()).default([]),
+});
+
 // --- COMPONENT: ROLE FORM DIALOG ---
 const RoleFormDialog = ({
   isOpen,
@@ -95,8 +105,6 @@ const RoleFormDialog = ({
   allPermissions,
   onSave,
 }) => {
-  const [roleName, setRoleName] = useState("");
-  const [selectedPermIds, setSelectedPermIds] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Group permissions for UI display
@@ -105,58 +113,70 @@ const RoleFormDialog = ({
     [allPermissions]
   );
 
+  const form = useForm({
+    resolver: zodResolver(roleSchema),
+    defaultValues: {
+      name: "",
+      permissions: [],
+    },
+  });
+
+  const { clearSavedData } = useFormRestore(form, "user_role_dialog_form");
+
+  const { setValue, watch, handleSubmit: hookFormSubmit, reset } = form;
+  const selectedPermIds = watch("permissions");
+
   useEffect(() => {
     if (isOpen) {
-      setRoleName(initialData ? initialData.name : "");
-      if (initialData && initialData.permissions) {
-        const ids = initialData.permissions.map((p) => p.id);
-        setSelectedPermIds(ids);
+      if (initialData) {
+        reset({
+            name: initialData.name,
+            permissions: initialData.permissions ? initialData.permissions.map(p => p.id) : []
+        });
       } else {
-        setSelectedPermIds([]);
+        reset({
+            name: "",
+            permissions: []
+        });
       }
-    } else {
-      setRoleName("");
-      setSelectedPermIds([]);
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, reset]);
 
   const togglePermission = (id) => {
-    setSelectedPermIds((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
+    const current = selectedPermIds || [];
+    const updated = current.includes(id)
+      ? current.filter((p) => p !== id)
+      : [...current, id];
+    setValue("permissions", updated, { shouldDirty: true });
   };
 
   const toggleGroup = (groupName) => {
     const groupPerms = groupedPermissions[groupName];
     const groupIds = groupPerms.map((p) => p.id);
-    const allSelected = groupIds.every((id) => selectedPermIds.includes(id));
+    const current = selectedPermIds || [];
+    const allSelected = groupIds.every((id) => current.includes(id));
 
+    let updated;
     if (allSelected) {
-      setSelectedPermIds((prev) => prev.filter((id) => !groupIds.includes(id)));
+      updated = current.filter((id) => !groupIds.includes(id));
     } else {
-      setSelectedPermIds((prev) => [...new Set([...prev, ...groupIds])]);
+      updated = [...new Set([...current, ...groupIds])];
     }
+    setValue("permissions", updated, { shouldDirty: true });
   };
 
   const toggleAll = () => {
     if (selectedPermIds.length === allPermissions.length) {
-      setSelectedPermIds([]);
+      setValue("permissions", [], { shouldDirty: true });
     } else {
-      setSelectedPermIds(allPermissions.map((p) => p.id));
+      setValue("permissions", allPermissions.map((p) => p.id), { shouldDirty: true });
     }
   };
 
-  const handleSubmit = async () => {
-    if (!roleName.trim()) {
-      toast.error("Role name is required");
-      return;
-    }
+  const onSubmit = async (data) => {
     setIsSubmitting(true);
-    const payload = {
-      name: roleName,
-      permissions: selectedPermIds,
-    };
-    await onSave(payload, initialData?.id);
+    await onSave(data, initialData?.id);
+    clearSavedData();
     setIsSubmitting(false);
     onClose();
   };
@@ -188,10 +208,12 @@ const RoleFormDialog = ({
             </Label>
             <Input
               placeholder="e.g. Sales Manager"
-              value={roleName}
-              onChange={(e) => setRoleName(e.target.value)}
+              {...form.register("name")}
               className="max-w-md"
             />
+             {form.formState.errors.name && (
+              <p className="text-xs text-red-500 mt-1">{form.formState.errors.name.message}</p>
+            )}
           </div>
 
           {/* Permissions Header (Sticky) */}
@@ -336,8 +358,8 @@ const RoleFormDialog = ({
             <X className="w-4 h-4 mr-2" /> Cancel
           </Button>
           <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !roleName}
+            onClick={hookFormSubmit(onSubmit)}
+            disabled={isSubmitting}
             className=" text-white"
           >
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}

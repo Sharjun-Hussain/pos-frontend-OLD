@@ -9,6 +9,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ArrowLeft, Loader2, Save, Calendar as CalendarIcon, Landmark, CreditCard } from "lucide-react";
+import { useFormRestore } from "@/hooks/use-form-restore";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -69,6 +70,8 @@ export default function RecordCheque() {
     },
   });
 
+  const { clearSavedData } = useFormRestore(form);
+
   async function onSubmit(data) {
     if (!session?.accessToken) {
         toast.error("Not authenticated");
@@ -103,6 +106,7 @@ export default function RecordCheque() {
       }
 
       toast.success("Cheque recorded successfully");
+      clearSavedData();
       router.push("/cheques");
     } catch (error) {
       console.error(error);
