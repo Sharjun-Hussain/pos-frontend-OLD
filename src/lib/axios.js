@@ -11,21 +11,23 @@ const api = axios.create({
 
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
+        const originalRequest = error.config;
+
         // Check for 401 Unauthorized or 403 Forbidden
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
 
-            // We are in the browser
+            // If we are on the client side
             if (typeof window !== 'undefined') {
+                // In a real application, you might want to try to get a new session here
+                // but NextAuth usually handles this automatically in the background.
+                // If we get a 401 even after NextAuth's background refresh, it means the session is truly dead.
+
                 const currentPath = window.location.pathname;
 
                 // Don't loop if already on login
                 if (!currentPath.includes('/login')) {
-                    // Attempt to finding form data in the DOM to save
-                    // This is a best-effort approach since React state is hard to access from outside
-                    // Real restoration relies more on the hook component auto-saving
-
-                    // Redirect to login with return path
+                    // Force a redirect to login
                     window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
                 }
             }

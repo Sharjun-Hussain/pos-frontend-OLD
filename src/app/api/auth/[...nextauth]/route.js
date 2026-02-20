@@ -2,16 +2,51 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+/**
+ * Takes a token, and returns a new token with updated
+ * `accessToken` and `accessTokenExpires`. If an error occurs,
+ * returns the old token and an error property
+ */
+async function refreshAccessToken(token) {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/refresh`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        refresh_token: token.refreshToken,
+      }),
+    });
+
+    const refreshedTokens = await response.json();
+
+    if (!response.ok || refreshedTokens.status !== "success") {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.data.auth_token,
+      accessTokenExpires: Date.now() + 60 * 60 * 1000, // Access tokens are 1h usually
+      refreshToken: refreshedTokens.data.refresh_token ?? token.refreshToken, // Replace if new one is provided
+    };
+  } catch (error) {
+    console.error("RefreshAccessTokenError", error);
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
 
 export const authOptions = {
   session: {
-    // Use JWTs for sessions
     strategy: "jwt",
-
-    // Set the session maxAge and updateAge from environment variables
-    // This allows control over how long a session lasts and how often it refreshes.
-    maxAge: parseInt(process.env.NEXTAUTH_SESSION_MAX_AGE || "3600"), // Default to 1 hour
-    updateAge: parseInt(process.env.NEXTAUTH_SESSION_UPDATE_AGE || "0"), // Default to 0 (always update on interaction or as per default)
+    maxAge: parseInt(process.env.NEXTAUTH_SESSION_MAX_AGE || "43200"),
+    updateAge: parseInt(process.env.NEXTAUTH_SESSION_UPDATE_AGE || "3600"),
   },
 
   providers: [
@@ -45,14 +80,17 @@ export const authOptions = {
 
           const responseData = await res.json();
           const user = responseData.data.user;
-          const token = responseData.data.auth_token;
+
+          const accessToken = responseData.data.auth_token;
+          const refreshToken = responseData.data.refresh_token;
 
           return {
             id: user.id,
             name: user.name,
             email: user.email,
             profileImage: user.profile_image,
-            accessToken: token,
+            accessToken,
+            refreshToken,
           };
         } catch (error) {
           console.error("NextAuth authorize error:", error);
@@ -62,16 +100,13 @@ export const authOptions = {
     }),
   ],
 
-  // 4. Configure Callbacks
   callbacks: {
-    /**
-     * @param  {object}  token     Decrypted JSON Web Token
-     * @param  {object}  user      The object returned from the `authorize` function
-     */
-    async jwt({ token, user }) {
-      // `user` is only available on the initial sign-in
+    async jwt({ token, user, account }) {
+      // Initial sign in
       if (user) {
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.accessTokenExpires = Date.now() + 60 * 60 * 1000; // 1 hour
         token.user = {
           id: user.id,
           name: user.name,
@@ -92,8 +127,6 @@ export const authOptions = {
             const data = await res.json();
             if (data.status === "success" && data.data?.user) {
               const userData = data.data.user;
-
-              // FLATTEN PERMISSIONS TO REDUCE JWT SIZE (Fixes 431 Error)
               const permissions = new Set();
               if (userData.roles) {
                 userData.roles.forEach(role => {
@@ -116,17 +149,20 @@ export const authOptions = {
           console.error("Error fetching user permissions:", error);
         }
       }
-      return token;
+
+      // Return previous token if the access token has not expired yet
+      if (Date.now() < token.accessTokenExpires) {
+        return token;
+      }
+
+      // Access token has expired, try to update it
+      return refreshAccessToken(token);
     },
 
-    /**
-     * @param  {object}  session   Session object
-     * @param  {object}  token     Decrypted JSON Web Token (from `jwt` callback)
-     */
     async session({ session, token }) {
-      // Pass the access token and user info to the client-side session
       session.accessToken = token.accessToken;
       session.user = token.user;
+      session.error = token.error;
 
       return session;
     },
