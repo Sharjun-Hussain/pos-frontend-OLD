@@ -6,8 +6,8 @@ export const useSettingsStore = create(
         (set) => ({
             // Global Settings
             global: {
-                appName: 'EMI POS',
-                currency: 'USD',
+                appName: 'Inzeedo POS',
+                currency: 'LKR',
                 language: 'en',
                 theme: 'light',
                 zoomLevel: 1,

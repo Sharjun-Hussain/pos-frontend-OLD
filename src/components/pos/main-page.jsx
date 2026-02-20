@@ -902,9 +902,21 @@ export default function PosPage() {
   }, []);
 
 
+  // Auto-scan feature: if search exactly matches a barcode, add to cart
+  useEffect(() => {
+    if (productSearch && productSearch.length >= 3) {
+      const match = products.find(p => p.barcode === productSearch);
+      if (match) {
+        handleAddToCart(match);
+        setProductSearch("");
+        toast.success(`Scanned: ${match.name}`);
+      }
+    }
+  }, [productSearch, products]);
+
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(debouncedProductSearch.toLowerCase()) ||
-    p.barcode.includes(debouncedProductSearch)
+    (p.barcode && p.barcode.includes(debouncedProductSearch))
   );
   const totals = state.cart.reduce(
     (acc, item) => {

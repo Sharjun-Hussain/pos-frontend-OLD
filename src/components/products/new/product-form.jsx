@@ -15,8 +15,6 @@ import {
   LayoutGrid,
   Check,
   ChevronsUpDown,
-  ArrowLeft,
-  
   Plus,
   Trash2,
 } from "lucide-react";
@@ -71,35 +69,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-
 import { ProductFormSkeleton } from "@/app/skeletons/product-form-skeleton";
 import { toast } from "sonner";
 import { useFormRestore } from "@/hooks/use-form-restore";
-
-// --- ZOD SCHEMA ---
-const variantSchema = z.object({
-  name: z.string().min(1, "Variant Name is required"),
-  sku: z.string().optional(),
-  price: z.coerce.number().min(0, "Price must be positive"),
-  stock_quantity: z.coerce.number().min(0, "Stock must be positive"),
-  is_active: z.boolean().default(true),
-  attributes: z.array(z.object({
-    name: z.string(),
-    value: z.string()
-  })).optional()
-});
 
 const formSchema = z.object({
   code: z.string().min(1, "Product Code is required"),
@@ -113,10 +89,9 @@ const formSchema = z.object({
   description: z.string().optional().nullable(), // Allow null for API compatibility
   is_variant: z.boolean().default(false),
   is_active: z.boolean().default(true),
-  is_active: z.boolean().default(true),
-  product_attributes: z.array(z.string()).optional(), // Array of Attribute UUIDs
-  supplier_id: z.string().optional(), // Default Supplier ID
-  suppliers: z.array(z.string()).optional(), // Multi-Suppliers
+  product_attributes: z.array(z.string()).optional(),
+  supplier_id: z.string().optional(),
+  suppliers: z.array(z.string()).optional(),
 });
 
 // --- REUSABLE SEARCHABLE SELECT ---
@@ -218,8 +193,6 @@ export function ProductForm({ initialData = null }) {
     units: [],
     measurements: [],
     containers: [],
-    measurements: [],
-    containers: [],
     attributes: [],
     suppliers: [], // Added suppliers option
   });
@@ -247,7 +220,6 @@ export function ProductForm({ initialData = null }) {
           main_category_id: initialData.main_category_id || "",
           sub_category_id: initialData.sub_category_id || "",
           measurement_id: initialData.measurement_id || "",
-          unit_id: initialData.unit_id || "",
           unit_id: initialData.unit_id || "",
           container_id: initialData.container_id || "",
           supplier_id: initialData.supplier_id || "",
@@ -375,10 +347,10 @@ export function ProductForm({ initialData = null }) {
   };
 
   const handleDeleteProduct = async () => {
-    if (!product?.id || !session?.accessToken) return;
+    if (!initialData?.id || !session?.accessToken) return;
     setDeleting(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/${product.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/${initialData.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
@@ -488,7 +460,6 @@ export function ProductForm({ initialData = null }) {
         clearSavedData();
         form.reset({
           code: "",
-          code: "",
           name: "",
           description: "",
           is_variant: false,
@@ -571,7 +542,7 @@ export function ProductForm({ initialData = null }) {
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-6 grid gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       name="code"
                       control={form.control}
@@ -595,7 +566,7 @@ export function ProductForm({ initialData = null }) {
                       name="name"
                       control={form.control}
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
+                        <FormItem>
                           <FormLabel>
                             Product Name <span className="text-red-500">*</span>
                           </FormLabel>
@@ -611,7 +582,6 @@ export function ProductForm({ initialData = null }) {
                       )}
                     />
                   </div>
-
                   <FormField
                     name="description"
                     control={form.control}

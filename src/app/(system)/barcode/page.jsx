@@ -16,12 +16,15 @@ import {
   Sheet,
   XCircle,
   ScanLine,
-  Ruler
+  Ruler,
+  ChevronRight,
+  ChevronDown
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { useCurrency } from "@/hooks/useCurrency";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,28 +36,18 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-// --- MOCK DATA ---
-const GRN_ITEMS = [
-  { id: "g1", name: "Pro Wireless Mouse", variant: "Black", sku: "MS-PRO-BLK", barcode: "871234567890", stock: 12, price: 59.99 },
-  { id: "g2", name: "Mechanical Keyboard", variant: "Red Switch", sku: "KB-MECH-RED", barcode: "871234567891", stock: 5, price: 129.99 },
-];
-const PRODUCT_LIST = [
-  { id: "p1", name: "Pro Wireless Mouse", variant: "Black", sku: "MS-PRO-BLK", barcode: "871234567890", stock: 45, price: 59.99 },
-  { id: "p2", name: "Mechanical Keyboard", variant: "Red Switch", sku: "KB-MECH-RED", barcode: "871234567891", stock: 20, price: 129.99 },
-  { id: "p3", name: "USB-C Hub", variant: "7-in-1", sku: "HUB-USBC-7", barcode: "871234567892", stock: 100, price: 39.99 },
-];
-const VARIANT_LIST = [
-  { id: "v1", name: "T-Shirt Cotton", variant: "Small / Red", sku: "TS-COT-S-R", barcode: "1110001", stock: 10, price: 15.00 },
-];
-const CATEGORY_LIST = [
-  { id: "c1", name: "Nike Air Max", variant: "US 9", sku: "SHOE-NIKE-9", barcode: "999001", stock: 5, price: 120.00 },
-];
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { useSettings } from "@/app/hooks/swr/useSettings";
+import { useSettingsStore } from "@/store/useSettingsStore";
 
 // --- COMPONENT: BARCODE STICKER ---
 const BarcodeSticker = ({ product, settings, scale = 1, showRulers = false }) => {
   const widthPx = settings.labelWidth * 3.78 * scale;
   const heightPx = settings.labelHeight * 3.78 * scale;
   const fontSize = Math.max(8 * scale, 8);
+
+  const { formatCurrency } = useCurrency();
 
   return (
     <div className="relative group">
@@ -65,7 +58,7 @@ const BarcodeSticker = ({ product, settings, scale = 1, showRulers = false }) =>
           {/* Top Width Indicator */}
           <div className="absolute -top-5 left-0 w-full flex flex-col items-center opacity-50 group-hover:opacity-100 transition-opacity">
              <div className="text-[9px] font-mono text-blue-600 font-bold bg-blue-50 px-1 rounded">{settings.labelWidth}mm</div>
-             <div className="w-full h-px bg-blue-300 relative top-[1px]">
+             <div className="w-full h-px bg-blue-300 relative top-px">
                 <div className="absolute left-0 top-[-2px] h-1.5 w-px bg-blue-300"></div>
                 <div className="absolute right-0 top-[-2px] h-1.5 w-px bg-blue-300"></div>
              </div>
@@ -124,7 +117,7 @@ const BarcodeSticker = ({ product, settings, scale = 1, showRulers = false }) =>
 
           <div className="w-full flex flex-col items-center">
               <div className="flex justify-between w-full px-2 font-semibold" style={{ fontSize: `${fontSize + 1}px` }}>
-                  {settings.showFields.price && <span>${product.price}</span>}
+                  {settings.showFields.price && <span>{formatCurrency(product.price)}</span>}
                   {settings.showFields.sku && <span className="font-normal text-gray-500">{product.sku}</span>}
               </div>
               {settings.showFields.customText && settings.customTextContent && (
@@ -172,9 +165,10 @@ const PrintableSheet = ({ itemsToPrint, settings, refInstance }) => {
 }
 
 export default function BarcodePrintingPage() {
-  const [activeTab, setActiveTab] = useState("grn");
-  const [tableData, setTableData] = useState(GRN_ITEMS);
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedVariants, setSelectedVariants] = useState([]);
+  const [expandedProducts, setExpandedProducts] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [zoomLevel, setZoomLevel] = useState([1]);
 
@@ -185,7 +179,7 @@ export default function BarcodePrintingPage() {
     labelHeight: 30,
     perRow: "auto",
     marginTop: 10, marginLeft: 10, gapX: 2, gapY: 2,
-    qtyMode: "custom", customQty: 1,
+    customQty: 1,
     barcodeFormat: "CODE128",
     // New Barcode Styling Props
     barThickness: 1.5,
@@ -197,32 +191,109 @@ export default function BarcodePrintingPage() {
     customTextContent: "",
   });
 
+  const { data: session } = useSession();
+  const { formatCurrency } = useCurrency();
+  const { useModularSettings } = useSettings();
+  const { setGlobalSettings, setBusinessSettings } = useSettingsStore();
+
+  const { data: globalSettingsResponse } = useModularSettings("global");
+
   useEffect(() => {
-    setSelectedProducts([]);
-    switch(activeTab) {
-        case "grn": setTableData(GRN_ITEMS); break;
-        case "product": setTableData(PRODUCT_LIST); break;
-        case "variants": setTableData(VARIANT_LIST); break;
-        case "category": setTableData(CATEGORY_LIST); break;
-        default: setTableData(GRN_ITEMS);
+    if (globalSettingsResponse?.data) {
+      const { business, modules } = globalSettingsResponse.data;
+      if (business) {
+        setBusinessSettings(business);
+        // Explicitly sync business currency to global store if business has it
+        if (business.currency) {
+          setGlobalSettings({ currency: business.currency });
+        }
+      }
+      // Modules contains category keys like 'global', 'receipt', 'pos'
+      if (modules?.global) {
+        setGlobalSettings(modules.global);
+      }
     }
-  }, [activeTab]);
+  }, [globalSettingsResponse, setGlobalSettings, setBusinessSettings]);
+
+  const fetchData = async () => {
+    if (!session?.accessToken) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products?size=2000`, {
+        headers: { Authorization: `Bearer ${session.accessToken}` },
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        setProducts(result.data.data || []);
+      } else {
+        toast.error("Failed to fetch products");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error("Network error fetching barcode data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [session]);
+
+  // Flatten logic for printing and filtered views
+  const allVariants = useMemo(() => {
+    const list = [];
+    products.forEach(p => {
+      if (p.variants && p.variants.length > 0) {
+        p.variants.forEach(v => {
+          let variantLabel = v.name;
+          if (!variantLabel && v.attribute_values) {
+              variantLabel = v.attribute_values.map(av => av.value).join(" / ");
+          }
+          list.push({
+            id: v.id,
+            productId: p.id,
+            name: p.name,
+            variant: variantLabel || "Default",
+            sku: v.sku || p.sku,
+            barcode: v.barcode || p.barcode,
+            stock: v.stock_quantity || 0,
+            price: v.price || p.price
+          });
+        });
+      } else {
+        // Simple product
+        list.push({
+          id: `p-${p.id}`, // Pseudo-ID for simple product variant
+          productId: p.id,
+          name: p.name,
+          variant: "Standard",
+          sku: p.sku,
+          barcode: p.barcode,
+          stock: 0,
+          price: p.price
+        });
+      }
+    });
+    return list;
+  }, [products]);
 
   const itemsToPrint = useMemo(() => {
     let list = [];
-    selectedProducts.forEach(id => {
-        const product = tableData.find(p => p.id === id);
-        if(!product) return;
-        const count = settings.qtyMode === 'grn' ? product.stock : parseInt(settings.customQty) || 1;
-        list = [...list, ...Array(count).fill(product)];
+    selectedVariants.forEach(id => {
+        const variant = allVariants.find(v => v.id === id);
+        if(!variant) return;
+        const count = parseInt(settings.customQty) || 1;
+        list = [...list, ...Array(count).fill(variant)];
     });
     return list;
-  }, [selectedProducts, tableData, settings.qtyMode, settings.customQty]);
+  }, [selectedVariants, allVariants, settings.customQty]);
 
   const componentRef = useRef(null);
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
-    documentTitle: `Barcodes_${activeTab}`,
+    documentTitle: `Barcodes_Export`,
   });
 
   const updateSetting = (key, value) => setSettings(prev => ({ ...prev, [key]: value }));
@@ -231,20 +302,66 @@ export default function BarcodePrintingPage() {
     setSettings(prev => ({ ...prev, showFields: { ...prev.showFields, [field]: !prev.showFields[field] } }));
   };
 
-  const filteredProducts = tableData.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm) return products;
+    const term = searchTerm.toLowerCase();
+    return products.filter(p => {
+        const productMatch = p.name.toLowerCase().includes(term) || (p.sku && p.sku.toLowerCase().includes(term));
+        const variantMatch = p.variants?.some(v => 
+            (v.name && v.name.toLowerCase().includes(term)) || 
+            (v.barcode && v.barcode.toLowerCase().includes(term)) ||
+            (v.sku && v.sku.toLowerCase().includes(term))
+        );
+        return productMatch || variantMatch;
+    });
+  }, [products, searchTerm]);
 
-  const toggleProductSelection = (id) => {
-    setSelectedProducts(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+  const toggleVariantSelection = (id) => {
+    setSelectedVariants(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]);
   };
 
-  const toggleAllProducts = () => {
-    const filteredIds = filteredProducts.map(p => p.id);
-    const allSelected = filteredIds.every(id => selectedProducts.includes(id));
-    if (allSelected) setSelectedProducts(prev => prev.filter(id => !filteredIds.includes(id)));
-    else setSelectedProducts(prev => [...prev, ...filteredIds.filter(id => !selectedProducts.includes(id))]);
+  const toggleProductSelection = (productId) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const variantIds = product.variants && product.variants.length > 0 
+        ? product.variants.map(v => v.id)
+        : [`p-${product.id}`];
+    
+    const allSelected = variantIds.every(id => selectedVariants.includes(id));
+    
+    if (allSelected) {
+        setSelectedVariants(prev => prev.filter(id => !variantIds.includes(id)));
+    } else {
+        setSelectedVariants(prev => [...new Set([...prev, ...variantIds])]);
+    }
+  };
+
+  const toggleAll = () => {
+    const allVisibleVariantIds = [];
+    filteredProducts.forEach(p => {
+        if (p.variants && p.variants.length > 0) {
+            p.variants.forEach(v => allVisibleVariantIds.push(v.id));
+        } else {
+            allVisibleVariantIds.push(`p-${p.id}`);
+        }
+    });
+
+    const allSelected = allVisibleVariantIds.every(id => selectedVariants.includes(id));
+    if (allSelected) {
+        setSelectedVariants(prev => prev.filter(id => !allVisibleVariantIds.includes(id)));
+    } else {
+        setSelectedVariants(prev => [...new Set([...prev, ...allVisibleVariantIds])]);
+    }
+  };
+
+  const toggleExpand = (id) => {
+      setExpandedProducts(prev => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+      });
   };
 
   return (
@@ -279,59 +396,131 @@ export default function BarcodePrintingPage() {
 
         <div className="flex-1 overflow-y-auto p-6">
             <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-20">
-                {/* Source Tabs */}
-                <div className="rounded-lg  inline-flex w-lg">
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-xl">
-                        <TabsList className="w-full grid grid-cols-4 bg-transparent h-10">
-                            <TabsTrigger value="grn" >From GRN</TabsTrigger>
-                            <TabsTrigger value="product" >Product List</TabsTrigger>
-                            <TabsTrigger value="variants" >Variants</TabsTrigger>
-                            <TabsTrigger value="category" >By Category</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </div>
+                {/* Unified Search */}
 
                 {/* Filters & Table (Same as previous) */}
-                <div className="flex gap-4">
-                    {/* ... Filters Logic ... */}
+                <div className="flex gap-4 items-center">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <Input 
-                            placeholder="Search products..." className="pl-9 bg-white border-slate-300 h-10"
+                            placeholder="Search products or variants (Name, SKU, Barcode)..." className="pl-9 bg-white border-slate-300 h-10"
                             value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                    {searchTerm && (
+                        <Button variant="ghost" size="sm" onClick={() => setSearchTerm("")} className="text-slate-400 hover:text-slate-600">
+                             Clear
+                        </Button>
+                    )}
                 </div>
 
                 <Card className="border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[400px]">
                     <div className="bg-slate-50/80 px-4 py-2 flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                            <Checkbox checked={filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts.includes(p.id))} onCheckedChange={toggleAllProducts} />
-                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide ml-2">Select All</span>
+                            <Checkbox 
+                                checked={filteredProducts.length > 0 && filteredProducts.every(p => {
+                                    const variantIds = p.variants?.length > 0 ? p.variants.map(v => v.id) : [`p-${p.id}`];
+                                    return variantIds.every(id => selectedVariants.includes(id));
+                                }) ? true : (filteredProducts.some(p => {
+                                    const variantIds = p.variants?.length > 0 ? p.variants.map(v => v.id) : [`p-${p.id}`];
+                                    return variantIds.some(id => selectedVariants.includes(id));
+                                }) ? "indeterminate" : false)} 
+                                onCheckedChange={toggleAll} 
+                            />
+                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide ml-2">Select All Visible</span>
                         </div>
-                        <Badge variant="secondary" className="bg-white border border-slate-200 text-slate-600">{selectedProducts.length} selected</Badge>
+                        <Badge variant="secondary" className="bg-white border border-slate-200 text-slate-600">{selectedVariants.length} selected</Badge>
                     </div>
                     <div className="overflow-auto max-h-[500px]">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-slate-500 bg-white sticky top-0 z-10 shadow-sm">
+                        <table className="w-full text-sm text-left border-collapse">
+                            <thead className="text-xs text-slate-500 bg-white sticky top-0 z-10 shadow-sm border-b border-slate-200">
                                 <tr>
-                                    <th className="px-4 py-3 w-10 bg-slate-50"></th>
-                                    <th className="px-4 py-3 font-medium bg-slate-50">Product</th>
-                                    <th className="px-4 py-3 font-medium bg-slate-50">Barcode</th>
-                                    <th className="px-4 py-3 font-medium text-right bg-slate-50">Stock</th>
-                                    <th className="px-4 py-3 font-medium text-right bg-slate-50">Price</th>
+                                    <th className="px-4 py-3 w-10"></th>
+                                    <th className="px-4 py-3 w-8"></th>
+                                    <th className="px-4 py-3 font-medium">Product / Variant</th>
+                                    <th className="px-4 py-3 font-medium">Barcode</th>
+                                    <th className="px-4 py-3 font-medium text-right">Stock</th>
+                                    <th className="px-4 py-3 font-medium text-right">Price</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {filteredProducts.map((product) => (
-                                    <tr key={product.id} className={`group cursor-pointer ${selectedProducts.includes(product.id) ? "bg-blue-50/40" : "hover:bg-slate-50"}`} onClick={() => toggleProductSelection(product.id)}>
-                                        <td className="px-4 py-3"><Checkbox checked={selectedProducts.includes(product.id)} onCheckedChange={() => toggleProductSelection(product.id)} /></td>
-                                        <td className="px-4 py-3 text-slate-900">{product.name}</td>
-                                        <td className="px-4 py-3 font-mono text-xs text-slate-400">{product.barcode}</td>
-                                        <td className="px-4 py-3 text-right text-slate-600"><Badge variant="outline" className="bg-slate-50">{product.stock}</Badge></td>
-                                        <td className="px-4 py-3 text-right font-medium">${product.price}</td>
-                                    </tr>
-                                ))}
+                                {filteredProducts.map((p) => {
+                                    const hasVariants = p.variants && p.variants.length > 0;
+                                    const variantIds = hasVariants ? p.variants.map(v => v.id) : [`p-${p.id}`];
+                                    const isExpanded = expandedProducts.has(p.id);
+                                    const isAllSelected = variantIds.every(id => selectedVariants.includes(id));
+                                    const isSomeSelected = variantIds.some(id => selectedVariants.includes(id));
+
+                                    return (
+                                        <>
+                                            {/* Product Row */}
+                                            <tr key={p.id} className={`group ${isAllSelected ? "bg-blue-50/40" : "hover:bg-slate-50/80"}`} onClick={() => toggleProductSelection(p.id)}>
+                                                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                    <Checkbox 
+                                                        checked={isAllSelected ? true : (isSomeSelected ? "indeterminate" : false)}
+                                                        onCheckedChange={() => toggleProductSelection(p.id)} 
+                                                    />
+                                                </td>
+                                                <td className="px-2 py-3" onClick={(e) => { e.stopPropagation(); if(hasVariants) toggleExpand(p.id); }}>
+                                                    {hasVariants && (
+                                                        <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400">
+                                                            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                                        </Button>
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-slate-900">{p.name}</span>
+                                                        {!hasVariants && <span className="text-[10px] text-slate-400 uppercase tracking-tighter">Simple Product</span>}
+                                                        {hasVariants && <span className="text-[10px] text-blue-500 font-medium uppercase tracking-tighter">{p.variants.length} Variants</span>}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                                                    {!hasVariants ? (p.barcode) : "---"}
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    {!hasVariants ? (
+                                                        <Badge variant="outline" className="bg-slate-50">{p.stock || 0}</Badge>
+                                                    ) : "---"}
+                                                </td>
+                                                <td className="px-4 py-3 text-right font-medium">
+                                                    {!hasVariants ? formatCurrency(p.price || 0) : "---"}
+                                                </td>
+                                            </tr>
+
+                                            {/* Variant Rows */}
+                                            {hasVariants && isExpanded && p.variants.map(v => {
+                                                const vId = v.id;
+                                                const isVSelected = selectedVariants.includes(vId);
+                                                let variantLabel = v.name;
+                                                if (!variantLabel && v.attribute_values) {
+                                                    variantLabel = v.attribute_values.map(av => av.value).join(" / ");
+                                                }
+                                                return (
+                                                    <tr key={vId} className={`group transition-colors ${isVSelected ? "bg-blue-50/40" : "bg-slate-50/30 hover:bg-slate-50"}`} onClick={(e) => { e.stopPropagation(); toggleVariantSelection(vId); }}>
+                                                        <td className="px-4 py-2 border-l-2 border-blue-200"></td>
+                                                        <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>
+                                                            <Checkbox checked={isVSelected} onCheckedChange={() => toggleVariantSelection(vId)} />
+                                                        </td>
+                                                        <td className="px-4 py-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-slate-600 font-medium">{variantLabel || "Default"}</span>
+                                                                {v.sku && <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4 bg-slate-100">{v.sku}</Badge>}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-2 font-mono text-[11px] text-slate-400">{v.barcode || p.barcode}</td>
+                                                        <td className="px-4 py-2 text-right">
+                                                            <span className="text-xs text-slate-500">{v.stock_quantity || 0}</span>
+                                                        </td>
+                                                        <td className="px-4 py-2 text-right font-bold text-slate-700">
+                                                            {formatCurrency(v.price || p.price || 0)}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
