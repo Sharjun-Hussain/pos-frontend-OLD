@@ -33,6 +33,8 @@ import { Button } from "@/components/ui/button";
 import { getSupplierColumns } from "./supplier-column";
 import { ResourceManagementLayout } from "@/components/general/resource-management-layout";
 import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import { usePermission } from "@/hooks/use-permission";
+import { MODULES } from "@/lib/permissions";
 
 // Simplified stats for suppliers
 const calculateSupplierStats = (suppliers) => ({
@@ -135,6 +137,8 @@ export default function SupplierPage() {
   const [settleOpen, setSettleOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { canCreate, canUpdate, canDelete } = usePermission();
+  const { SUPPLIER } = MODULES;
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -263,9 +267,9 @@ export default function SupplierPage() {
 
   // Updated to use getSupplierColumns
   const columns = getSupplierColumns({
-    onDelete: handleDelete,
-    onToggleStatus: handleToggleStatus,
-    onEdit: handleEditClick,
+    onDelete: canDelete(SUPPLIER) ? handleDelete : null,
+    onToggleStatus: canUpdate(SUPPLIER) ? handleToggleStatus : null,
+    onEdit: canUpdate(SUPPLIER) ? handleEditClick : null,
     onViewLedger: (supplier) => {
       setSelectedSupplier(supplier);
       setLedgerOpen(true);
@@ -315,16 +319,18 @@ export default function SupplierPage() {
       headerTitle="Supplier Management" // Updated title
       headerDescription="Manage your suppliers, contacts, and settings." // Updated description
       addButtonLabel="Add Supplier" // Updated button label
-      onAddClick={handleAddClick}
+      onAddClick={canCreate(SUPPLIER) ? handleAddClick : null}
       isAdding={isNavigating}
       onExportClick={() => console.log("Export clicked")}
       // statCardsComponent={statCards} // Kept commented as in original
       bulkActionsComponent={
-        <SupplierBulkActions // Renamed component
-          onDelete={handleDelete}
-          onDeactivate={handleBulkActivation}
-          onBulkActivation={handleBulkActivation}
-        />
+        canDelete(SUPPLIER) ? (
+          <SupplierBulkActions // Renamed component
+            onDelete={handleDelete}
+            onDeactivate={handleBulkActivation}
+            onBulkActivation={handleBulkActivation}
+          />
+        ) : null
       }
       searchColumn="name"
       searchPlaceholder="Filter suppliers by name..." // Updated placeholder

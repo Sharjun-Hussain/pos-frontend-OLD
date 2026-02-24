@@ -93,10 +93,10 @@ export default function MeasurementUnitPage() {
   const { hasPermission } = usePermission();
 
   // Permissions
-  const canCreate = hasPermission("Unit Measurement Create");
-  const canEdit = hasPermission("Unit Measurement Edit");
-  const canDelete = hasPermission("Unit Measurement Delete");
-  const canToggleStatus = hasPermission("Unit Measurement Status");
+  const canCreate = hasPermission(PERMISSIONS.UNIT_CREATE);
+  const canEdit = hasPermission(PERMISSIONS.UNIT_EDIT);
+  const canDelete = hasPermission(PERMISSIONS.UNIT_DELETE);
+  const canToggleStatus = hasPermission(PERMISSIONS.UNIT_EDIT);
 
   // Auth check (remains the same)
   useEffect(() => {

@@ -9,6 +9,8 @@ import { getExpenseColumns } from "./expense-column";
 import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wallet, Receipt, TrendingDown, Calendar } from "lucide-react";
+import { usePermission } from "@/hooks/use-permission";
+import { MODULES } from "@/lib/permissions";
 
 export default function ExpenseManagement() {
   const [expenses, setExpenses] = useState([]);
@@ -16,6 +18,8 @@ export default function ExpenseManagement() {
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { canCreate, canUpdate, canDelete } = usePermission();
+  const { EXPENSE } = MODULES;
 
   const fetchExpenses = async () => {
     if (!session?.accessToken) return;
@@ -92,8 +96,8 @@ export default function ExpenseManagement() {
   };
 
   const columns = getExpenseColumns({
-    onEdit: handleEditClick,
-    onDelete: handleDelete,
+    onEdit: canUpdate(EXPENSE) ? handleEditClick : null,
+    onDelete: canDelete(EXPENSE) ? handleDelete : null,
     onView: handleViewClick,
   });
 
@@ -145,7 +149,7 @@ export default function ExpenseManagement() {
       headerTitle="Expense Management"
       headerDescription="Track and manage your business expenditures."
       addButtonLabel="Add Expense"
-      onAddClick={handleAddClick}
+      onAddClick={canCreate(EXPENSE) ? handleAddClick : null}
       searchColumn="reference_no"
       searchPlaceholder="Search by reference #..."
       loadingSkeleton={<OrganizationPageSkeleton />}

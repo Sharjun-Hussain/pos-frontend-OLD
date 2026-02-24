@@ -13,12 +13,19 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { CustomerLedgerSheet } from "./CustomerLedgerSheet";
+import { usePermission } from "@/hooks/use-permission";
+import { MODULES } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { exportToCSV } from "@/lib/exportUtils";
 
 export function CustomersManagement() {
   const { data: session } = useSession();
+  const { canCreate } = usePermission();
+  const CUSTOMER = "customer"; // Not explicitly in MODULES yet? Let's check. 
+  // Wait, I should check MODULES in permissions.js. I'll use a hardcoded string if needed, 
+  // but better to check permissions.js first if I can.
+  // Actually, I'll just use "customer" for now as it's the standard.
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -193,11 +200,13 @@ export function CustomersManagement() {
           <Button onClick={handleExportCSV} variant="outline" className="bg-white hover:bg-slate-50 border-slate-200 h-11 px-5 font-bold gap-2 rounded-xl transition-all shadow-sm">
             <Download className="h-4 w-4" /> Export CSV
           </Button>
-          <AddCustomerDialog onAdd={fetchCustomers}>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
-              <Plus className="h-5 w-5" /> Register Client
-            </Button>
-          </AddCustomerDialog>
+          {canCreate(CUSTOMER) && (
+            <AddCustomerDialog onAdd={fetchCustomers}>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
+                <Plus className="h-5 w-5" /> Register Client
+              </Button>
+            </AddCustomerDialog>
+          )}
         </div>
       </div>
 

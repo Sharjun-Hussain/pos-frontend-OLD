@@ -143,7 +143,8 @@ export default function OrganizationPage() {
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
-
+  const { canCreate, canUpdate, canDelete } = usePermission();
+  const { ORG } = MODULES;
   useEffect(() => {
     if (status === "unauthenticated") {
       const returnUrl = window.location.pathname + window.location.search;
@@ -284,8 +285,8 @@ export default function OrganizationPage() {
   };
 
   const columns = getOrganizationColumns({
-    onDelete: handleDelete,
-    onToggleStatus: handleToggleStatus,
+    onDelete: canDelete(ORG) ? handleDelete : null,
+    onToggleStatus: canUpdate(ORG) ? handleToggleStatus : null,
   });
 
   const organizationStats = calculateOrganizationStats(organizations);
@@ -320,16 +321,18 @@ export default function OrganizationPage() {
       headerTitle="Organization Management"
       headerDescription="Manage your organizations, branches, and settings."
       addButtonLabel="Add Organization"
-      onAddClick={handleAddClick}
+      onAddClick={canCreate(ORG) ? handleAddClick : null}
       isAdding={isNavigating}
       onExportClick={() => console.log("Export clicked")}
       // statCardsComponent={statCards}
       bulkActionsComponent={
-        <OrganizationBulkActions
-          onDelete={handleDelete}
-          onDeactivate={handleBulkDeactivate}
-          onActivate={handleBulkActivate}
-        />
+        canDelete(ORG) ? (
+          <OrganizationBulkActions
+            onDelete={handleDelete}
+            onDeactivate={handleBulkDeactivate}
+            onActivate={handleBulkActivate}
+          />
+        ) : null
       }
       searchColumn="name"
       searchPlaceholder="Filter organizations by name..."

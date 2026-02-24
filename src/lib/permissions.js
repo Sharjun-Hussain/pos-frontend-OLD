@@ -7,64 +7,103 @@
 
 // Access Management Permissions
 export const PERMISSIONS = {
-    // Permission Management
-    PERMISSION_VIEW: "Permission View",
-    PERMISSION_CREATE: "Permission Create",
-    PERMISSION_EDIT: "Permission Edit",
-    PERMISSION_DELETE: "Permission Delete",
+    // Role & Permission Management (Combined in this system)
+    PERMISSION_VIEW: "role:view",
+    PERMISSION_CREATE: "role:create",
+    PERMISSION_EDIT: "role:edit",
+    PERMISSION_UPDATE: "role:edit",
+    PERMISSION_DELETE: "role:delete",
 
     // Role Management
-    ROLE_VIEW: "Role View",
-    ROLE_CREATE: "Role Create",
-    ROLE_EDIT: "Role Edit",
-    ROLE_DELETE: "Role Delete",
+    ROLE_VIEW: "role:view",
+    ROLE_CREATE: "role:create",
+    ROLE_EDIT: "role:edit",
+    ROLE_UPDATE: "role:edit",
+    ROLE_DELETE: "role:delete",
 
     // User Management
-    USER_VIEW: "User View",
-    USER_CREATE: "User Create",
-    USER_EDIT: "User Edit",
-    USER_DELETE: "User Delete",
+    USER_VIEW: "user:view",
+    USER_CREATE: "user:create",
+    USER_EDIT: "user:edit",
+    USER_UPDATE: "user:edit",
+    USER_DELETE: "user:delete",
 
     // Branch Management
-    BRANCH_VIEW: "Branch View",
-    BRANCH_CREATE: "Branch Create",
-    BRANCH_EDIT: "Branch Edit",
-    BRANCH_DELETE: "Branch Delete",
+    BRANCH_VIEW: "branch:view",
+    BRANCH_CREATE: "branch:create",
+    BRANCH_EDIT: "branch:edit",
+    BRANCH_UPDATE: "branch:edit",
+    BRANCH_DELETE: "branch:delete",
+
+    // Organization Management
+    ORG_VIEW: "org:view",
+    ORG_CREATE: "org:create",
+    ORG_EDIT: "org:edit",
+    ORG_UPDATE: "org:edit",
 
     // Brand Management
-    BRAND_VIEW: "Brand View",
-    BRAND_CREATE: "Brand Create",
-    BRAND_EDIT: "Brand Edit",
-    BRAND_DELETE: "Brand Delete",
+    BRAND_VIEW: "brand:view",
+    BRAND_CREATE: "brand:create",
+    BRAND_EDIT: "brand:edit",
+    BRAND_UPDATE: "brand:edit",
+    BRAND_DELETE: "brand:delete",
 
     // Product Management
-    PRODUCT_VIEW: "Product View",
-    PRODUCT_CREATE: "Product Create",
-    PRODUCT_EDIT: "Product Edit",
-    PRODUCT_DELETE: "Product Delete",
+    PRODUCT_VIEW: "product:view",
+    PRODUCT_CREATE: "product:create",
+    PRODUCT_EDIT: "product:edit",
+    PRODUCT_UPDATE: "product:edit",
+    PRODUCT_DELETE: "product:delete",
+
+    // Category Management
+    CATEGORY_VIEW: "category:view",
+    CATEGORY_CREATE: "category:create",
+    CATEGORY_EDIT: "category:edit",
+    CATEGORY_UPDATE: "category:edit",
+    CATEGORY_DELETE: "category:delete",
 
     // Supplier Management
-    SUPPLIER_VIEW: "Supplier View",
-    SUPPLIER_CREATE: "Supplier Create",
-    SUPPLIER_EDIT: "Supplier Edit",
-    SUPPLIER_DELETE: "Supplier Delete",
+    SUPPLIER_VIEW: "supplier:view",
+    SUPPLIER_CREATE: "supplier:create",
+    SUPPLIER_EDIT: "supplier:edit",
+    SUPPLIER_UPDATE: "supplier:edit",
+    SUPPLIER_DELETE: "supplier:delete",
 
-    // Purchase Order Management
-    PURCHASE_ORDER_VIEW: "Purchase Order View",
-    PURCHASE_ORDER_CREATE: "Purchase Order Create",
-    PURCHASE_ORDER_EDIT: "Purchase Order Edit",
-    PURCHASE_ORDER_DELETE: "Purchase Order Delete",
+    // Purchase Management
+    PURCHASE_VIEW: "purchase:view",
+    PURCHASE_CREATE: "purchase:create",
+    PURCHASE_EDIT: "purchase:edit",
+    PURCHASE_UPDATE: "purchase:edit",
+    PURCHASE_DELETE: "purchase:delete",
 
-    // Add more modules as they get permissions...
+    // Finance Management
+    FINANCE_VIEW: "finance:view",
+    FINANCE_MANAGE: "finance:manage",
+
+    // Expense Management
+    EXPENSE_VIEW: "expense:view",
+    EXPENSE_CREATE: "expense:create",
+    EXPENSE_EDIT: "expense:edit",
+    EXPENSE_UPDATE: "expense:edit",
+    EXPENSE_DELETE: "expense:delete",
+
+    // Sale Management
+    SALE_VIEW: "sale:view",
+    SALE_CREATE: "sale:create",
+    SALE_EDIT: "sale:edit",
+    SALE_UPDATE: "sale:edit",
+    SALE_DELETE: "sale:delete",
+    POS_ACCESS: "pos:access",
+
+    // Report & System
+    REPORT_VIEW: "report:view",
+    SETTINGS_MANAGE: "system:settings",
+    AUDIT_LOG_VIEW: "system:audit_log",
 };
 
 // Permission groups for easier management
 export const PERMISSION_GROUPS = {
     ACCESS_MANAGEMENT: [
-        PERMISSIONS.PERMISSION_VIEW,
-        PERMISSIONS.PERMISSION_CREATE,
-        PERMISSIONS.PERMISSION_EDIT,
-        PERMISSIONS.PERMISSION_DELETE,
         PERMISSIONS.ROLE_VIEW,
         PERMISSIONS.ROLE_CREATE,
         PERMISSIONS.ROLE_EDIT,
@@ -97,38 +136,44 @@ export const PERMISSION_GROUPS = {
         PERMISSIONS.SUPPLIER_CREATE,
         PERMISSIONS.SUPPLIER_EDIT,
         PERMISSIONS.SUPPLIER_DELETE,
-        PERMISSIONS.PURCHASE_ORDER_VIEW,
-        PERMISSIONS.PURCHASE_ORDER_CREATE,
-        PERMISSIONS.PURCHASE_ORDER_EDIT,
-        PERMISSIONS.PURCHASE_ORDER_DELETE,
+        PERMISSIONS.PURCHASE_VIEW,
+        PERMISSIONS.PURCHASE_CREATE,
+        PERMISSIONS.PURCHASE_EDIT,
+        PERMISSIONS.PURCHASE_DELETE,
     ],
 };
 
 /**
  * Helper function to generate CRUD permission names for a module
- * @param {string} moduleName - Name of the module (e.g., "Branch", "Product")
- * @returns {Object} Object with View, Create, Edit, Delete permission names
+ * @param {string} moduleAlias - Alias of the module (e.g., "user", "product")
+ * @returns {Object} Object with view, create, edit, delete permission names
  */
-export function generateModulePermissions(moduleName) {
+export function generateModulePermissions(moduleAlias) {
     return {
-        VIEW: `${moduleName} View`,
-        CREATE: `${moduleName} Create`,
-        EDIT: `${moduleName} Edit`,
-        DELETE: `${moduleName} Delete`,
+        VIEW: `${moduleAlias}:view`,
+        CREATE: `${moduleAlias}:create`,
+        EDIT: `${moduleAlias}:edit`,
+        DELETE: `${moduleAlias}:delete`,
     };
 }
 
 /**
- * Module name constants for use with permission hook shortcuts
+ * Module name aliases for use with permission hook shortcuts
  */
 export const MODULES = {
-    PERMISSION: "Permission",
-    ROLE: "Role",
-    USER: "User",
-    BRANCH: "Branch",
-    BRAND: "Brand",
-    PRODUCT: "Product",
-    SUPPLIER: "Supplier",
-    PURCHASE_ORDER: "Purchase Order",
-    // Add more as needed
+    USER: "user",
+    ROLE: "role",
+    BRANCH: "branch",
+    ORG: "org",
+    BRAND: "brand",
+    PRODUCT: "product",
+    CATEGORY: "category",
+    SUPPLIER: "supplier",
+    PURCHASE: "purchase",
+    SALE: "sale",
+    EXPENSE: "expense",
+    FINANCE: "finance",
+    UNIT: "unit",
+    ATTR: "attr",
+    CONTAINER: "container",
 };

@@ -9,6 +9,8 @@ import { getChequeColumns } from "./cheque-column";
 import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Landmark, ArrowUpRight, ArrowDownLeft, Clock, CheckCircle2, History } from "lucide-react";
+import { usePermission } from "@/hooks/use-permission";
+import { PERMISSIONS } from "@/lib/permissions";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +40,8 @@ export default function ChequeManagement() {
   const [selectedAccount, setSelectedAccount] = useState("");
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { hasPermission } = usePermission();
+  const canManage = hasPermission(PERMISSIONS.FINANCE_MANAGE);
 
   const fetchCheques = async () => {
     if (!session?.accessToken) return;
@@ -183,8 +187,8 @@ export default function ChequeManagement() {
   };
 
   const columns = getChequeColumns({
-    onUpdateStatus: handleUpdateStatus,
-    onDelete: handleDelete,
+    onUpdateStatus: canManage ? handleUpdateStatus : null,
+    onDelete: canManage ? handleDelete : null,
     onView: handleViewClick,
   });
 
@@ -252,7 +256,7 @@ export default function ChequeManagement() {
         headerTitle="Cheque Management"
         headerDescription="Track and manage your receivable and payable cheques."
         addButtonLabel="Record Cheque"
-        onAddClick={() => router.push("/cheques/new")}
+        onAddClick={canManage ? () => router.push("/cheques/new") : null}
         searchColumn="cheque_number"
         searchPlaceholder="Search by cheque #..."
         loadingSkeleton={<OrganizationPageSkeleton />}

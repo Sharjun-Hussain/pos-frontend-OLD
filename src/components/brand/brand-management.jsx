@@ -88,10 +88,10 @@ export default function BrandPage() {
   const { hasPermission } = usePermission();
 
   // Permissions
-  const canCreate = hasPermission("Brand Create");
-  const canEdit = hasPermission("Brand Edit");
-  const canDelete = hasPermission("Brand Delete");
-  const canToggleStatus = hasPermission("Brand Status");
+  const canCreate = hasPermission(PERMISSIONS.BRAND_CREATE);
+  const canEdit = hasPermission(PERMISSIONS.BRAND_EDIT);
+  const canDelete = hasPermission(PERMISSIONS.BRAND_DELETE);
+  const canToggleStatus = hasPermission(PERMISSIONS.BRAND_EDIT);
 
   // Auth logic (remains the same)
   useEffect(() => {

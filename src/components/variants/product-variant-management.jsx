@@ -199,10 +199,10 @@ export default function ProductVariantsPage() {
   const router = useRouter();
   const { hasPermission } = usePermission();
 
-  const canCreate = hasPermission("Product Variant Create");
-  const canEdit = hasPermission("Product Variant Edit");
-  const canDelete = hasPermission("Product Variant Delete");
-  const canToggleStatus = hasPermission("Product Variant Status");
+  const canCreate = hasPermission(PERMISSIONS.PRODUCT_CREATE);
+  const canEdit = hasPermission(PERMISSIONS.PRODUCT_EDIT);
+  const canDelete = hasPermission(PERMISSIONS.PRODUCT_DELETE);
+  const canToggleStatus = hasPermission(PERMISSIONS.PRODUCT_EDIT);
 
   useEffect(() => {
     if (status === "unauthenticated") {

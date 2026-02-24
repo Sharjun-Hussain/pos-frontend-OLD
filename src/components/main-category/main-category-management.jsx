@@ -91,10 +91,10 @@ export default function MainCategoryPage() {
   const router = useRouter();
   const { hasPermission } = usePermission();
 
-  const canCreate = hasPermission("Main Category Create");
-  const canEdit = hasPermission("Main Category Edit");
-  const canDelete = hasPermission("Main Category Delete");
-  const canToggleStatus = hasPermission("Main Category Status");
+  const canCreate = hasPermission(PERMISSIONS.CATEGORY_CREATE);
+  const canEdit = hasPermission(PERMISSIONS.CATEGORY_EDIT);
+  const canDelete = hasPermission(PERMISSIONS.CATEGORY_DELETE);
+  const canToggleStatus = hasPermission(PERMISSIONS.CATEGORY_EDIT);
 
   // 1. Safe Auth Check
   useEffect(() => {

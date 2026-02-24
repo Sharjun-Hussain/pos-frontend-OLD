@@ -91,10 +91,10 @@ export default function SubCategoryPage() {
   const { hasPermission } = usePermission();
 
   // Permissions
-  const canCreate = hasPermission("Sub Category Create");
-  const canEdit = hasPermission("Sub Category Edit");
-  const canDelete = hasPermission("Sub Category Delete");
-  const canToggleStatus = hasPermission("Sub Category Status");
+  const canCreate = hasPermission(PERMISSIONS.CATEGORY_CREATE);
+  const canEdit = hasPermission(PERMISSIONS.CATEGORY_EDIT);
+  const canDelete = hasPermission(PERMISSIONS.CATEGORY_DELETE);
+  const canToggleStatus = hasPermission(PERMISSIONS.CATEGORY_EDIT);
 
   // 1. Auth Check
   useEffect(() => {

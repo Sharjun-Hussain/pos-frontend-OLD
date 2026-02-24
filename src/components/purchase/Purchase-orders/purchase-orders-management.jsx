@@ -45,6 +45,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/general/data-table";
 import { getColumns } from "./columns";
+import { usePermission } from "@/hooks/use-permission";
+import { MODULES } from "@/lib/permissions";
 
 // --- Components for Toolbar ---
 
@@ -128,7 +130,7 @@ const POTableToolbar = ({ table, onBulkDelete }) => {
           </Button>
         )}
       </div>
-      {numSelected > 0 && <POBulkActions table={table} onBulkDelete={onBulkDelete} />}
+      {numSelected > 0 && canDelete(MODULES.PURCHASE) && <POBulkActions table={table} onBulkDelete={onBulkDelete} />}
     </div>
   );
 };
@@ -140,6 +142,8 @@ export default function PurchaseOrderPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { canCreate, canUpdate, canDelete } = usePermission();
+  const { PURCHASE } = MODULES;
 
   // Table State
   const [sorting, setSorting] = useState([]);
@@ -239,7 +243,10 @@ export default function PurchaseOrderPage() {
     );
   }, [session, fetchPurchaseOrders]);
 
-  const columns = useMemo(() => getColumns({ onDelete: handleDelete }), [handleDelete]);
+  const columns = useMemo(() => getColumns({ 
+    onDelete: canDelete(PURCHASE) ? handleDelete : null,
+    canEdit: canUpdate(PURCHASE)
+  }), [handleDelete, canDelete, canUpdate, PURCHASE]);
 
   const table = useReactTable({
     data,
@@ -273,12 +280,14 @@ export default function PurchaseOrderPage() {
             <Download className="h-4 w-4" />
             Export
           </Button>
-          <Link href="/purchase/purchase-orders/create">
-            <Button className="gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Create Purchase Order
-            </Button>
-          </Link>
+          {canCreate(PURCHASE) && (
+            <Link href="/purchase/purchase-orders/create">
+              <Button className="gap-2">
+                <PlusCircle className="h-4 w-4" />
+                Create Purchase Order
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -307,9 +316,11 @@ export default function PurchaseOrderPage() {
             <div className="flex h-64 flex-col items-center justify-center text-muted-foreground space-y-2 border-2 border-dashed rounded-lg">
               <FileSpreadsheet className="h-10 w-10 opacity-50" />
               <p>No purchase orders found.</p>
-              <Link href="/purchase/purchase-orders/create">
-                <Button variant="link">Create your first order</Button>
-              </Link>
+              {canCreate(PURCHASE) && (
+                <Link href="/purchase/purchase-orders/create">
+                  <Button variant="link">Create your first order</Button>
+                </Link>
+              )}
             </div>
           ) : (
             <>

@@ -2,10 +2,10 @@ import axios from 'axios';
 import { saveSessionData } from './session-recovery';
 
 // create axios instance with base URL if needed
-// const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1';
 
 const api = axios.create({
-    // baseURL,
+    baseURL,
     withCredentials: true,
 });
 

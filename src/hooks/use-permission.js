@@ -20,7 +20,19 @@ export function usePermission() {
         (permissionName) => {
             // Super Admin bypass
             if (userRoles.has("Super Admin")) return true;
-            return userPermissions.has(permissionName);
+
+            // Direct match
+            if (userPermissions.has(permissionName)) return true;
+
+            // Wildcard match (* or module:*)
+            return Array.from(userPermissions).some((perm) => {
+                if (perm === "*") return true;
+                if (perm.endsWith(":*")) {
+                    const module = perm.split(":")[0];
+                    return permissionName.startsWith(`${module}:`);
+                }
+                return false;
+            });
         },
         [userPermissions, userRoles]
     );
@@ -38,9 +50,10 @@ export function usePermission() {
             if (!Array.isArray(permissionNames)) return false;
             // Super Admin bypass
             if (userRoles.has("Super Admin")) return true;
-            return permissionNames.some((name) => userPermissions.has(name));
+
+            return permissionNames.some((name) => hasPermission(name));
         },
-        [userPermissions, userRoles]
+        [hasPermission, userRoles]
     );
 
     // Check if user has ALL of the provided permissions
@@ -49,36 +62,37 @@ export function usePermission() {
             if (!Array.isArray(permissionNames)) return false;
             // Super Admin bypass
             if (userRoles.has("Super Admin")) return true;
-            return permissionNames.every((name) => userPermissions.has(name));
+
+            return permissionNames.every((name) => hasPermission(name));
         },
-        [userPermissions, userRoles]
+        [hasPermission, userRoles]
     );
 
     // CRUD operation shortcuts
     const canView = useCallback(
         (moduleName) => {
-            return hasPermission(`${moduleName} View`);
+            return hasPermission(`${moduleName.toLowerCase()}:view`);
         },
         [hasPermission]
     );
 
     const canCreate = useCallback(
         (moduleName) => {
-            return hasPermission(`${moduleName} Create`);
+            return hasPermission(`${moduleName.toLowerCase()}:create`);
         },
         [hasPermission]
     );
 
     const canUpdate = useCallback(
         (moduleName) => {
-            return hasPermission(`${moduleName} Edit`);
+            return hasPermission(`${moduleName.toLowerCase()}:edit`);
         },
         [hasPermission]
     );
 
     const canDelete = useCallback(
         (moduleName) => {
-            return hasPermission(`${moduleName} Delete`);
+            return hasPermission(`${moduleName.toLowerCase()}:delete`);
         },
         [hasPermission]
     );

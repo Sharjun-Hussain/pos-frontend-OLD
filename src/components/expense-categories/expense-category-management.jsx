@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { ResourceManagementLayout } from "@/components/general/resource-management-layout";
 import { getExpenseCategoryColumns } from "./expense-category-column";
 import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import { usePermission } from "@/hooks/use-permission";
+import { MODULES } from "@/lib/permissions";
 
 export default function ExpenseCategoryManagement() {
   const [categories, setCategories] = useState([]);
@@ -14,6 +16,8 @@ export default function ExpenseCategoryManagement() {
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { canCreate, canUpdate, canDelete } = usePermission();
+  const { EXPENSE } = MODULES;
 
   const fetchCategories = async () => {
     if (!session?.accessToken) return;
@@ -86,8 +90,8 @@ export default function ExpenseCategoryManagement() {
   };
 
   const columns = getExpenseCategoryColumns({
-    onEdit: handleEditClick,
-    onDelete: handleDelete,
+    onEdit: canUpdate(EXPENSE) ? handleEditClick : null,
+    onDelete: canDelete(EXPENSE) ? handleDelete : null,
   });
 
   return (
@@ -101,7 +105,7 @@ export default function ExpenseCategoryManagement() {
       headerTitle="Expense Categories"
       headerDescription="Manage categories to organize your business expenses."
       addButtonLabel="Add Category"
-      onAddClick={handleAddClick}
+      onAddClick={canCreate(EXPENSE) ? handleAddClick : null}
       searchColumn="name"
       searchPlaceholder="Filter categories by name..."
       loadingSkeleton={<OrganizationPageSkeleton />}

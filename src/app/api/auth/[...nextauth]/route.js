@@ -72,13 +72,12 @@ export const authOptions = {
             }),
           });
 
+          const responseData = await res.json();
           if (!res.ok) {
-            const errorData = await res.json();
-            console.error("Login failed:", errorData.message || res.statusText);
+            console.error("Login failed:", responseData.message || res.statusText);
             return null;
           }
 
-          const responseData = await res.json();
           const user = responseData.data.user;
 
           const accessToken = responseData.data.auth_token;

@@ -149,10 +149,10 @@ export default function ProductsPage() {
   const { hasPermission } = usePermission();
 
   // --- Permissions ---
-  const canCreate = hasPermission("Product Create");
-  const canEdit = hasPermission("Product Edit");
-  const canDelete = hasPermission("Product Delete");
-  const canToggleStatus = hasPermission("Product Edit"); // Fixed: Backend uses Product Edit for status
+  const canCreate = hasPermission(PERMISSIONS.PRODUCT_CREATE);
+  const canEdit = hasPermission(PERMISSIONS.PRODUCT_EDIT);
+  const canDelete = hasPermission(PERMISSIONS.PRODUCT_DELETE);
+  const canToggleStatus = hasPermission(PERMISSIONS.PRODUCT_EDIT); // Fixed: Backend uses Product Edit for status
 
   // --- Authentication Guard ---
   useEffect(() => {

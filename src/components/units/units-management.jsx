@@ -17,6 +17,8 @@ import { ResourceManagementLayout } from "../general/resource-management-layout"
 import { UnitDialog } from "./units-dialog";
 import { getUnitColumns } from "./units-column";
 import { CheckCircle2, XCircle, Trash2, ChevronDown } from "lucide-react";
+import { usePermission } from "@/hooks/use-permission";
+import { MODULES } from "@/lib/permissions";
 
 // --- FIX 1: Component defined outside with safety check ---
 const UnitBulkActions = ({ table, onDelete, onDeactivate, onActivate }) => {
@@ -83,6 +85,8 @@ export default function UnitsPage() {
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { canCreate, canUpdate, canDelete } = usePermission();
+  const { UNIT } = MODULES;
 
   // 1. Auth Check
   useEffect(() => {
@@ -247,20 +251,22 @@ export default function UnitsPage() {
 
   // --- FIX 3: Memoize Columns ---
   const columns = useMemo(() => getUnitColumns({
-    onDelete: handleDelete,
-    onToggleStatus: handleToggleStatus,
-    onEdit: handleEditClick,
-  }), [handleDelete, handleToggleStatus, handleEditClick]);
+    onDelete: canDelete(UNIT) ? handleDelete : null,
+    onToggleStatus: canUpdate(UNIT) ? handleToggleStatus : null,
+    onEdit: canUpdate(UNIT) ? handleEditClick : null,
+  }), [handleDelete, handleToggleStatus, handleEditClick, canDelete, canUpdate, UNIT]);
 
   // --- FIX 4: Memoize Bulk Actions Component ---
   // This prevents the infinite loop/freeze
   const bulkActionsComponent = useMemo(() => (
-    <UnitBulkActions
-      onDelete={handleDelete}
-      onDeactivate={handleBulkDeactivate}
-      onActivate={handleBulkActivate}
-    />
-  ), [handleDelete, handleBulkDeactivate, handleBulkActivate]);
+    canDelete(UNIT) ? (
+      <UnitBulkActions
+        onDelete={handleDelete}
+        onDeactivate={handleBulkDeactivate}
+        onActivate={handleBulkActivate}
+      />
+    ) : null
+  ), [handleDelete, handleBulkDeactivate, handleBulkActivate, canDelete, UNIT]);
 
   return (
     <>
@@ -274,7 +280,7 @@ export default function UnitsPage() {
         headerTitle="Unit Management"
         headerDescription="Manage your units, branches, and settings."
         addButtonLabel="Add Unit"
-        onAddClick={handleAddClick}
+        onAddClick={canCreate(UNIT) ? handleAddClick : null}
         isAdding={isNavigating}
         onExportClick={() => console.log("Export clicked")}
         bulkActionsComponent={bulkActionsComponent} // Use the memoized variable

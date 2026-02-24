@@ -16,8 +16,11 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EditCustomerDialog } from "./edit-customer-dialog";
 import { cn } from "@/lib/utils";
+import { usePermission } from "@/hooks/use-permission";
 
 export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) {
+  const { canUpdate, canDelete } = usePermission();
+  const CUSTOMER = "customer";
   return (
     <Card className="border-none shadow-sm bg-white overflow-hidden rounded-2xl">
       <div className="overflow-x-auto">
@@ -116,26 +119,30 @@ export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) 
                       >
                         <ReceiptText className="h-4 w-4" />
                       </Button>
-                      <EditCustomerDialog
-                        customer={customer}
-                        onSave={(updates) => onUpdate(customer.id, updates)}
-                      >
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
+                      {canUpdate(CUSTOMER) && (
+                        <EditCustomerDialog
+                          customer={customer}
+                          onSave={(updates) => onUpdate(customer.id, updates)}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </EditCustomerDialog>
+                      )}
+                      {canDelete(CUSTOMER) && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl"
+                          onClick={() => onDelete(customer.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      </EditCustomerDialog>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl"
-                        onClick={() => onDelete(customer.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

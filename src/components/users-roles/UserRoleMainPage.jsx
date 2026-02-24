@@ -818,7 +818,7 @@ export default function UserManagement() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <ProtectedComponent permission={PERMISSIONS.USER_UPDATE}>
+                              <ProtectedComponent permission={PERMISSIONS.USER_EDIT}>
                                 <DropdownMenuItem onClick={() => handleOpenEditUser(user)}>
                                   Edit
                                 </DropdownMenuItem>
@@ -887,7 +887,7 @@ export default function UserManagement() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <ProtectedComponent permission={PERMISSIONS.ROLE_UPDATE}>
+                        <ProtectedComponent permission={PERMISSIONS.ROLE_EDIT}>
                           <DropdownMenuItem
                             onClick={() => handleOpenEditRole(role)}
                           >
