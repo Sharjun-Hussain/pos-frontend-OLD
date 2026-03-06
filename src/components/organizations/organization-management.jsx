@@ -30,6 +30,8 @@ import { Button } from "@/components/ui/button";
 import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
 import { ResourceManagementLayout } from "../general/resource-management-layout";
 import { getOrganizationColumns } from "./organization-column";
+import { usePermission } from "@/hooks/use-permission";
+import { MODULES } from "@/lib/permissions";
 
 const calculateOrganizationStats = (organizations) => ({
   totalOrganizations: organizations?.length,

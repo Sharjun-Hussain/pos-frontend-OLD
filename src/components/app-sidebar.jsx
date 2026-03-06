@@ -120,6 +120,16 @@ export function AppSidebar({ ...props }) {
             requiredPermission: PERMISSIONS.BRAND_VIEW,
           },
           {
+            title: "Stock Management",
+            url: "/inventory/stock",
+            requiredPermission: PERMISSIONS.STOCK_VIEW,
+          },
+          {
+            title: "Stock Transfers",
+            url: "/inventory/transfers",
+            requiredPermission: PERMISSIONS.STOCK_VIEW,
+          },
+          {
             title: "Units & Measures",
             url: "/unit-measurement",
             requiredPermission: PERMISSIONS.UNIT_VIEW,

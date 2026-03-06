@@ -98,7 +98,14 @@ export const PERMISSIONS = {
     // Report & System
     REPORT_VIEW: "report:view",
     SETTINGS_MANAGE: "system:settings",
-    AUDIT_LOG_VIEW: "system:audit_log",
+    // Stock Management
+    STOCK_VIEW: "stock:view",
+    STOCK_CREATE: "stock:create",
+    STOCK_EDIT: "stock:edit",
+    STOCK_UPDATE: "stock:edit",
+    STOCK_DELETE: "stock:delete",
+    STOCK_TRANSFER: "stock:edit", // Using edit for transfer
+    STOCK_ADJUST: "stock:edit",   // Using edit for adjust
 };
 
 // Permission groups for easier management
