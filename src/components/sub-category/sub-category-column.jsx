@@ -1,7 +1,7 @@
 // app/main-categories/sub-category-columns.tsx
 "use client";
 
-import { ArrowUpDown, MoreHorizontal, Folder, FolderOpen } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Folder, FolderOpen, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 // Reusable Header Component
 const DataTableColumnHeader = ({ column, title }) => {
@@ -22,9 +23,10 @@ const DataTableColumnHeader = ({ column, title }) => {
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      className="h-8 hover:bg-emerald-500/5 group"
     >
-      {title}
-      <ArrowUpDown className="ml-2 h-4 w-4 text-gray-700 opacity-60" />
+      <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 transition-colors group-hover:text-emerald-600">{title}</span>
+      <ArrowUpDown className="ml-2 size-3 text-muted-foreground/30 transition-colors group-hover:text-emerald-500/50" />
     </Button>
   );
 };
@@ -68,15 +70,13 @@ export const getSubCategoryColumns = ({
       const subCategory = row.original;
 
       return (
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-100">
-            <FolderOpen className="h-5 w-5 text-blue-600" />
+        <div className="flex items-center gap-4 py-1">
+          <div className="size-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-sm shadow-blue-500/5 transition-transform hover:scale-105">
+            <FolderOpen className="size-5 text-blue-600" />
           </div>
-          <div>
-            <div className="font-medium">{subCategory.name}</div>
-            <div className="text-sm text-muted-foreground">
-              {subCategory.slug}
-            </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[13px] font-bold text-foreground tracking-tight truncate leading-tight">{subCategory.name}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-0.5 truncate">{subCategory.slug || "No identifier"}</span>
           </div>
         </div>
       );
@@ -91,17 +91,13 @@ export const getSubCategoryColumns = ({
       const mainCategory = row.original.main_category;
 
       return (
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-            <Folder className="h-4 w-4 text-primary" />
+        <div className="flex items-center gap-4 py-1">
+          <div className="size-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm shadow-emerald-500/5">
+            <Folder className="size-4 text-emerald-600" />
           </div>
-          <div>
-            <div className="font-medium text-sm">
-              {mainCategory?.name || "N/A"}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {mainCategory?.slug || "No main category"}
-            </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[12px] font-bold text-foreground/80 tracking-tight truncate leading-tight">{mainCategory?.name || "Uncategorized"}</span>
+            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 truncate">{mainCategory?.slug || "NO_TAXONOMY"}</span>
           </div>
         </div>
       );
@@ -114,7 +110,11 @@ export const getSubCategoryColumns = ({
     ),
     cell: ({ row }) => {
       const description = row.getValue("description");
-      return description || "No description";
+      return (
+        <div className="max-w-[300px] truncate text-[12px] font-medium text-muted-foreground/60 italic leading-relaxed">
+          {description || "Awaiting catalog details..."}
+        </div>
+      );
     },
   },
   {
@@ -122,7 +122,17 @@ export const getSubCategoryColumns = ({
     header: "Status",
     cell: ({ row }) => {
       const isActive = row.getValue("is_active");
-      return <StatusBadge value={isActive} />;
+      return (
+        <div className={cn(
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border shadow-sm transition-all animate-in fade-in zoom-in duration-300",
+          isActive 
+            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 shadow-emerald-500/5" 
+            : "bg-red-500/10 border-red-500/20 text-red-600 shadow-red-500/5"
+        )}>
+          <div className={cn("size-1.5 rounded-full", isActive ? "bg-emerald-500 animate-pulse" : "bg-red-500")} />
+          <span className="text-[10px] font-black uppercase tracking-widest">{isActive ? "Active" : "Suspended"}</span>
+        </div>
+      );
     },
   },
   {
@@ -135,38 +145,50 @@ export const getSubCategoryColumns = ({
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="size-8 p-0 hover:bg-emerald-500/5 rounded-full group transition-all">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreHorizontal className="size-4 text-muted-foreground/40 group-hover:text-emerald-500 transition-colors" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-52 rounded-2xl border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl p-2 animate-in fade-in zoom-in duration-200">
+            <DropdownMenuLabel className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Authority Actions</DropdownMenuLabel>
 
             {canEdit && (
-              <DropdownMenuItem onClick={() => onEdit(subCategory)}>
-                Edit Sub Category
-              </DropdownMenuItem>
-            )}
-
-            {(canDelete || canToggleStatus) && <DropdownMenuSeparator />}
-
-            {canDelete && (
-              <DropdownMenuItem
-                className="text-red-800"
-                onClick={() => onDelete(subCategory.id)}
-              >
-                Delete
+              <DropdownMenuItem onClick={() => onEdit(subCategory)} className="cursor-pointer rounded-xl px-3 py-2 focus:bg-emerald-500/10 focus:text-emerald-600 group transition-all">
+                <div className="flex items-center gap-3">
+                  <FolderOpen className="size-4 opacity-40 group-hover:scale-110 transition-transform" />
+                  <span className="text-[12px] font-bold tracking-tight">Modify Details</span>
+                </div>
               </DropdownMenuItem>
             )}
 
             {canToggleStatus && (
               <DropdownMenuItem
-                className="text-red-500"
+                className="cursor-pointer rounded-xl px-3 py-2 focus:bg-emerald-500/10 focus:text-emerald-600 group transition-all"
                 onClick={() => onToggleStatus(subCategory)}
               >
-                {subCategory.is_active ? "Deactivate" : "Activate"}
+                <div className="flex items-center gap-3">
+                  <ArrowUpDown className="size-4 opacity-40 group-hover:scale-110 transition-transform" />
+                  <span className="text-[12px] font-bold tracking-tight">
+                    {subCategory.is_active ? "Suspend Entry" : "Restore Entry"}
+                  </span>
+                </div>
               </DropdownMenuItem>
+            )}
+
+            {canDelete && (
+              <>
+                <DropdownMenuSeparator className="bg-border/40 my-1" />
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-700 focus:bg-red-500/10 cursor-pointer rounded-xl px-3 py-2 group transition-all"
+                  onClick={() => onDelete(subCategory.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Trash2 className="size-4 opacity-40 group-hover:scale-110 transition-transform" />
+                    <span className="text-[12px] font-bold tracking-tight">Permanent Removal</span>
+                  </div>
+                </DropdownMenuItem>
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

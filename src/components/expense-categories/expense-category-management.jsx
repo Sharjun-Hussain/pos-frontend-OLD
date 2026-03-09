@@ -4,16 +4,30 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { FolderDown } from "lucide-react";
 import { ResourceManagementLayout } from "@/components/general/resource-management-layout";
 import { getExpenseCategoryColumns } from "./expense-category-column";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import { ExpenseCategorySheet } from "./expense-category-sheet";
 import { usePermission } from "@/hooks/use-permission";
 import { MODULES } from "@/lib/permissions";
+
+const TableSkeleton = () => (
+  <div className="space-y-4 animate-pulse">
+    <div className="h-14 bg-muted/40 rounded-xl" />
+    <div className="space-y-2">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="h-12 bg-muted/20 rounded-xl" />
+      ))}
+    </div>
+  </div>
+);
 
 export default function ExpenseCategoryManagement() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
   const { canCreate, canUpdate, canDelete } = usePermission();
@@ -60,11 +74,13 @@ export default function ExpenseCategoryManagement() {
   }, [status, session]);
 
   const handleAddClick = () => {
-    router.push("/expense-categories/new");
+    setSelectedCategory(null);
+    setIsSheetOpen(true);
   };
 
   const handleEditClick = (category) => {
-    router.push(`/expense-categories/${category.id}/edit`);
+    setSelectedCategory(category);
+    setIsSheetOpen(true);
   };
 
   const handleDelete = async (ids) => {
@@ -95,6 +111,7 @@ export default function ExpenseCategoryManagement() {
   });
 
   return (
+    <>
     <ResourceManagementLayout
       data={categories}
       columns={columns}
@@ -102,13 +119,39 @@ export default function ExpenseCategoryManagement() {
       isError={!!error && categories.length === 0}
       errorMessage={error}
       onRetry={fetchCategories}
-      headerTitle="Expense Categories"
-      headerDescription="Manage categories to organize your business expenses."
-      addButtonLabel="Add Category"
+      headerTitle={
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <FolderDown className="w-5 h-5 text-emerald-500" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground tracking-tight">Expense Categories</h1>
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+              Manage expense categories to organize your business
+            </p>
+          </div>
+        </div>
+      }
+      addButtonLabel="Add Expense Category"
+      addButtonIcon={<FolderDown className="mr-2 h-4 w-4" />}
+      addButtonClassName="bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
       onAddClick={canCreate(EXPENSE) ? handleAddClick : null}
       searchColumn="name"
-      searchPlaceholder="Filter categories by name..."
-      loadingSkeleton={<OrganizationPageSkeleton />}
+      searchPlaceholder="Filter expense categories..."
+      loadingSkeleton={<TableSkeleton />}
     />
+    
+    <ExpenseCategorySheet 
+      isOpen={isSheetOpen}
+      onClose={() => {
+        setIsSheetOpen(false);
+        setTimeout(() => setSelectedCategory(null), 300); // Clear after animation
+      }}
+      onSuccess={() => {
+        fetchCategories();
+      }}
+      initialData={selectedCategory}
+    />
+    </>
   );
 }

@@ -88,14 +88,14 @@ export default function SupplierLedgersPage() {
   const selectedSupplier = suppliers.find(s => s.id === selectedSupplierId);
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50/50 min-h-screen">
+    <div className="p-6 space-y-6 bg-muted/20 min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Supplier Ledgers</h1>
-          <p className="text-sm text-slate-500">Track payables and transaction history.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Supplier Ledgers</h1>
+          <p className="text-sm text-muted-foreground">Track payables and transaction history.</p>
         </div>
         <div className="flex items-center gap-2">
-           <Button variant="outline" className="bg-white" onClick={() => window.print()}>
+           <Button variant="outline" className="bg-card" onClick={() => window.print()}>
              <Download className="w-4 h-4 mr-2" /> Export / Print
            </Button>
         </div>
@@ -106,9 +106,9 @@ export default function SupplierLedgersPage() {
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div className="md:col-span-2 space-y-2">
-              <label className="text-sm font-medium text-slate-700">Select Supplier</label>
+              <label className="text-sm font-medium text-foreground">Select Supplier</label>
               <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="bg-card">
                   <SelectValue placeholder="Choose a supplier..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,12 +119,12 @@ export default function SupplierLedgersPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">From Date</label>
-              <Input type="date" value={dateRange.from} onChange={(e) => setDateRange({...dateRange, from: e.target.value})} className="bg-white" />
+              <label className="text-sm font-medium text-foreground">From Date</label>
+              <Input type="date" value={dateRange.from} onChange={(e) => setDateRange({...dateRange, from: e.target.value})} className="bg-card" />
             </div>
             <div className="space-y-2">
-               <label className="text-sm font-medium text-slate-700">To Date</label>
-               <Input type="date" value={dateRange.to} onChange={(e) => setDateRange({...dateRange, to: e.target.value})} className="bg-white" />
+               <label className="text-sm font-medium text-foreground">To Date</label>
+               <Input type="date" value={dateRange.to} onChange={(e) => setDateRange({...dateRange, to: e.target.value})} className="bg-card" />
             </div>
           </div>
         </CardContent>
@@ -133,20 +133,20 @@ export default function SupplierLedgersPage() {
       {/* Ledger Table */}
       {selectedSupplierId ? (
         <Card className="border-none shadow-md overflow-hidden">
-           <CardHeader className="bg-white border-b pb-4">
+           <CardHeader className="bg-card border-b pb-4">
               <div className="flex justify-between items-center">
                  <div>
-                    <CardTitle className="text-xl text-slate-800">{selectedSupplier?.name}</CardTitle>
+                    <CardTitle className="text-xl text-foreground">{selectedSupplier?.name}</CardTitle>
                     <CardDescription>{selectedSupplier?.email} | {selectedSupplier?.phone}</CardDescription>
                  </div>
                  <div className="text-right">
-                    <div className="text-sm text-slate-500 font-medium">Current Balance</div>
+                    <div className="text-sm text-muted-foreground font-medium">Current Balance</div>
                     <div className={cn(
                         "text-2xl font-bold",
                         currentBalance > 0 ? "text-red-600" : "text-green-600"
                     )}>
                         LKR {Math.abs(currentBalance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        <span className="text-xs ml-1 font-normal text-slate-400">
+                        <span className="text-xs ml-1 font-normal text-muted-foreground/60">
                             {currentBalance > 0 ? "(Payable)" : "(Advance/Credit)"}
                         </span>
                     </div>
@@ -155,7 +155,7 @@ export default function SupplierLedgersPage() {
            </CardHeader>
            <CardContent className="p-0">
               <Table>
-                 <TableHeader className="bg-slate-50">
+                 <TableHeader className="bg-muted/30">
                     <TableRow>
                        <TableHead className="w-[120px]">Date</TableHead>
                        <TableHead className="w-[100px]">Type</TableHead>
@@ -168,21 +168,21 @@ export default function SupplierLedgersPage() {
                  <TableBody>
                     {loading ? (
                        <TableRow>
-                          <TableCell colSpan={6} className="text-center py-20 bg-white">
+                          <TableCell colSpan={6} className="text-center py-20 bg-card">
                              <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                                <span className="text-slate-500 text-sm">Loading ledger history...</span>
+                                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                                <span className="text-muted-foreground text-sm">Loading ledger history...</span>
                              </div>
                           </TableCell>
                        </TableRow>
                     ) : ledgerData.length > 0 ? (
                        ledgerData.map((row) => (
-                          <TableRow key={row.id} className="hover:bg-slate-50/50">
-                             <TableCell className="text-slate-600">{format(new Date(row.transaction_date), "dd MMM yyyy")}</TableCell>
+                          <TableRow key={row.id} className="hover:bg-muted/20">
+                             <TableCell className="text-muted-foreground">{format(new Date(row.transaction_date), "dd MMM yyyy")}</TableCell>
                              <TableCell>
                                 <Badge variant="outline" className={cn(
                                    "px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider",
-                                   row.reference_type === 'GRN' && "bg-blue-50 text-blue-700 border-blue-200",
+                                   row.reference_type === 'GRN' && "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
                                    row.type === 'debit' && "bg-green-50 text-green-700 border-green-200",
                                    row.type === 'credit' && row.reference_type !== 'GRN' && "bg-red-50 text-red-700 border-red-200",
                                 )}>
@@ -190,8 +190,8 @@ export default function SupplierLedgersPage() {
                                 </Badge>
                              </TableCell>
                              <TableCell>
-                                <div className="font-medium text-slate-900">{row.description}</div>
-                                <div className="text-xs text-slate-400 font-mono uppercase">{row.id.split('-')[0]}</div>
+                                <div className="font-medium text-foreground">{row.description}</div>
+                                <div className="text-xs text-muted-foreground/60 font-mono uppercase">{row.id.split('-')[0]}</div>
                              </TableCell>
                              <TableCell className="text-right text-green-600 font-medium bg-green-50/10">
                                 {row.type === 'debit' ? parseFloat(row.amount).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}
@@ -199,14 +199,14 @@ export default function SupplierLedgersPage() {
                              <TableCell className="text-right text-red-600 font-medium bg-red-50/10">
                                 {row.type === 'credit' ? parseFloat(row.amount).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}
                              </TableCell>
-                             <TableCell className="text-right font-bold text-slate-900">
+                             <TableCell className="text-right font-bold text-foreground">
                                 {parseFloat(row.balance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                              </TableCell>
                           </TableRow>
                        ))
                     ) : (
                        <TableRow>
-                          <TableCell colSpan={6} className="text-center py-20 bg-white text-slate-500">
+                          <TableCell colSpan={6} className="text-center py-20 bg-card text-muted-foreground">
                              No transactions recorded for the selected period.
                           </TableCell>
                        </TableRow>
@@ -216,12 +216,12 @@ export default function SupplierLedgersPage() {
            </CardContent>
         </Card>
       ) : (
-        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-dashed border-slate-200 text-center shadow-sm">
-           <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6">
-              <FileText className="w-8 h-8 text-slate-300" />
+        <div className="flex flex-col items-center justify-center py-24 bg-card rounded-2xl border border-dashed border-border/50 text-center shadow-sm">
+           <div className="h-16 w-16 bg-muted/30 rounded-2xl flex items-center justify-center mb-6">
+              <FileText className="w-8 h-8 text-muted-foreground/40" />
            </div>
-           <h3 className="text-lg font-semibold text-slate-900">No Supplier Selected</h3>
-           <p className="text-slate-500 max-w-xs mt-2 text-sm leading-relaxed">
+           <h3 className="text-lg font-semibold text-foreground">No Supplier Selected</h3>
+           <p className="text-muted-foreground max-w-xs mt-2 text-sm leading-relaxed">
              Please select a supplier from the list above to generate a comprehensive ledger statement.
            </p>
         </div>

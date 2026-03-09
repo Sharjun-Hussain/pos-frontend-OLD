@@ -19,7 +19,7 @@ export function StatusBadge({ value, className, label }) {
   const isPaid = val === "paid";
   const isSuccess = val === "success" || val === "failed" || val === "failure";
 
-  let badgeStyles = "text-[10px] font-black uppercase tracking-widest px-3 py-1 shadow-sm border-none leading-none h-6 flex items-center justify-center";
+  let badgeStyles = "text-[10px] font-black tracking-widest px-3 py-1 shadow-sm border-none leading-none h-6 flex items-center justify-center";
   let statusLabel = label || (isTrue ? (val === "cleared" ? "Cleared" : val === "completed" ? "Completed" : val === "received" ? "Received" : val === "approved" ? "Approved" : "Active") : "Inactive");
 
   if (isTrue) {

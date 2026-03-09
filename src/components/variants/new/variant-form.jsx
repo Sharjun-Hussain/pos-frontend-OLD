@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Palette,
   Camera,
+  Zap,
 } from "lucide-react";
 
 // UI Components
@@ -56,8 +57,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  fetchTaxes,
+} from "@/utils/frontend-api-functions";
 import { useRouter } from "next/navigation";
-import { ProductFormSkeleton } from "@/app/skeletons/product-form-skeleton";
+import { ProductFormSkeleton } from "@/app/skeletons/products/product-form-skeleton";
+import FileUpload from "@/components/common/file-upload";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -96,12 +101,12 @@ const variantFormSchema = z.object({
 const ExistingVariantsList = ({ variants }) => {
   if (!variants || variants.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 mb-4">
-          <Box className="w-6 h-6 text-slate-400" />
+      <div className="p-10 text-center bg-muted/20 border border-dashed border-border/60 rounded-2xl m-4">
+        <div className="inline-flex items-center justify-center size-12 rounded-2xl bg-muted/50 mb-4 border border-border/40 shadow-sm">
+          <Box className="size-5 text-muted-foreground/40" />
         </div>
-        <p className="text-sm text-muted-foreground">No variants created yet</p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-sm font-semibold text-foreground tracking-tight">No variants created yet</p>
+        <p className="text-[11px] text-muted-foreground/60 font-medium mt-1">
           Start by creating your first variant
         </p>
       </div>
@@ -109,45 +114,48 @@ const ExistingVariantsList = ({ variants }) => {
   }
 
   return (
-    <ScrollArea className="h-[300px]">
+    <ScrollArea className="h-[350px]">
       <Table>
-        <TableHeader className="sticky top-0 bg-white">
-          <TableRow>
-            <TableHead className="h-11 font-medium text-xs text-muted-foreground">
+        <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+          <TableRow className="hover:bg-transparent border-border/40">
+            <TableHead className="h-10 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
               Variant Code
             </TableHead>
-            <TableHead className="h-11 font-medium text-xs text-muted-foreground">
+            <TableHead className="h-10 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
               Attributes
             </TableHead>
-            <TableHead className="h-11 font-medium text-xs text-muted-foreground text-right">
+            <TableHead className="h-10 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 text-right">
               Status
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {variants.map((v) => (
-            <TableRow key={v.id} className="hover:bg-slate-50/50">
-              <TableCell className="py-3">
-                <div className="font-medium text-sm">{v.code}</div>
-                <div className="text-xs text-muted-foreground">{v.sku}</div>
+            <TableRow key={v.id} className="hover:bg-muted/30 border-border/40 group transition-colors">
+              <TableCell className="py-4">
+                <div className="font-semibold text-[13px] text-foreground tracking-tight group-hover:text-emerald-600 transition-colors">{v.code}</div>
+                <div className="text-[10px] text-muted-foreground/60 font-medium mt-0.5">{v.sku}</div>
               </TableCell>
-              <TableCell className="py-3">
-                <div className="flex flex-wrap gap-1">
+              <TableCell className="py-4">
+                <div className="flex flex-wrap gap-1.5">
                   {v.attribute_values?.map((av, idx) => (
-                    <Badge key={idx} variant="outline" className="text-[10px] py-0 h-5 font-normal bg-slate-50">
-                      <span className="text-muted-foreground mr-1">{av.attribute?.name}:</span>
+                    <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-black uppercase tracking-wider bg-muted/50 text-muted-foreground/70 border-border/40">
+                      <span className="opacity-40 mr-1">{av.attribute?.name}:</span>
                       {av.value}
                     </Badge>
                   ))}
                   {(!v.attribute_values || v.attribute_values.length === 0) && (
-                    <span className="text-xs text-muted-foreground italic">No attributes</span>
+                    <span className="text-[11px] text-muted-foreground/40 italic">No attributes</span>
                   )}
                 </div>
               </TableCell>
-              <TableCell className="py-3 text-right">
+              <TableCell className="py-4 text-right">
                 <Badge
                   variant={v.is_active ? "default" : "secondary"}
-                  className="text-xs font-normal"
+                  className={cn(
+                    "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md transition-all",
+                    v.is_active ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 shadow-sm shadow-emerald-500/10" : "opacity-40"
+                  )}
                 >
                   {v.is_active ? "Active" : "Inactive"}
                 </Badge>
@@ -170,35 +178,38 @@ const SettingsCard = ({
 }) => (
   <div
     className={cn(
-      "flex items-center justify-between rounded-lg border p-4 transition-all",
-      isActive ? "border-blue-200 bg-blue-50/50" : "border-slate-200 bg-white"
+      "flex items-center justify-between rounded-2xl border p-5 transition-all duration-300",
+      isActive 
+        ? "border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-500/10 shadow-sm ring-1 ring-emerald-500/20" 
+        : "border-border bg-muted/30 hover:bg-muted/50"
     )}
   >
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-4">
       <div
         className={cn(
-          "p-2 rounded-lg",
-          isActive ? "bg-blue-100" : "bg-slate-100"
+          "size-10 rounded-xl flex items-center justify-center border transition-all duration-300",
+          isActive 
+            ? "bg-emerald-500/10 border-emerald-500/20 shadow-sm shadow-emerald-500/10" 
+            : "bg-muted/50 border-border/40"
         )}
       >
         <Icon
           className={cn(
-            "w-4 h-4",
-            isActive ? "text-blue-600" : "text-slate-500"
+            "size-4.5 transition-colors duration-300",
+            isActive ? "text-emerald-600" : "text-muted-foreground/40"
           )}
         />
       </div>
       <div className="space-y-1">
-        <Label className="text-sm font-medium cursor-pointer">{label}</Label>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <Label className="text-[13px] font-bold tracking-tight cursor-pointer text-foreground leading-tight">{label}</Label>
+        <p className="text-[11px] text-muted-foreground/60 font-medium">{description}</p>
       </div>
     </div>
     <Switch
       checked={isActive}
       onCheckedChange={onToggle}
       className={cn(
-        "data-[state=checked]:bg-blue-600",
-        isActive && "ring-2 ring-blue-200"
+        isActive && "ring-4 ring-emerald-500/10 shadow-lg shadow-emerald-500/10"
       )}
     />
   </div>
@@ -440,23 +451,31 @@ export function ProductVariantForm({ initialData = null }) {
   if (loading) return <ProductFormSkeleton />;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6">
+    <div className="min-h-screen bg-background p-4 md:px-8 md:pt-4 md:pb-12">
+      <div className="fixed inset-0 -z-10 h-full w-full bg-background">
+        <div className="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.05),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.1),rgba(0,0,0,0))]"></div>
+      </div>
       <Form {...form}>
         <form className="max-w-[1400px] mx-auto">
           {/* Header Section */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                  {isEditing ? "Edit Product Variant" : "Create New Variant"}
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {isEditing
-                    ? "Update variant details and attributes"
-                    : "Add a new variant to your product catalog"}
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="size-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm shadow-emerald-500/10">
+                  <PlusCircle className="size-7 text-emerald-600" />
+                </div>
+                <div className="flex flex-col">
+                  <h1 className="text-2xl font-black tracking-tight text-foreground leading-none capitalize">
+                    {isEditing ? "Edit Variant" : "Add New Variant"}
+                  </h1>
+                  <p className="text-muted-foreground/60 text-[11px] font-bold uppercase tracking-widest mt-2">
+                    {isEditing
+                      ? "Update Details"
+                      : "Create Variant"}
+                  </p>
+                </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 {!isEditing && (
                   <Button
                     type="button"
@@ -466,14 +485,14 @@ export function ProductVariantForm({ initialData = null }) {
                     onClick={form.handleSubmit((d) =>
                       handleServerSubmit(d, true)
                     )}
-                    className="h-11 px-6"
+                    className="h-12 px-6 rounded-xl border-border/60 bg-muted/20 hover:bg-muted/40 font-bold uppercase text-[10px] tracking-widest transition-all"
                   >
                     {submitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      <Loader2 className="w-4 h-4 animate-spin mr-3 opacity-60" />
                     ) : (
-                      <PlusCircle className="w-4 h-4 mr-2" />
+                      <PlusCircle className="w-4 h-4 mr-3 opacity-60" />
                     )}
-                    Save & Add Another
+                    Save & Continue
                   </Button>
                 )}
                 <Button
@@ -483,14 +502,14 @@ export function ProductVariantForm({ initialData = null }) {
                   onClick={form.handleSubmit((d) =>
                     handleServerSubmit(d, false)
                   )}
-                  className="h-11 px-8"
+                  className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 border-none transition-all active:scale-95"
                 >
                   {submitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <Loader2 className="w-4 h-4 animate-spin mr-3" />
                   ) : (
-                    <Save className="w-4 h-4 mr-2" />
+                    <Save className="w-4 h-4 mr-3" />
                   )}
-                  {isEditing ? "Update Variant" : "Create Variant"}
+                  {isEditing ? "Commit Changes" : "Finalize Variant"}
                 </Button>
               </div>
             </div>
@@ -499,51 +518,52 @@ export function ProductVariantForm({ initialData = null }) {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Main Form */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4">
               {/* Parent Product Selection */}
-              <Card className="border shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold">
-                    Parent Product
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Select the main product this variant belongs to
-                  </p>
+              <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Box className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Parent Product</CardTitle>
+                      <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Product Information</p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-5">
                   {detailedParent ? (
-                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <Box className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-sm">
-                              {detailedParent.name}
-                            </h4>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-muted-foreground">
-                                {detailedParent.code}
-                              </span>
-                              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                                {detailedParent.variants?.length || 0} variants
-                              </span>
-                            </div>
+                    <div className="bg-emerald-500/3 border border-emerald-500/20 rounded-2xl p-5 shadow-sm shadow-emerald-500/2 flex items-center justify-between group">
+                      <div className="flex items-center gap-5">
+                        <div className="size-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                          <Box className="size-6 text-emerald-600" />
+                        </div>
+                        <div className="flex flex-col">
+                          <h4 className="font-black text-base text-foreground tracking-tight leading-none group-hover:text-emerald-600 transition-colors">
+                            {detailedParent.name}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-[10px] font-black tracking-widest uppercase text-muted-foreground/40 bg-muted/50 px-2 py-0.5 rounded-md border border-border/40">
+                              {detailedParent.code}
+                            </span>
+                            <span className="text-[10px] font-black tracking-widest uppercase text-emerald-600/70 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 shadow-sm shadow-emerald-500/10">
+                              {detailedParent.variants?.length || 0} variants
+                            </span>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            form.setValue("product_id", 0);
-                            setDetailedParent(null);
-                          }}
-                          className="text-muted-foreground"
-                        >
-                          Change Product
-                        </Button>
                       </div>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => {
+                          form.setValue("product_id", 0);
+                          setDetailedParent(null);
+                        }}
+                        className="text-[11px] font-black uppercase tracking-widest text-emerald-600 decoration-emerald-600/30 hover:decoration-emerald-600 transition-all hover:translate-x-1"
+                      >
+                        Change <ChevronRight className="size-3 ml-1" />
+                      </Button>
                     </div>
                   ) : (
                     <FormField
@@ -551,8 +571,8 @@ export function ProductVariantForm({ initialData = null }) {
                       name="product_id"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                          <FormLabel className="text-sm font-medium mb-2">
-                            Search Parent Product *
+                          <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 mb-3 ml-1">
+                            Identification Search
                           </FormLabel>
                           <Popover
                             open={isPopoverOpen}
@@ -565,33 +585,39 @@ export function ProductVariantForm({ initialData = null }) {
                                   role="combobox"
                                   aria-expanded={isPopoverOpen}
                                   className={cn(
-                                    "w-full h-12 justify-between text-left font-normal",
-                                    !field.value && "text-muted-foreground"
+                                    "w-full h-14 justify-between text-left font-bold tracking-tight bg-background/50 border-border/60 rounded-2xl hover:bg-muted/30 focus:ring-emerald-500/20 text-base shadow-sm ring-offset-background",
+                                    !field.value && "text-muted-foreground/40 font-medium"
                                   )}
                                 >
                                   {field.value
                                     ? parentProducts.find(
                                         (p) => p.id === field.value
                                       )?.name
-                                    : "Search products..."}
-                                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    : "Scan or search catalog products..."}
+                                  <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 ml-2 animate-pulse">
+                                    <Search className="size-4 shrink-0 text-emerald-600" />
+                                  </div>
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
                             <PopoverContent
-                              className="w-[500px] p-0"
+                              className="w-[500px] p-0 rounded-2xl border-border shadow-2xl bg-background/95 backdrop-blur-xl"
                               align="start"
                             >
-                              <Command>
+                              <Command className="rounded-2xl">
                                 <CommandInput
-                                  placeholder="Search products by name or code..."
-                                  className="h-12"
+                                  placeholder="Type name, SKU, or master code..."
+                                  className="h-14 font-semibold tracking-tight"
                                 />
-                                <CommandList>
-                                  <CommandEmpty className="py-6 text-center text-sm">
-                                    No products found.
+                                <CommandList className="max-h-[400px]">
+                                  <CommandEmpty className="py-10 text-center">
+                                    <div className="inline-flex size-12 rounded-2xl bg-muted/50 items-center justify-center mb-4">
+                                      <Search className="size-5 text-muted-foreground/40" />
+                                    </div>
+                                    <p className="text-[13px] font-bold text-foreground">No matches found</p>
+                                    <p className="text-[11px] text-muted-foreground/60 mt-1">Try a different keyword</p>
                                   </CommandEmpty>
-                                  <CommandGroup className="max-h-64">
+                                  <CommandGroup className="px-2 pb-2">
                                     {parentProducts.map((product) => (
                                       <CommandItem
                                         value={`${product.name} ${product.code}`}
@@ -603,23 +629,33 @@ export function ProductVariantForm({ initialData = null }) {
                                           );
                                           setIsPopoverOpen(false);
                                         }}
-                                        className="h-12 cursor-pointer"
+                                        className="h-14 cursor-pointer rounded-xl px-4 m-1 hover:bg-emerald-500/10 hover:text-emerald-600 transition-all group"
                                       >
-                                        <Check
-                                          className={cn(
-                                            "mr-3 h-4 w-4",
-                                            product.id === field.value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
+                                        <div className={cn(
+                                          "mr-4 size-6 rounded-lg flex items-center justify-center border transition-all",
+                                          product.id === field.value 
+                                            ? "bg-emerald-500/20 border-emerald-500/40" 
+                                            : "bg-muted border-border/60 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20"
+                                        )}>
+                                          <Check
+                                            className={cn(
+                                              "size-3.5",
+                                              product.id === field.value
+                                                ? "opacity-100 text-emerald-600"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                        </div>
                                         <div className="flex-1">
-                                          <div className="font-medium">
+                                          <div className="font-bold tracking-tight group-hover:translate-x-1 transition-transform">
                                             {product.name}
                                           </div>
-                                          <div className="text-xs text-muted-foreground">
+                                          <div className="text-[10px] font-black tracking-widest uppercase opacity-40 mt-0.5 group-hover:opacity-60 transition-opacity">
                                             {product.code}
                                           </div>
+                                        </div>
+                                        <div className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground/40 bg-muted group-hover:bg-emerald-500/20 group-hover:text-emerald-700 px-2 py-0.5 rounded-md border border-border/40 transition-all">
+                                          {product.variants?.length || 0} VAR
                                         </div>
                                       </CommandItem>
                                     ))}
@@ -629,10 +665,6 @@ export function ProductVariantForm({ initialData = null }) {
                             </PopoverContent>
                           </Popover>
                           <FormMessage />
-                          <FormDescription className="text-xs mt-2">
-                            The main product this variant will be associated
-                            with
-                          </FormDescription>
                         </FormItem>
                       )}
                     />
@@ -640,34 +672,33 @@ export function ProductVariantForm({ initialData = null }) {
                 </CardContent>
               </Card>
 
-              {/* Variant Details */}
-              <div className="grid grid-cols-1 gap-6">
-                {/* Attributes Section */}
-                <Card className="border shadow-sm">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base font-semibold">
-                      Variant Attributes
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Define the specific characteristics of this variant
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Dynamic Attributes Section */}
-                    {form.watch("attributes")?.length > 0 ? (
-                      <div className="space-y-4">
-                        <FormLabel className="text-sm font-medium">
-                          Variant Specification
-                        </FormLabel>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Variant Details */}
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Attributes Section */}
+                  <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                    <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                          <Palette className="size-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-[15px] font-black tracking-tight">Variant Attributes</CardTitle>
+                          <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Custom Specifications</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-8">
+                      {/* Dynamic Attributes Section */}
+                      {form.watch("attributes")?.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           {form.watch("attributes").map((attr, index) => (
-                            <div key={attr.attribute_id} className="space-y-2 p-3 border rounded-lg bg-blue-50/30 border-blue-100">
-                              <FormLabel className="text-[10px] font-bold uppercase text-blue-600 tracking-wider">
+                            <div key={attr.attribute_id} className="space-y-3 p-4 border border-emerald-500/10 rounded-2xl bg-emerald-500/2 hover:bg-emerald-500/4 transition-colors group">
+                              <FormLabel className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60 group-hover:text-emerald-600 transition-colors ml-1">
                                 {attr.name}
                               </FormLabel>
                               <Input
-                                placeholder={`Enter ${attr.name} (e.g. ${attr.name === 'Color' ? 'Red' : 'XL'})`}
-                                className="h-10 bg-white border-blue-100 focus:border-blue-300 focus:ring-blue-100"
+                                placeholder={`e.g., ${attr.name === 'Color' ? 'Emerald' : 'Large'}`}
+                                className="h-11 bg-background border-border/60 rounded-xl focus:ring-emerald-500/20 font-bold tracking-tight text-[13px] shadow-sm"
                                 value={form.watch(`attributes.${index}.value`)}
                                 onChange={(e) => {
                                   form.setValue(`attributes.${index}.value`, e.target.value);
@@ -676,348 +707,377 @@ export function ProductVariantForm({ initialData = null }) {
                             </div>
                           ))}
                         </div>
-                      </div>
-                    ) : (
-                      <div className="p-6 text-center border-2 border-dashed rounded-lg bg-slate-50/50">
-                        <Palette className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground font-medium">No attributes defined for this product</p>
-                        <p className="text-xs text-muted-foreground">Select a product with defined attributes to configure variants</p>
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8!">
-                      <FormField
-                        name="cost_price"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Cost Price
-                            </FormLabel>
-                            <Input
-                              type="number"
-                              placeholder="0.00"
-                              className="h-11"
-                              {...field}
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        name="wholesale_price"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Wholesale Price
-                            </FormLabel>
-                            <Input
-                              type="number"
-                              placeholder="0.00"
-                              className="h-11"
-                              {...field}
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        name="price"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Sale Price
-                            </FormLabel>
-                            <Input
-                              type="number"
-                              placeholder="0.00"
-                              className="h-11"
-                              {...field}
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        name="stock_quantity"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Initial Quantity
-                            </FormLabel>
-                            <Input
-                              type="number"
-                              placeholder="0"
-                              className="h-11"
-                              {...field}
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Description */}
-                    <FormField
-                      name="description"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem className="mt-6!">
-                          <FormLabel className="text-sm font-medium">
-                            Description
-                          </FormLabel>
-                          <Textarea
-                            placeholder="Additional details about this variant..."
-                            className="min-h-[100px] resize-none"
-                            {...field}
-                          />
-                          <FormDescription className="text-xs">
-                            Optional notes about this specific variant
-                          </FormDescription>
-                        </FormItem>
+                      ) : (
+                        <div className="p-10 text-center border-2 border-dashed border-border/60 rounded-3xl bg-muted/10 mx-auto max-w-sm">
+                          <div className="size-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4 border border-border/40">
+                            <Palette className="size-7 text-muted-foreground/30" />
+                          </div>
+                          <p className="text-sm font-bold text-foreground tracking-tight">No attributes available</p>
+                          <p className="text-[11px] text-muted-foreground/60 font-medium mt-1">Select a product with defined attributes to proceed</p>
+                        </div>
                       )}
-                    />
-                  </CardContent>
-                </Card>
 
-                {/* Identification Section */}
-                <Card className="border shadow-sm">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base font-semibold">
-                      Identification Codes
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Unique identifiers for inventory and sales
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        name="code"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Variant Code *
-                            </FormLabel>
-                            <div className="flex gap-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <FormField
+                          name="cost_price"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                                Cost Price
+                              </FormLabel>
                               <FormControl>
-                                <Input
-                                  placeholder="e.g., VAR-001-BLUE"
-                                  className="h-11"
-                                  {...field}
-                                />
+                                <div className="relative group">
+                                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 font-black text-xs group-focus-within:text-emerald-600 transition-colors">$</div>
+                                  <Input
+                                    type="number"
+                                    placeholder="0.00"
+                                    className="h-12 pl-7 bg-background border-border/60 rounded-xl focus:ring-emerald-500/20 font-bold tracking-tight text-[13px] shadow-sm transition-all"
+                                    {...field}
+                                  />
+                                </div>
                               </FormControl>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={generateUniqueSKU}
-                                title="Generate Code"
-                                className="h-11 w-11"
-                                disabled={!detailedParent}
-                              >
-                                <RefreshCw className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <FormMessage />
-                            <FormDescription className="text-xs">
-                              Unique internal identifier
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          name="wholesale_price"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                                Wholesale
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative group">
+                                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 font-black text-xs group-focus-within:text-emerald-600 transition-colors">$</div>
+                                  <Input
+                                    type="number"
+                                    placeholder="0.00"
+                                    className="h-12 pl-7 bg-background border-border/60 rounded-xl focus:ring-emerald-500/20 font-bold tracking-tight text-[13px] shadow-sm transition-all"
+                                    {...field}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          name="price"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                                Sale Price
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative group">
+                                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 font-black text-xs group-focus-within:text-emerald-600 transition-colors">$</div>
+                                  <Input
+                                    type="number"
+                                    placeholder="0.00"
+                                    className="h-12 pl-7 bg-emerald-500/2 border-emerald-500/20 rounded-xl focus:ring-emerald-500/20 font-black tracking-tight text-[13px] shadow-sm transition-all text-emerald-600"
+                                    {...field}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          name="stock_quantity"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                                Initial Level
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative group">
+                                  <Box className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40 group-focus-within:text-emerald-600 transition-colors" />
+                                  <Input
+                                    type="number"
+                                    placeholder="0"
+                                    className="h-12 pl-10 bg-background border-border/60 rounded-xl focus:ring-emerald-500/20 font-bold tracking-tight text-[13px] shadow-sm transition-all"
+                                    {...field}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
+                      {/* Description */}
                       <FormField
-                        name="sku"
+                        name="description"
                         control={form.control}
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              SKU *
+                          <FormItem className="space-y-3">
+                            <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                              Variant Brief
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                placeholder="e.g., PROD-VAR-001"
-                                className="h-11"
-                                {...field}
-                              />
+                              <div className="relative group">
+                                <Textarea
+                                  placeholder="Additional nuances, quality markers, or handling notes..."
+                                  className="min-h-[120px] bg-background border-border/60 rounded-2xl focus:ring-emerald-500/20 font-medium tracking-tight text-[13px] shadow-sm resize-none p-4"
+                                  {...field}
+                                />
+                              </div>
                             </FormControl>
-                            <FormMessage />
-                            <FormDescription className="text-xs">
-                              Stock Keeping Unit for inventory
-                            </FormDescription>
                           </FormItem>
                         )}
                       />
-                    </div>
+                    </CardContent>
+                  </Card>
 
-                    <FormField
-                      name="barcode"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">
-                            Barcode
-                          </FormLabel>
-                          <div className="relative">
-                            <Barcode className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              className="pl-10 h-11"
-                              placeholder="Enter or scan barcode..."
-                              {...field}
+                  {/* Identification Section */}
+                  <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                    <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                          <QrCode className="size-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-[15px] font-black tracking-tight">Identification</CardTitle>
+                          <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">SKU & Barcode</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          name="code"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                                Variant Code
+                              </FormLabel>
+                              <div className="flex gap-2 group/code">
+                                <FormControl>
+                                  <div className="relative flex-1">
+                                    <Input
+                                      placeholder="e.g., VAR-DELTA-9"
+                                      className="h-12 bg-background border-border/60 rounded-xl focus:ring-emerald-500/20 font-black tracking-tight text-base shadow-sm group-focus-within/code:border-emerald-500/40 transition-all"
+                                      {...field}
+                                    />
+                                  </div>
+                                </FormControl>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={generateUniqueSKU}
+                                  className="size-12 rounded-xl bg-background border-border/60 hover:bg-emerald-500/10 hover:border-emerald-500/20 text-emerald-600 shadow-sm transition-all animate-in zoom-in-75 duration-300"
+                                  disabled={!detailedParent}
+                                >
+                                  <RefreshCw className="size-4" />
+                                </Button>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          name="sku"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                                Stock Keeping Unit (SKU)
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative group/sku">
+                                  <Input
+                                    placeholder="PROD-VAR-X"
+                                    className="h-12 bg-background border-border/60 rounded-xl focus:ring-emerald-500/20 font-black tracking-tight text-base shadow-sm group-focus-within/sku:border-emerald-500/40 transition-all uppercase"
+                                    {...field}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        name="barcode"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem className="space-y-3">
+                            <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">
+                              POS Scannable Barcode
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative group/barcode">
+                                <Barcode className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground/30 group-focus-within:text-emerald-600 transition-colors" />
+                                <Input
+                                  className="h-14 pl-12 bg-background border-border/60 rounded-2xl focus:ring-emerald-500/20 font-black tracking-[0.2em] text-lg shadow-sm group-focus-within:border-emerald-500/40 transition-all"
+                                  placeholder="SCAN OR INPUT"
+                                  {...field}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Settings Section */}
+                  <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                    <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                          <Check className="size-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-[15px] font-black tracking-tight">Variant Status</CardTitle>
+                          <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Active & Default Settings</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <FormField
+                          control={form.control}
+                          name="is_active"
+                          render={({ field }) => (
+                            <SettingsCard
+                              label="Active Status"
+                              description="Make variant available for sales"
+                              icon={Zap}
+                              isActive={field.value}
+                              onToggle={field.onChange}
                             />
-                          </div>
-                          <FormDescription className="text-xs">
-                            Optional barcode for point-of-sale systems
-                          </FormDescription>
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
+                          )}
+                        />
 
-                {/* Settings Section - Fixed Toggle Cards */}
-                <Card className="border shadow-sm">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base font-semibold">
-                      Settings
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Control variant visibility and defaults
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <FormField
-                        control={form.control}
-                        name="is_active"
-                        render={({ field }) => (
-                          <SettingsCard
-                            label="Active Status"
-                            description="Make variant available for sales"
-                            icon={Box}
-                            isActive={field.value}
-                            onToggle={field.onChange}
-                          />
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="is_default"
-                        render={({ field }) => (
-                          <SettingsCard
-                            label="Default Variant"
-                            description="Set as primary variant for the product"
-                            icon={Check}
-                            isActive={field.value}
-                            onToggle={field.onChange}
-                          />
-                        )}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                        <FormField
+                          control={form.control}
+                          name="is_default"
+                          render={({ field }) => (
+                            <SettingsCard
+                              label="Master Default"
+                              description="Primary selection for catalog"
+                              icon={Check}
+                              isActive={field.value}
+                              onToggle={field.onChange}
+                            />
+                          )}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
               </div>
             </div>
 
             {/* Right Column - Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Variant History */}
-              <Card className="border shadow-sm">
-                <CardHeader className="pb-3">
+              <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base font-semibold flex items-center gap-2">
-                      <History className="w-4 h-4 text-slate-500" />
-                      Existing Variants
-                    </CardTitle>
+                    <div className="flex items-center gap-3">
+                      <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                        <History className="size-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-[15px] font-black tracking-tight">Existing Variants</CardTitle>
+                        <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Product History</p>
+                      </div>
+                    </div>
                     {detailedParent?.variants?.length > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        {detailedParent.variants.length} total
+                      <Badge variant="secondary" className="text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                        {detailedParent.variants.length}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Other variants of this product
-                  </p>
                 </CardHeader>
                 <CardContent className="p-0">
                   {detailedParent ? (
                     <ExistingVariantsList variants={detailedParent.variants} />
                   ) : (
-                    <div className="p-6 text-center">
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 mb-4">
-                        <Search className="w-6 h-6 text-slate-400" />
+                    <div className="p-12 text-center">
+                      <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-muted/50 mb-4 border border-border/40">
+                        <Search className="size-7 text-muted-foreground/30" />
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Select a product to view variants
-                      </p>
+                      <p className="text-[13px] font-bold text-foreground">No Product Selected</p>
+                      <p className="text-[11px] text-muted-foreground/60 mt-1">Select a product to view variants</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
 
               {/* Image Upload - Redesigned */}
-              <Card className="border shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold">
-                    Variant Images
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Upload images for this variant
-                  </p>
+              <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Camera className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Variant Images</CardTitle>
+                      <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Gallery Assets</p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="p-5">
+                  <div className="space-y-6">
                     {/* Image Grid */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-4">
                       {imagePreviews.map((src, index) => (
                         <div
                           key={index}
-                          className="relative aspect-square rounded-lg border overflow-hidden group hover:ring-2 hover:ring-blue-500 transition-all"
+                          className="relative aspect-square rounded-2xl border border-border/60 overflow-hidden group hover:ring-2 hover:ring-emerald-500/40 transition-all shadow-sm"
                         >
                           <img
                             src={src}
                             alt={`Preview ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
-                            className="absolute top-2 right-2 p-1.5 bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/90"
+                            className="absolute top-2 right-2 size-8 bg-black/60 backdrop-blur-md text-white rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:scale-110"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="size-3.5" />
                           </button>
                           {index === 0 && (
-                            <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded">
-                              Primary
+                            <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-emerald-600/90 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-widest rounded-lg shadow-lg">
+                              Primary Image
                             </div>
                           )}
                         </div>
                       ))}
 
-                      {/* Add Image Button - Redesigned */}
+                      {/* Add Image Button */}
                       {imagePreviews.length < 10 && (
                         <div
                           className={cn(
-                            "aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all",
-                            "border-slate-300 hover:border-blue-400 hover:bg-blue-50/30",
-                            "group"
+                            "aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300",
+                            "border-border/60 hover:border-emerald-500/40 hover:bg-emerald-500/3 hover:shadow-inner group"
                           )}
                           onClick={() => fileInputRef.current?.click()}
                         >
-                          <div className="p-3 rounded-full bg-slate-100 group-hover:bg-blue-100 transition-colors mb-2">
-                            <Camera className="w-5 h-5 text-slate-600 group-hover:text-blue-600" />
+                          <div className="size-12 rounded-2xl bg-muted/50 group-hover:bg-emerald-500/10 border border-border/40 group-hover:border-emerald-500/20 flex items-center justify-center mb-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                            <PlusCircle className="size-6 text-muted-foreground/40 group-hover:text-emerald-600 transition-colors" />
                           </div>
-                          <span className="text-sm font-medium text-slate-700">
+                          <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 group-hover:text-emerald-700 transition-colors">
                             Add Image
                           </span>
-                          <span className="text-xs text-muted-foreground mt-1 text-center px-2">
-                            {imagePreviews.length}/10 images
+                          <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {imagePreviews.length}/10 slots
                           </span>
                         </div>
                       )}
@@ -1033,61 +1093,87 @@ export function ProductVariantForm({ initialData = null }) {
                     />
 
                     {imagePreviews.length === 0 && (
-                      <div className="text-center py-4 border rounded-lg bg-slate-50/50">
-                        <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          No images uploaded yet
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Click "Add Image" to upload variant photos
+                      <div className="text-center py-10 border border-dashed border-border/60 rounded-3xl bg-muted/10">
+                        <div className="size-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4 border border-border/40">
+                          <Camera className="size-7 text-muted-foreground/30" />
+                        </div>
+                        <p className="text-[13px] font-bold text-foreground">No imagery added</p>
+                        <p className="text-[11px] text-muted-foreground/60 mt-1 px-8 leading-relaxed">
+                          Please upload product variant images
                         </p>
                       </div>
                     )}
 
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p>• First image will be used as primary</p>
-                      <p>• Supported formats: JPG, PNG, WebP</p>
-                      <p>• Maximum size: 5MB per image</p>
+                    <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/40">
+                      {[
+                        "First image will be the primary identification",
+                        "High fidelity formats: JPG, PNG, WebP supported",
+                        "Maximum file size: 5MB per image"
+                      ].map((hint, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <div className="size-1 rounded-full bg-emerald-500/30" />
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">{hint}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Quick Actions */}
-              <Card className="border shadow-sm bg-blue-50/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold">
-                    Quick Actions
-                  </CardTitle>
+              <Card className="border border-emerald-500/10 shadow-xl shadow-emerald-500/2 rounded-3xl overflow-hidden bg-emerald-500/2 backdrop-blur-sm">
+                <CardHeader className="pb-2.5 bg-emerald-500/3 border-b border-emerald-500/10 px-6 pt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Zap className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Quick Actions</CardTitle>
+                      <p className="text-[11px] text-emerald-600/60 font-bold uppercase tracking-wider">Tools & Navigation</p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="p-5 space-y-4">
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full justify-start h-11"
+                    className="w-full justify-start h-14 bg-background/50 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 rounded-2xl transition-all group px-5"
                     onClick={generateUniqueSKU}
                     disabled={!detailedParent}
                   >
-                    <RefreshCw className="w-4 h-4 mr-3" />
-                    Generate SKU & Code
+                    <div className="size-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform mr-4 shadow-sm">
+                      <RefreshCw className="size-4 text-emerald-600 group-hover:rotate-180 transition-transform duration-500" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-foreground leading-none">Auto-Generate</span>
+                      <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">Codes & SKU</span>
+                    </div>
                   </Button>
+
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full justify-start h-11"
+                    className="w-full justify-start h-14 bg-background/50 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 rounded-2xl transition-all group px-5"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Upload className="w-4 h-4 mr-3" />
-                    Upload Images
+                    <div className="size-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform mr-4 shadow-sm">
+                      <Upload className="size-4 text-emerald-600" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-foreground leading-none">Upload Photos</span>
+                      <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">Gallery Upload</span>
+                    </div>
                   </Button>
-                  <Separator />
+
+                  <Separator className="bg-emerald-500/10" />
+                  
                   <Button
                     variant="ghost"
-                    className="w-full justify-start h-11 text-muted-foreground"
+                    className="w-full justify-center h-12 text-muted-foreground/60 hover:text-foreground hover:bg-muted/30 rounded-xl transition-all font-black uppercase text-[10px] tracking-widest"
                     onClick={() => router.back()}
                   >
-                    <ArrowLeft className="w-4 h-4 mr-3" />
-                    Back to Variants
+                    <ArrowLeft className="size-4 mr-3 opacity-40" />
+                    Revert to List
                   </Button>
                 </CardContent>
               </Card>

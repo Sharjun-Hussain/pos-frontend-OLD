@@ -25,21 +25,21 @@ export default function Dashboard() {
   }, { scope: containerRef });
 
   return (
-    <div className="min-h-screen bg-slate-50/50" ref={containerRef}>
+    <div className="relative" ref={containerRef}>
       <Header
         activeSection={activeSection}
         onSectionChange={setActiveSection}
       />
 
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+      <main className="p-8">
         {activeSection === "dashboard" && (
-          <div className="space-y-8">
+          <div className="max-w-7xl mx-auto space-y-8">
             
             {/* 1. Stats Section */}
             <div className="dashboard-item">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-slate-800 tracking-tight">Overview</h2>
-                <span className="text-sm text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+                <h2 className="text-xl font-bold text-foreground tracking-tight">Overview</h2>
+                <span className="text-sm text-muted-foreground bg-card px-3 py-1 rounded-full border border-border shadow-sm transition-colors duration-500">
                   Last updated: Just now
                 </span>
               </div>
@@ -48,7 +48,7 @@ export default function Dashboard() {
 
             {/* 2. Quick Actions Section */}
             <div className="dashboard-item">
-               <h2 className="text-xl font-bold text-slate-800 tracking-tight mb-4">Quick Access</h2>
+               <h2 className="text-xl font-bold text-foreground tracking-tight mb-4">Quick Access</h2>
               <QuickActions />
             </div>
 

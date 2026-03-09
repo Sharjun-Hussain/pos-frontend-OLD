@@ -30,26 +30,30 @@ import {
   ChevronDown,
   Layers,
   Package,
+  Boxes
 } from "lucide-react";
 
 // Custom Components & Hooks
 import { ResourceManagementLayout } from "@/components/general/resource-management-layout";
 import { usePermission } from "@/hooks/use-permission";
 import { getProductVariantColumns } from "./product-variant-column";
-import ProductSkeleton from "@/app/skeletons/product-listing-page-skeleton";
+import ProductSkeleton from "@/app/skeletons/products/product-listing-skeleton";
+import { PERMISSIONS } from "@/lib/permissions";
 
 // ----------------------------------------------------------------------
 // 1. Helper: Page Header
 // ----------------------------------------------------------------------
 const HeaderContent = () => (
-  <div className="flex items-center gap-3">
-    <div className="p-2 rounded-lg bg-primary-100">
-      <Layers className="w-6 h-6 text-primary-600" />
+  <div className="flex items-center gap-4">
+    <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+      <Boxes className="w-4.5 h-4.5 text-[#10b981]" />
     </div>
-    <div>
-      <h1 className="text-2xl font-bold text-gray-900">Product Variants</h1>
-      <p className="text-gray-600 text-sm font-medium">
-        Manage variant attributes, SKUs, pricing, and specific stock levels.
+    <div className="flex flex-col">
+      <h1 className="text-xl font-semibold text-foreground tracking-tight">
+        Product Variants
+      </h1>
+      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+        Attribute & Stock Management
       </p>
     </div>
   </div>
@@ -80,17 +84,17 @@ const VariantFilters = ({ table }) => {
             ?.setFilterValue(value === "all" ? undefined : value);
         }}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-[220px] h-10 bg-background/50 border-border/60 rounded-xl focus:ring-emerald-500/20 text-xs font-semibold">
           <SelectValue placeholder="All Products" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">
+        <SelectContent className="rounded-xl border-border shadow-2xl">
+          <SelectItem value="all" className="rounded-lg text-xs">
             <div className="flex items-center text-muted-foreground">
               <Package className="mr-2 h-4 w-4" /> All Products
             </div>
           </SelectItem>
           {uniqueProducts.map((productName) => (
-            <SelectItem key={productName} value={productName}>
+            <SelectItem key={productName} value={productName} className="rounded-lg text-xs">
               {productName}
             </SelectItem>
           ))}
@@ -107,17 +111,17 @@ const VariantFilters = ({ table }) => {
           }
         }}
       >
-        <SelectTrigger className="w-[150px]">
+        <SelectTrigger className="w-[180px] h-10 bg-background/50 border-border/60 rounded-xl focus:ring-emerald-500/20 text-xs font-semibold">
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="true">
+        <SelectContent className="rounded-xl border-border shadow-2xl">
+          <SelectItem value="all" className="rounded-lg text-xs">All Status</SelectItem>
+          <SelectItem value="true" className="rounded-lg text-xs">
             <div className="flex items-center text-emerald-600">
               <CheckCircle2 className="mr-2 h-4 w-4" /> Active
             </div>
           </SelectItem>
-          <SelectItem value="false">
+          <SelectItem value="false" className="rounded-lg text-xs">
             <div className="flex items-center text-red-500">
               <XCircle className="mr-2 h-4 w-4" /> Inactive
             </div>
@@ -142,13 +146,13 @@ const VariantBulkActions = ({ table, onDelete, onDeactivate, onActivate }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="ml-auto">
-          Actions ({numSelected}) <ChevronDown className="ml-2 h-4 w-4" />
+        <Button variant="outline" className="ml-auto h-10 px-4 rounded-xl border-border/60 bg-background/50 hover:bg-muted font-bold uppercase text-[10px] tracking-widest transition-all">
+          Actions ({numSelected}) <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-2xl">
         <DropdownMenuItem
-          className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+          className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer rounded-lg m-1"
           onClick={() => {
             onActivate(selectedIds);
             table.resetRowSelection();
@@ -159,7 +163,7 @@ const VariantBulkActions = ({ table, onDelete, onDeactivate, onActivate }) => {
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 cursor-pointer"
+          className="text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer rounded-lg m-1"
           onClick={() => {
             onDeactivate(selectedIds);
             table.resetRowSelection();
@@ -172,7 +176,7 @@ const VariantBulkActions = ({ table, onDelete, onDeactivate, onActivate }) => {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+          className="text-red-600 focus:text-red-700 focus:bg-red-500/10 cursor-pointer rounded-lg m-1"
           onClick={() => {
             onDelete(selectedIds);
             table.resetRowSelection();
@@ -397,9 +401,9 @@ export default function ProductVariantsPage() {
   );
 
   return (
-    <div className="relative min-h-screen w-full bg-gray-50">
-      <div className="fixed inset-0 -z-10 h-full w-full bg-white">
-        <div className="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
+    <div className="relative min-h-screen w-full bg-background">
+      <div className="fixed inset-0 -z-10 h-full w-full bg-background">
+        <div className="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.05),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.1),rgba(0,0,0,0))]"></div>
       </div>
 
       <ResourceManagementLayout

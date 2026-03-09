@@ -9,7 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Search, Filter, RotateCcw, Landmark, Wallet, TrendingDown, TrendingUp, History, Pencil, ArrowLeftRight } from 'lucide-react';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Plus, Search, Filter, RotateCcw, Landmark, Wallet, TrendingDown, TrendingUp, History, Pencil, ArrowLeftRight, X, Check, ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -133,41 +136,41 @@ export default function ChartOfAccountsPage() {
     return (
         <div className="p-6 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3 text-slate-900">
-                        <div className="h-10 w-10 bg-slate-900 text-white flex items-center justify-center rounded-xl shadow-lg">
-                            <Landmark className="h-6 w-6" />
-                        </div>
-                        Chart of Accounts
-                    </h1>
-                    <p className="text-sm text-slate-500 font-medium mt-1">
-                        Manage your financial accounts and balances
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                        <Landmark className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-semibold text-foreground tracking-tight">Chart of Accounts</h1>
+                        <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+                            Manage your financial accounts and balances
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button 
                         variant="outline" 
                         size="sm" 
-                        className="h-10 font-bold text-xs uppercase tracking-wider gap-2 shadow-sm"
+                        className="h-10 rounded-xl px-4 font-bold text-[10px] uppercase tracking-wider gap-2 shadow-sm"
                         onClick={fetchAccounts}
                         disabled={loading}
                     >
-                        <RotateCcw className={cn("h-4 w-4", loading && "animate-spin")} />
+                        <RotateCcw className={cn("h-4 w-4 opacity-60", loading && "animate-spin")} />
                         Refresh
                     </Button>
                     <Button 
                         variant="outline" 
                         size="sm" 
-                        className="h-10 font-bold text-xs uppercase tracking-wider gap-2 shadow-sm"
+                        className="h-10 rounded-xl px-4 font-bold text-[10px] uppercase tracking-wider gap-2 shadow-sm"
                         onClick={() => setIsTransferDialogOpen(true)}
                     >
-                        <ArrowLeftRight className="h-4 w-4" />
+                        <ArrowLeftRight className="h-4 w-4 opacity-60" />
                         Transfer
                     </Button>
                     <Button 
                         variant="default" 
                         size="sm" 
-                        className="h-10 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider gap-2 shadow-lg"
+                        className="h-10 rounded-xl px-6 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[10px] uppercase tracking-wider gap-2 shadow-lg shadow-emerald-500/20"
                         onClick={() => setIsAddDialogOpen(true)}
                     >
                         <Plus className="h-4 w-4" />
@@ -176,54 +179,54 @@ export default function ChartOfAccountsPage() {
                 </div>
             </div>
 
-            <Card className="border-slate-200 shadow-sm overflow-hidden rounded-xl">
+            <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50/50">
-                            <TableRow className="hover:bg-transparent border-slate-100 italic-none">
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-4 px-6 w-[100px]">Code</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-4 px-6">Account Name</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-4 px-6">Type</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-4 px-6 text-right">Balance</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-4 px-6">Status</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-4 px-6 text-right">Actions</TableHead>
+                        <TableHeader className="bg-muted/30">
+                            <TableRow className="hover:bg-transparent border-border/40">
+                                <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6 w-[100px]">Code</TableHead>
+                                <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6">Account Name</TableHead>
+                                <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6">Type</TableHead>
+                                <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6 text-right">Balance</TableHead>
+                                <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6">Status</TableHead>
+                                <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6 text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
                                     <TableCell colSpan={6} className="text-center py-20">
-                                        <RotateCcw className="h-8 w-8 animate-spin mx-auto text-slate-300 mb-4" />
-                                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Chart of Accounts...</p>
+                                        <RotateCcw className="h-8 w-8 animate-spin mx-auto text-muted-foreground/30 mb-4" />
+                                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Loading Chart of Accounts...</p>
                                     </TableCell>
                                 </TableRow>
                             ) : accounts.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6} className="text-center py-20">
-                                        <Landmark className="h-12 w-12 mx-auto text-slate-200 mb-4 opacity-30" />
-                                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">No accounts found</p>
+                                        <Landmark className="h-12 w-12 mx-auto text-muted-foreground/20 mb-4 opacity-30" />
+                                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">No accounts found</p>
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 accounts.map((account) => (
-                                    <TableRow key={account.id} className="group hover:bg-slate-50/50 transition-colors border-slate-100">
+                                    <TableRow key={account.id} className="group hover:bg-muted/30 transition-colors border-border/40">
                                         <TableCell className="py-4 px-6">
-                                            <code className="text-[11px] font-black text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                                            <code className="text-[11px] font-black text-muted-foreground bg-muted px-2 py-1 rounded-md">
                                                 {account.code}
                                             </code>
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
-                                            <p className="text-sm font-bold text-slate-800 uppercase tracking-tight">{account.name}</p>
+                                            <p className="text-sm font-medium text-foreground">{account.name}</p>
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
                                             <div className="flex items-center gap-2">
                                                 {getTypeIcon(account.type)}
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                                <span className="text-xs font-medium capitalize text-muted-foreground">
                                                     {account.type}
                                                 </span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="py-4 px-6 text-right font-mono font-bold text-slate-900">
+                                        <TableCell className="py-4 px-6 text-right font-mono font-bold text-foreground">
                                             LKR {parseFloat(account.balance).toFixed(2)}
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
@@ -231,7 +234,7 @@ export default function ChartOfAccountsPage() {
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg hover:bg-white hover:border-slate-200 border border-transparent shadow-none"
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg hover:bg-muted/50 border border-transparent shadow-none"
                                                     onClick={() => {
                                                         setSelectedAccount(account);
                                                         setFormData({
@@ -243,15 +246,15 @@ export default function ChartOfAccountsPage() {
                                                         setIsEditDialogOpen(true);
                                                     }}
                                                 >
-                                                    <Pencil className="h-4 w-4 text-slate-400" />
+                                                    <Pencil className="h-4 w-4 text-muted-foreground" />
                                                 </Button>
                                                 <Button 
                                                     size="icon" 
                                                     variant="ghost" 
-                                                    className="h-8 w-8 rounded-lg hover:bg-white hover:border-slate-200 border border-transparent shadow-none"
+                                                    className="h-8 w-8 rounded-lg hover:bg-muted/50 border border-transparent shadow-none"
                                                     onClick={() => fetchAccountLedger(account)}
                                                 >
-                                                    <History className="h-4 w-4 text-slate-400" />
+                                                    <History className="h-4 w-4 text-muted-foreground" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -263,184 +266,229 @@ export default function ChartOfAccountsPage() {
                 </CardContent>
             </Card>
 
-            {/* Add Account Dialog */}
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogContent className="max-w-md rounded-2xl p-0 overflow-hidden border-none shadow-2xl">
-                    <DialogHeader className="p-6 bg-slate-900 text-white">
-                        <DialogTitle className="text-xl font-black uppercase tracking-tight">Add New Account</DialogTitle>
-                        <DialogDescription className="text-slate-400 font-medium italic">Create a new entry in your chart of accounts</DialogDescription>
-                    </DialogHeader>
-                    <div className="p-6 space-y-4 bg-white">
+            {/* Add Account Sheet */}
+            <Sheet open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <SheetContent className="flex flex-col w-full sm:max-w-md p-0 overflow-hidden bg-background border-l border-border/50 [&>button]:hidden text-foreground">
+                    <SheetHeader className="px-6 py-6 border-b border-border/30 bg-muted/10 relative">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute right-4 top-4 h-8 w-8 rounded-full text-muted-foreground hover:bg-muted/50" 
+                            onClick={() => setIsAddDialogOpen(false)}
+                        >
+                            <span className="sr-only">Close</span>
+                            <X className="h-4 w-4" />
+                        </Button>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                                <Landmark className="w-5 h-5 text-emerald-500" />
+                            </div>
+                            <div className="text-left space-y-0.5">
+                                <SheetTitle className="text-base font-semibold leading-none tracking-tight">Add New Account</SheetTitle>
+                                <SheetDescription className="text-xs uppercase tracking-wider font-medium text-muted-foreground/70">Create a new entry in your chart of accounts</SheetDescription>
+                            </div>
+                        </div>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Code</label>
+                                <label className="text-xs font-medium text-muted-foreground">Account Code</label>
                                 <Input 
                                     placeholder="e.g. 1020" 
-                                    className="h-10 font-bold text-xs"
+                                    className="h-10 text-sm"
                                     value={formData.code}
                                     onChange={(e) => setFormData({...formData, code: e.target.value})}
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Type</label>
+                                <label className="text-xs font-medium text-muted-foreground">Account Type</label>
                                 <Select value={formData.type} onValueChange={(v) => setFormData({...formData, type: v})}>
-                                    <SelectTrigger className="h-10 font-bold text-xs uppercase tracking-wider">
+                                    <SelectTrigger className="h-10 text-sm w-full">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-xl">
-                                        <SelectItem value="asset" className="text-xs font-bold uppercase tracking-wider">Asset</SelectItem>
-                                        <SelectItem value="liability" className="text-xs font-bold uppercase tracking-wider">Liability</SelectItem>
-                                        <SelectItem value="equity" className="text-xs font-bold uppercase tracking-wider">Equity</SelectItem>
-                                        <SelectItem value="revenue" className="text-xs font-bold uppercase tracking-wider">Revenue</SelectItem>
-                                        <SelectItem value="expense" className="text-xs font-bold uppercase tracking-wider">Expense</SelectItem>
+                                        <SelectItem value="asset" className="text-sm">Asset</SelectItem>
+                                        <SelectItem value="liability" className="text-sm">Liability</SelectItem>
+                                        <SelectItem value="equity" className="text-sm">Equity</SelectItem>
+                                        <SelectItem value="revenue" className="text-sm">Revenue</SelectItem>
+                                        <SelectItem value="expense" className="text-sm">Expense</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Name</label>
+                            <label className="text-xs font-medium text-muted-foreground">Account Name</label>
                             <Input 
                                 placeholder="e.g. Seylan Bank - Main" 
-                                className="h-10 font-bold text-xs uppercase tracking-tight"
+                                className="h-10 text-sm"
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Opening Balance (LKR)</label>
+                            <label className="text-xs font-medium text-muted-foreground">Opening Balance (LKR)</label>
                             <Input 
                                 type="number"
                                 placeholder="0.00" 
-                                className="h-10 font-bold text-xs font-mono"
+                                className="h-10 text-sm font-mono"
                                 value={formData.balance}
                                 onChange={(e) => setFormData({...formData, balance: e.target.value})}
                             />
                         </div>
                     </div>
-                    <DialogFooter className="p-4 bg-slate-50 border-t border-slate-100">
-                        <Button variant="ghost" className="text-xs font-black uppercase tracking-widest text-slate-400" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-                        <Button className="bg-slate-900 text-white text-xs font-black uppercase tracking-widest px-8 shadow-lg" onClick={handleCreateAccount}>Save Account</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    <div className="p-6 border-t border-border/30 bg-muted/10 flex justify-end gap-3 mt-auto">
+                        <Button variant="outline" className="rounded-xl" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
+                        <Button className="rounded-xl min-w-[120px] bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/20" onClick={handleCreateAccount}>Save Account</Button>
+                    </div>
+                </SheetContent>
+            </Sheet>
 
-            {/* Edit Account Dialog */}
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="max-w-md rounded-2xl p-0 overflow-hidden border-none shadow-2xl">
-                    <DialogHeader className="p-6 bg-slate-900 text-white">
-                        <DialogTitle className="text-xl font-black uppercase tracking-tight">Edit Account</DialogTitle>
-                        <DialogDescription className="text-slate-400 font-medium italic">Update chart of account details</DialogDescription>
-                    </DialogHeader>
-                    <div className="p-6 space-y-4 bg-white">
+            {/* Edit Account Sheet */}
+            <Sheet open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <SheetContent className="flex flex-col w-full sm:max-w-md p-0 overflow-hidden bg-background border-l border-border/50 [&>button]:hidden text-foreground">
+                    <SheetHeader className="px-6 py-6 border-b border-border/30 bg-muted/10 relative">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute right-4 top-4 h-8 w-8 rounded-full text-muted-foreground hover:bg-muted/50" 
+                            onClick={() => setIsEditDialogOpen(false)}
+                        >
+                            <span className="sr-only">Close</span>
+                            <X className="h-4 w-4" />
+                        </Button>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                                <Landmark className="w-5 h-5 text-emerald-500" />
+                            </div>
+                            <div className="text-left space-y-0.5">
+                                <SheetTitle className="text-base font-semibold leading-none tracking-tight">Edit Account</SheetTitle>
+                                <SheetDescription className="text-xs uppercase tracking-wider font-medium text-muted-foreground/70">Update chart of account details</SheetDescription>
+                            </div>
+                        </div>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Code</label>
-                                <Input disabled className="h-10 font-bold text-xs bg-slate-50" value={formData.code} />
+                                <label className="text-xs font-medium text-muted-foreground">Account Code</label>
+                                <Input disabled className="h-10 text-sm bg-muted/30" value={formData.code} />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Type</label>
+                                <label className="text-xs font-medium text-muted-foreground">Account Type</label>
                                 <Select value={formData.type} onValueChange={(v) => setFormData({...formData, type: v})}>
-                                    <SelectTrigger className="h-10 font-bold text-xs uppercase tracking-wider">
+                                    <SelectTrigger className="h-10 text-sm w-full">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-xl">
-                                        <SelectItem value="asset" className="text-xs font-bold uppercase tracking-wider">Asset</SelectItem>
-                                        <SelectItem value="liability" className="text-xs font-bold uppercase tracking-wider">Liability</SelectItem>
-                                        <SelectItem value="equity" className="text-xs font-bold uppercase tracking-wider">Equity</SelectItem>
-                                        <SelectItem value="revenue" className="text-xs font-bold uppercase tracking-wider">Revenue</SelectItem>
-                                        <SelectItem value="expense" className="text-xs font-bold uppercase tracking-wider">Expense</SelectItem>
+                                        <SelectItem value="asset" className="text-sm">Asset</SelectItem>
+                                        <SelectItem value="liability" className="text-sm">Liability</SelectItem>
+                                        <SelectItem value="equity" className="text-sm">Equity</SelectItem>
+                                        <SelectItem value="revenue" className="text-sm">Revenue</SelectItem>
+                                        <SelectItem value="expense" className="text-sm">Expense</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Name</label>
+                            <label className="text-xs font-medium text-muted-foreground">Account Name</label>
                             <Input 
-                                className="h-10 font-bold text-xs uppercase tracking-tight"
+                                className="h-10 text-sm"
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                             />
                         </div>
                     </div>
-                    <DialogFooter className="p-4 bg-slate-50 border-t border-slate-100">
-                        <Button variant="ghost" className="text-xs font-black uppercase tracking-widest text-slate-400" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-                        <Button className="bg-slate-900 text-white text-xs font-black uppercase tracking-widest px-8 shadow-lg" onClick={handleUpdateAccount}>Update Account</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    <div className="p-6 border-t border-border/30 bg-muted/10 flex justify-end gap-3 mt-auto">
+                        <Button variant="outline" className="rounded-xl" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                        <Button className="rounded-xl min-w-[120px] bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/20" onClick={handleUpdateAccount}>Update Account</Button>
+                    </div>
+                </SheetContent>
+            </Sheet>
 
-            {/* Account Ledger Dialog */}
-            <Dialog open={isLedgerDialogOpen} onOpenChange={setIsLedgerDialogOpen}>
-                <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl p-0 border-none shadow-2xl flex flex-col">
-                    <DialogHeader className="p-6 bg-slate-900 text-white">
-                        <div className="flex justify-between items-start">
-                            <div className="space-y-1">
-                                <DialogTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                                    <History className="h-5 w-5 text-amber-400" />
-                                    Transaction History
-                                </DialogTitle>
-                                <DialogDescription className="text-slate-400 font-medium">
-                                    Ledger statement for <span className="text-white font-bold">{selectedAccount?.name}</span> ({selectedAccount?.code})
-                                </DialogDescription>
+            {/* Account Ledger Sheet */}
+            <Sheet open={isLedgerDialogOpen} onOpenChange={setIsLedgerDialogOpen}>
+                <SheetContent className="flex flex-col w-full sm:max-w-4xl p-0 overflow-hidden bg-background border-l border-border/50 [&>button]:hidden text-foreground">
+                    <SheetHeader className="px-6 py-6 border-b border-border/30 bg-muted/10 relative">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute right-4 top-4 h-8 w-8 rounded-full text-muted-foreground hover:bg-muted/50" 
+                            onClick={() => setIsLedgerDialogOpen(false)}
+                        >
+                            <span className="sr-only">Close</span>
+                            <X className="h-4 w-4" />
+                        </Button>
+                        <div className="flex justify-between items-start pr-8">
+                            <div className="flex items-start gap-3">
+                                <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                    <History className="w-5 h-5 text-amber-500" />
+                                </div>
+                                <div className="text-left space-y-0.5">
+                                    <SheetTitle className="text-base font-semibold leading-none tracking-tight flex items-center gap-2">
+                                        Transaction History
+                                    </SheetTitle>
+                                    <SheetDescription className="text-xs uppercase tracking-wider font-medium text-muted-foreground/70">
+                                        Ledger statement for <span className="text-foreground font-bold">{selectedAccount?.name}</span> ({selectedAccount?.code})
+                                    </SheetDescription>
+                                </div>
                             </div>
                             <div className="text-right sr-only md:not-sr-only">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Balance</p>
-                                <p className="text-2xl font-black text-amber-400 tracking-tighter">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Current Balance</p>
+                                <p className="text-xl font-bold text-amber-500 tracking-tight">
                                     LKR {parseFloat(selectedAccount?.balance || 0).toFixed(2)}
                                 </p>
                             </div>
                         </div>
-                    </DialogHeader>
+                    </SheetHeader>
 
-                    <div className="flex-1 overflow-y-auto bg-white">
+                    <div className="flex-1 overflow-y-auto px-1 custom-scrollbar">
                         <Table>
-                            <TableHeader className="bg-slate-50 sticky top-0 z-10">
-                                <TableRow className="hover:bg-transparent border-slate-100">
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 px-6">Date</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 px-6">Reference</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 px-6">Description</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 px-6 text-right">Debit</TableHead>
-                                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 px-6 text-right">Credit</TableHead>
+                            <TableHeader className="bg-muted/30 sticky top-0 z-10 backdrop-blur-sm">
+                                <TableRow className="hover:bg-transparent border-border/40">
+                                    <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6">Date</TableHead>
+                                    <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6">Reference</TableHead>
+                                    <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6">Description</TableHead>
+                                    <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6 text-right">Debit</TableHead>
+                                    <TableHead className="text-xs font-semibold text-muted-foreground py-4 px-6 text-right">Credit</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {ledgerLoading ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center py-20">
-                                            <RotateCcw className="h-8 w-8 animate-spin mx-auto text-slate-200 mb-4" />
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fetching Ledger Entries...</p>
+                                            <RotateCcw className="h-8 w-8 animate-spin mx-auto text-muted-foreground/30 mb-4" />
+                                            <p className="text-xs font-medium text-muted-foreground/50">Fetching Ledger Entries...</p>
                                         </TableCell>
                                     </TableRow>
                                 ) : ledgerData.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center py-20">
-                                            <History className="h-12 w-12 mx-auto text-slate-100 mb-4" />
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">No transactions recorded yet</p>
+                                            <History className="h-12 w-12 mx-auto text-muted-foreground/20 mb-4 opacity-30" />
+                                            <p className="text-xs font-medium text-muted-foreground/50">No transactions recorded yet</p>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     ledgerData.map((row, idx) => (
-                                        <TableRow key={idx} className="hover:bg-slate-50/50 transition-colors border-slate-100">
-                                            <TableCell className="py-4 px-6 font-bold text-[11px] text-slate-500 whitespace-nowrap">
+                                        <TableRow key={idx} className="hover:bg-muted/30 transition-colors border-border/40">
+                                            <TableCell className="py-4 px-6 font-medium text-xs text-muted-foreground whitespace-nowrap">
                                                 {format(new Date(row.transaction_date), 'dd MMM yyyy HH:mm')}
                                             </TableCell>
                                             <TableCell className="py-4 px-6">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[11px] font-black uppercase text-slate-900 tracking-tight">{row.reference_type}</span>
-                                                    <span className="text-[9px] text-slate-400 font-mono opacity-60 truncate max-w-[100px]">{row.reference_id}</span>
+                                                    <span className="text-xs font-bold uppercase text-foreground tracking-tight">{row.reference_type}</span>
+                                                    <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[100px]">{row.reference_id}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4 px-6">
-                                                <p className="text-[11px] font-medium text-slate-600 max-w-[250px] italic">
+                                                <p className="text-xs font-medium text-muted-foreground max-w-[250px] italic">
                                                     {row.description}
-                                                    {row.customer && <span className="block not-italic font-bold text-slate-400 mt-1 uppercase text-[9px]">Cust: {row.customer.name}</span>}
-                                                    {row.supplier && <span className="block not-italic font-bold text-slate-400 mt-1 uppercase text-[9px]">Supp: {row.supplier.name}</span>}
+                                                    {row.customer && <span className="block not-italic font-bold text-muted-foreground/70 mt-1 uppercase text-[10px]">Cust: {row.customer.name}</span>}
+                                                    {row.supplier && <span className="block not-italic font-bold text-muted-foreground/70 mt-1 uppercase text-[10px]">Supp: {row.supplier.name}</span>}
                                                 </p>
                                             </TableCell>
-                                            <TableCell className="py-4 px-6 text-right font-mono text-xs font-bold text-slate-900 whitespace-nowrap">
+                                            <TableCell className="py-4 px-6 text-right font-mono text-xs font-bold text-foreground whitespace-nowrap">
                                                 {row.type === 'debit' ? `LKR ${parseFloat(row.amount).toFixed(2)}` : '-'}
                                             </TableCell>
-                                            <TableCell className="py-4 px-6 text-right font-mono text-xs font-bold text-emerald-600 whitespace-nowrap">
+                                            <TableCell className="py-4 px-6 text-right font-mono text-xs font-bold text-emerald-500 whitespace-nowrap">
                                                 {row.type === 'credit' ? `LKR ${parseFloat(row.amount).toFixed(2)}` : '-'}
                                             </TableCell>
                                         </TableRow>
@@ -450,99 +498,144 @@ export default function ChartOfAccountsPage() {
                         </Table>
                     </div>
                     
-                    <DialogFooter className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center sm:justify-between">
-                         <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            Total Entries: <span className="text-slate-900">{ledgerData.length}</span>
+                    <div className="p-6 border-t border-border/30 bg-muted/10 flex justify-between items-center mt-auto">
+                         <div className="text-xs font-medium text-muted-foreground">
+                            Total Entries: <span className="text-foreground font-bold">{ledgerData.length}</span>
                          </div>
-                         <Button variant="outline" className="text-xs font-black uppercase tracking-widest h-9 px-6 rounded-xl border-slate-200" onClick={() => setIsLedgerDialogOpen(false)}>Close Statement</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                         <Button variant="outline" className="rounded-xl" onClick={() => setIsLedgerDialogOpen(false)}>Close Statement</Button>
+                    </div>
+                </SheetContent>
+            </Sheet>
 
-            {/* Transfer Funds Dialog */}
-            <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
-                <DialogContent className="max-w-md rounded-2xl p-0 overflow-hidden border-none shadow-2xl">
-                    <DialogHeader className="p-6 bg-slate-900 text-white">
-                        <DialogTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                            <ArrowLeftRight className="h-5 w-5 text-indigo-400" />
-                            Transfer Funds
-                        </DialogTitle>
-                        <DialogDescription className="text-slate-400 font-medium italic">Move money between your accounts</DialogDescription>
-                    </DialogHeader>
-                    <div className="p-6 space-y-4 bg-white">
+            {/* Transfer Funds Sheet */}
+            <Sheet open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+                <SheetContent className="flex flex-col w-full sm:max-w-md p-0 overflow-hidden bg-background border-l border-border/50 [&>button]:hidden text-foreground">
+                    <SheetHeader className="px-6 py-6 border-b border-border/30 bg-muted/10 relative">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute right-4 top-4 h-8 w-8 rounded-full text-muted-foreground hover:bg-muted/50" 
+                            onClick={() => setIsTransferDialogOpen(false)}
+                        >
+                            <span className="sr-only">Close</span>
+                            <X className="h-4 w-4" />
+                        </Button>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                                <ArrowLeftRight className="w-5 h-5 text-emerald-500" />
+                            </div>
+                            <div className="text-left space-y-0.5">
+                                <SheetTitle className="text-base font-semibold leading-none tracking-tight">Transfer Funds</SheetTitle>
+                                <SheetDescription className="text-xs uppercase tracking-wider font-medium text-muted-foreground/70">Move money between your accounts</SheetDescription>
+                            </div>
+                        </div>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar space-y-6">
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">From Account</label>
-                            <Select value={transferData.from_account_id} onValueChange={(v) => setTransferData({...transferData, from_account_id: v})}>
-                                <SelectTrigger className="h-10 font-bold text-xs uppercase tracking-wider">
-                                    <SelectValue placeholder="SELECT SOURCE ACCOUNT" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl">
-                                    {accounts.map(a => (
-                                        <SelectItem key={a.id} value={a.id} className="text-xs font-bold uppercase tracking-wider">
-                                            {a.code} - {a.name} (LKR {parseFloat(a.balance).toFixed(2)})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <label className="text-xs font-medium text-muted-foreground">From Account</label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" role="combobox" className="w-full justify-between h-10 text-sm font-normal">
+                                        {transferData.from_account_id ? accounts.find(a => a.id === transferData.from_account_id)?.name : "Select Source Account"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[400px] p-0" align="start">
+                                    <Command>
+                                        <CommandInput placeholder="Search accounts..." />
+                                        <CommandList>
+                                            <CommandEmpty>No account found.</CommandEmpty>
+                                            <CommandGroup>
+                                                {accounts.map(a => (
+                                                    <CommandItem
+                                                        key={a.id}
+                                                        value={`${a.code} ${a.name}`}
+                                                        onSelect={() => setTransferData({...transferData, from_account_id: a.id})}
+                                                    >
+                                                        <Check className={cn("mr-2 h-4 w-4 text-emerald-500", transferData.from_account_id === a.id ? "opacity-100" : "opacity-0")} />
+                                                        {a.code} - {a.name} <span className="ml-auto text-muted-foreground font-mono text-xs">LKR {parseFloat(a.balance).toFixed(2)}</span>
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">To Account</label>
-                            <Select value={transferData.to_account_id} onValueChange={(v) => setTransferData({...transferData, to_account_id: v})}>
-                                <SelectTrigger className="h-10 font-bold text-xs uppercase tracking-wider">
-                                    <SelectValue placeholder="SELECT DESTINATION ACCOUNT" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl">
-                                    {accounts.map(a => (
-                                        <SelectItem key={a.id} value={a.id} className="text-xs font-bold uppercase tracking-wider">
-                                            {a.code} - {a.name} (LKR {parseFloat(a.balance).toFixed(2)})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <label className="text-xs font-medium text-muted-foreground">To Account</label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" role="combobox" className="w-full justify-between h-10 text-sm font-normal">
+                                        {transferData.to_account_id ? accounts.find(a => a.id === transferData.to_account_id)?.name : "Select Destination Account"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[400px] p-0" align="start">
+                                    <Command>
+                                        <CommandInput placeholder="Search accounts..." />
+                                        <CommandList>
+                                            <CommandEmpty>No account found.</CommandEmpty>
+                                            <CommandGroup>
+                                                {accounts.map(a => (
+                                                    <CommandItem
+                                                        key={a.id}
+                                                        value={`${a.code} ${a.name}`}
+                                                        onSelect={() => setTransferData({...transferData, to_account_id: a.id})}
+                                                    >
+                                                        <Check className={cn("mr-2 h-4 w-4 text-emerald-500", transferData.to_account_id === a.id ? "opacity-100" : "opacity-0")} />
+                                                        {a.code} - {a.name} <span className="ml-auto text-muted-foreground font-mono text-xs">LKR {parseFloat(a.balance).toFixed(2)}</span>
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amount (LKR)</label>
+                                <label className="text-xs font-medium text-muted-foreground">Amount (LKR)</label>
                                 <Input 
                                     type="number"
                                     placeholder="0.00" 
-                                    className="h-10 font-bold text-xs font-mono"
+                                    className="h-10 text-sm font-mono"
                                     value={transferData.amount}
                                     onChange={(e) => setTransferData({...transferData, amount: e.target.value})}
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date</label>
+                                <label className="text-xs font-medium text-muted-foreground">Date</label>
                                 <Input 
                                     type="date"
-                                    className="h-10 font-bold text-xs"
+                                    className="h-10 text-sm"
                                     value={transferData.date}
                                     onChange={(e) => setTransferData({...transferData, date: e.target.value})}
                                 />
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Notes / Description</label>
+                            <label className="text-xs font-medium text-muted-foreground">Notes / Description</label>
                             <Input 
                                 placeholder="Purpose of transfer..." 
-                                className="h-10 font-bold text-xs"
+                                className="h-10 text-sm"
                                 value={transferData.description}
                                 onChange={(e) => setTransferData({...transferData, description: e.target.value})}
                             />
                         </div>
                     </div>
-                    <DialogFooter className="p-4 bg-slate-50 border-t border-slate-100">
-                        <Button variant="ghost" className="text-xs font-black uppercase tracking-widest text-slate-400" onClick={() => setIsTransferDialogOpen(false)}>Cancel</Button>
+                    <div className="p-6 border-t border-border/30 bg-muted/10 flex justify-end gap-3 mt-auto">
+                        <Button variant="outline" className="rounded-xl" onClick={() => setIsTransferDialogOpen(false)}>Cancel</Button>
                         <Button 
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-widest px-8 shadow-lg" 
+                            className="rounded-xl min-w-[120px] bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/20" 
                             onClick={handleTransfer}
                             disabled={!transferData.from_account_id || !transferData.to_account_id || !transferData.amount}
                         >
                             Perform Transfer
                         </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </div>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

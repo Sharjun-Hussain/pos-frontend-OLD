@@ -17,6 +17,7 @@ import {
   Loader2,
   AlertCircle,
   FileSpreadsheet,
+  RotateCcw,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -169,51 +170,49 @@ export default function ReturnList() {
 
   return (
     <div className="h-full flex-1 flex-col space-y-6 px-6 pb-6 pt-3 flex">
-      {/* Header Section */}
+      {/* ── Premium Header ── */}
       <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Purchase Returns</h1>
-          <p className="text-muted-foreground">
-            Manage your returns to suppliers.
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <RotateCcw className="w-4.5 h-4.5 text-emerald-500" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground tracking-tight">Purchase Returns</h1>
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+              Supplier Returns · Refunds · Adjustments
+            </p>
+          </div>
         </div>
-        <div className="flex items-center space-x-3">
-          <Link href="/purchase/returns/create">
-            <Button className="gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Create Return
-            </Button>
-          </Link>
-        </div>
+        <Link href="/purchase/returns/create">
+          <Button size="sm" className="gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/20">
+            <PlusCircle className="h-4 w-4" />
+            Create Return
+          </Button>
+        </Link>
       </div>
 
       {/* Main Content */}
-      <Card>
+      <Card className="border border-border/50 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle>Returns List</CardTitle>
-          <CardDescription>
-            View and manage all purchase returns.
-          </CardDescription>
+          <CardTitle className="text-base font-semibold">Returns List</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="flex h-64 items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
             </div>
           ) : error ? (
-            <div className="flex h-64 flex-col items-center justify-center text-red-500 space-y-2">
+            <div className="flex h-64 flex-col items-center justify-center text-destructive space-y-2">
               <AlertCircle className="h-8 w-8" />
               <p>{error}</p>
-              <Button variant="outline" onClick={fetchReturns}>
-                Retry
-              </Button>
+              <Button variant="outline" onClick={fetchReturns}>Retry</Button>
             </div>
           ) : data.length === 0 ? (
-            <div className="flex h-64 flex-col items-center justify-center text-muted-foreground space-y-2 border-2 border-dashed rounded-lg">
-              <FileSpreadsheet className="h-10 w-10 opacity-50" />
-              <p>No returns found.</p>
+            <div className="flex h-64 flex-col items-center justify-center text-muted-foreground space-y-2 border-2 border-dashed border-border/40 rounded-xl">
+              <RotateCcw className="h-10 w-10 text-emerald-500/40" />
+              <p className="font-medium">No returns found.</p>
               <Link href="/purchase/returns/create">
-                <Button variant="link">Create your first return</Button>
+                <Button variant="link" className="text-emerald-500">Create your first return</Button>
               </Link>
             </div>
           ) : (

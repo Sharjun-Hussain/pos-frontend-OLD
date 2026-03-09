@@ -131,3 +131,4 @@ export default function CreatePOSkeleton() {
     </div>
   );
 }
+export { CreatePOSkeleton };

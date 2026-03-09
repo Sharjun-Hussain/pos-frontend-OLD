@@ -12,12 +12,13 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import UnitMeasurementSkeleton from "@/app/skeletons/catalog/unit-measurement-skeleton";
 import { ResourceManagementLayout } from "../general/resource-management-layout";
-import { getMeasurementUnitColumns } from "./unit-measuremrent -column";
+import { getMeasurementUnitColumns } from "./unit-measurement-column";
 import { MeasurementUnitDialog } from "./unit-measurement-dialog";
 import { usePermission } from "@/hooks/use-permission";
-import { CheckCircle2, XCircle, Trash2, ChevronDown } from "lucide-react";
+import { CheckCircle2, XCircle, Trash2, ChevronDown, Scale } from "lucide-react";
+import { PERMISSIONS } from "@/lib/permissions";
 
 // --- 2. Renamed Bulk Actions Component ---
 const UnitMeasurementBulkActions = ({
@@ -35,13 +36,13 @@ const UnitMeasurementBulkActions = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="ml-auto">
+        <Button variant="outline" className="ml-auto font-bold border-border bg-background hover:bg-muted text-foreground">
           Actions ({numSelected}) <ChevronDown className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-48 bg-card border-border/60">
         <DropdownMenuItem
-          className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+          className="text-emerald-500 focus:text-emerald-500 focus:bg-emerald-500/10 cursor-pointer font-bold"
           onClick={() => {
             onActivate(selectedIds);
             table.resetRowSelection();
@@ -52,7 +53,7 @@ const UnitMeasurementBulkActions = ({
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 cursor-pointer"
+          className="text-amber-500 focus:text-amber-500 focus:bg-amber-500/10 cursor-pointer font-bold"
           onClick={() => {
             onDeactivate(selectedIds);
             table.resetRowSelection();
@@ -62,10 +63,10 @@ const UnitMeasurementBulkActions = ({
           Deactivate Selected
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-border/50" />
 
         <DropdownMenuItem
-          className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+          className="text-red-500 focus:text-red-500 focus:bg-red-500/10 cursor-pointer font-bold"
           onClick={() => {
             onDelete(selectedIds);
             table.resetRowSelection();
@@ -293,8 +294,21 @@ export default function MeasurementUnitPage() {
         isError={!!error}
         errorMessage={error}
         onRetry={fetchMeasurementUnits}
-        headerTitle="Unit Measurement"
-        headerDescription="Manage your measurement units (e.g., kg, L, cm)."
+        headerTitle={
+            <div className="flex items-center gap-4">
+                <div className="hidden sm:flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-sm">
+                    <Scale className="h-7 w-7" />
+                </div>
+                <div className="flex flex-col">
+                    <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                        Unit Measurement
+                    </h1>
+                    <p className="text-sm font-bold text-muted-foreground mt-1">
+                        Manage your measurement units (e.g., kg, L, cm).
+                    </p>
+                </div>
+            </div>
+        }
         addButtonLabel="Add Unit"
         onAddClick={canCreate ? handleAddClick : null}
         isAdding={isDialogOpen}
@@ -302,7 +316,7 @@ export default function MeasurementUnitPage() {
         bulkActionsComponent={bulkActionsComponent}
         searchColumn="name"
         searchPlaceholder="Filter units by name..."
-        loadingSkeleton={<OrganizationPageSkeleton />}
+        loadingSkeleton={<UnitMeasurementSkeleton />}
       />
       {/* --- 12. Updated Dialog Component --- */}
       <MeasurementUnitDialog

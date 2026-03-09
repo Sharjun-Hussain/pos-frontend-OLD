@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Save, Plus, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, Save, Plus, Check, ChevronsUpDown, FolderOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useFormRestore } from "@/hooks/use-form-restore";
 
@@ -149,23 +149,28 @@ export function SubCategoryDialog({ open, onOpenChange, onSuccess, session, init
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Sub Category" : "Create Sub Category"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[520px] rounded-3xl border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-0">
+          <div className="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-4 shadow-sm shadow-emerald-500/10">
+            <FolderOpen className="size-6 text-emerald-600" />
+          </div>
+          <DialogTitle className="text-xl font-black tracking-tight">
+            {isEditing ? "Modify Sub Category" : "New Subset Entry"}
+          </DialogTitle>
+          <DialogDescription className="text-[12px] font-medium text-muted-foreground/60 uppercase tracking-wider">
             {isEditing
-              ? "Make changes to the sub category details here."
-              : "Add a new sub category to your inventory."}
+              ? "Update Granular Product Classification"
+              : "Forge a new niche segment"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 pt-4 space-y-6">
             <FormField
               control={form.control}
               name="main_category_id"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Main Category</FormLabel>
+                <FormItem className="flex flex-col space-y-2.5">
+                  <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Parent Category</FormLabel>
                   <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -173,43 +178,54 @@ export function SubCategoryDialog({ open, onOpenChange, onSuccess, session, init
                           variant="outline"
                           role="combobox"
                           className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground"
+                            "h-12 justify-between bg-background border-border/60 rounded-xl px-4 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20",
+                            !field.value && "text-muted-foreground font-medium"
                           )}
                         >
-                          {field.value
-                            ? mainCategories.find(
-                                (category) => category.id.toString() === field.value
-                              )?.name
-                            : "Select main category"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          <div className="flex items-center gap-2">
+                            {field.value && <Folder className="size-4 text-emerald-500/50" />}
+                            {field.value
+                              ? mainCategories.find(
+                                  (category) => category.id.toString() === field.value
+                                )?.name
+                              : "Map to primary taxonomy"}
+                          </div>
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-40" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search category..." />
+                    <PopoverContent className="w-(--radix-popover-trigger-width) p-0 rounded-2xl border-border/60 shadow-2xl overflow-hidden backdrop-blur-xl">
+                      <Command className="bg-background/95">
+                        <CommandInput placeholder="Search taxonomy..." className="h-11 border-none bg-transparent" />
                         <CommandList>
-                          <CommandEmpty>No category found.</CommandEmpty>
+                          <CommandEmpty className="py-4 text-center text-[11px] font-bold uppercase tracking-widest text-muted-foreground/40">No segments discovered</CommandEmpty>
                           <CommandGroup>
                             {mainCategories.map((category) => (
                               <CommandItem
                                 value={category.name}
                                 key={category.id}
+                                className="px-3 py-2.5 cursor-pointer aria-selected:bg-emerald-500/10 aria-selected:text-emerald-600 transition-colors"
                                 onSelect={() => {
                                   form.setValue("main_category_id", category.id.toString());
                                   setOpenCombobox(false);
                                 }}
                               >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    category.id.toString() === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {category.name}
+                                <div className="flex items-center justify-between w-full">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-6 rounded-lg bg-emerald-500/5 flex items-center justify-center border border-emerald-500/10">
+                                      <Folder className="size-3 text-emerald-500/60" />
+                                    </div>
+                                    <span className="text-[13px] font-bold tracking-tight">{category.name}</span>
+                                  </div>
+                                  <Check
+                                    className={cn(
+                                      "h-4 w-4 text-emerald-500",
+                                      category.id.toString() === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </div>
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -217,7 +233,7 @@ export function SubCategoryDialog({ open, onOpenChange, onSuccess, session, init
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                 </FormItem>
               )}
             />
@@ -226,12 +242,16 @@ export function SubCategoryDialog({ open, onOpenChange, onSuccess, session, init
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
+                <FormItem className="space-y-2.5">
+                  <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Sub Category Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Sub Category Name" {...field} />
+                    <Input 
+                      placeholder="e.g. Smartphones, T-Shirts, Soft Drinks" 
+                      className="h-12 bg-background border-border/60 rounded-xl px-4 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20"
+                      {...field} 
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                 </FormItem>
               )}
             />
@@ -239,41 +259,42 @@ export function SubCategoryDialog({ open, onOpenChange, onSuccess, session, init
               control={form.control}
               name="description"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
+                <FormItem className="space-y-2.5">
+                  <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Description (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Description..."
-                      className="resize-none"
+                      placeholder="Niche scope and granular logistics..."
+                      className="min-h-[100px] bg-background border-border/60 rounded-2xl px-4 py-3 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20 resize-none"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                 </FormItem>
               )}
             />
-            <DialogFooter className="pt-4">
+            <DialogFooter className="p-6 pt-2 gap-3 bg-muted/20">
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
+                className="h-12 px-6 rounded-xl font-black uppercase text-[10px] tracking-widest text-muted-foreground/60 hover:text-foreground hover:bg-muted/40 transition-all border-none"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                Dismiss
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95 border-none"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditing ? "Updating..." : "Creating..."}
+                    <Loader2 className="mr-3 h-4 w-4 animate-spin opacity-60" />
+                    Processing
                   </>
                 ) : (
                   <>
-                    {isEditing ? <Save className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-                    {isEditing ? "Save Changes" : "Create Sub Category"}
+                    {isEditing ? <Save className="mr-3 h-4 w-4 opacity-60" /> : <Plus className="mr-3 h-4 w-4 opacity-60" />}
+                    {isEditing ? "Update Subset" : "Forge Entry"}
                   </>
                 )}
               </Button>

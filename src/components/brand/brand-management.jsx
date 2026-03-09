@@ -12,13 +12,31 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import ProductSkeleton from "@/app/skeletons/products/product-listing-skeleton";
 import { ResourceManagementLayout } from "../general/resource-management-layout";
 import { getBrandColumns } from "./brand-column";
 import { BrandDialog } from "./brand-dialog";
 import { usePermission } from "@/hooks/use-permission";
-import { CheckCircle2, XCircle, Trash2, ChevronDown } from "lucide-react";
+import { CheckCircle2, XCircle, Trash2, ChevronDown, LayoutGrid, Tag } from "lucide-react";
+import { PERMISSIONS } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
+
+// --- 2. HELPER COMPONENTS ---
+const HeaderContent = () => (
+  <div className="flex items-center gap-4">
+    <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+      <Tag className="w-4.5 h-4.5 text-[#10b981]" />
+    </div>
+    <div className="flex flex-col">
+      <h1 className="text-xl font-semibold text-foreground tracking-tight">
+        Brand Directory
+      </h1>
+      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+        Manufacturer & Label Governance
+      </p>
+    </div>
+  </div>
+);
 
 // --- 2. RENAMED COMPONENT ---
 const BrandBulkActions = ({ table, onDelete, onDeactivate, onActivate }) => {
@@ -314,43 +332,23 @@ export default function BrandPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { label: "Total Brands", value: stats.total, color: "bg-primary" },
-          { label: "Active Brands", value: stats.active, color: "bg-emerald-500" },
-          { label: "Inactive Brands", value: stats.inactive, color: "bg-slate-400" }
-        ].map((stat, i) => (
-          <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{stat.label}</span>
-              <div className={cn("h-2 w-2 rounded-full", stat.color)} />
-            </div>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-slate-900">{stat.value}</span>
-              <span className="text-xs text-slate-400 font-medium">brands</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      
       <ResourceManagementLayout
-        data={brands} // Updated data
+        data={brands}
         columns={columns}
         isLoading={loading || status === "loading"}
         isError={!!error}
         errorMessage={error}
-        onRetry={fetchBrands} // Updated function
-        headerTitle="Brand Management" // Updated text
-        headerDescription="Organize and manage your product brands with ease." // Updated text
-        addButtonLabel="New Brand" // Updated text
+        onRetry={fetchBrands}
+        headerTitle={<HeaderContent />}
+        addButtonLabel="New Brand"
         onAddClick={canCreate ? handleAddClick : null}
-        isAdding={isDialogOpen} // <-- Proactive Bug Fix
+        isAdding={isDialogOpen}
         onExportClick={handleExport}
         bulkActionsComponent={bulkActionsComponent}
         searchColumn="name"
-        searchPlaceholder="Search brands..." // Updated text
-        loadingSkeleton={<OrganizationPageSkeleton />}
+        searchPlaceholder="Filter brands by name..."
+        loadingSkeleton={<ProductSkeleton />}
       />
       {/* --- 9. UPDATED DIALOG COMPONENT --- */}
       <BrandDialog

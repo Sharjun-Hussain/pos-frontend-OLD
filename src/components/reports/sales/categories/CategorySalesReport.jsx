@@ -103,13 +103,13 @@ export default function CategorySalesReportPage({ type = "main" }) {
   );
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8">
+    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-8">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 capitalize">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground capitalize">
             {type} Category Sales
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Performance analysis grouped by {type} categories.
           </p>
         </div>
@@ -121,17 +121,17 @@ export default function CategorySalesReportPage({ type = "main" }) {
           <Button onClick={handleExportExcel} variant="outline" className="gap-2">
             <FileText className="h-4 w-4" /> Excel
           </Button>
-          <Button className="gap-2 bg-slate-900 text-white hover:bg-slate-800">
+          <Button className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700">
             <Printer className="h-4 w-4" /> Print
           </Button>
         </div>
       </div>
 
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-card">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4 items-end">
             <div className="flex-1 space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Analysis Period
               </label>
               <Popover>
@@ -139,7 +139,7 @@ export default function CategorySalesReportPage({ type = "main" }) {
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-full justify-start text-left font-normal h-10 border-slate-200",
+                      "w-full justify-start text-left font-normal h-10 border-border/50",
                       !date && "text-muted-foreground"
                     )}
                   >
@@ -172,12 +172,12 @@ export default function CategorySalesReportPage({ type = "main" }) {
             </div>
 
             <div className="w-full lg:w-96">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Search Category</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">Search Category</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                 <Input
                   placeholder="Search categories..."
-                  className="pl-10 h-10 border-slate-200"
+                  className="pl-10 h-10 border-border/50"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -188,23 +188,23 @@ export default function CategorySalesReportPage({ type = "main" }) {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-6 flex flex-col justify-center border-l-4 border-l-blue-500">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+        <Card className="p-6 flex flex-col justify-center border-l-4 border-l-emerald-500">
+          <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">
              Total Categories Sold
           </p>
           <h3 className="text-3xl font-bold">{filteredData.length}</h3>
         </Card>
         <Card className="p-6 flex flex-col justify-center border-l-4 border-l-emerald-500">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+          <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">
             Total Revenue
           </p>
           <h3 className="text-3xl font-bold">{formatCurrency(totalRevenue)}</h3>
         </Card>
       </div>
 
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-card overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-muted/30">
             <TableRow>
               <TableHead className="pl-6">Category Name</TableHead>
               <TableHead className="text-center">Total Quantity Sold</TableHead>
@@ -215,27 +215,27 @@ export default function CategorySalesReportPage({ type = "main" }) {
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((item, idx) => (
-                <TableRow key={idx} className="hover:bg-slate-50 transition-colors">
-                  <TableCell className="pl-6 font-semibold text-slate-900 flex items-center gap-3 py-4">
-                    <div className="p-2 bg-slate-100 rounded-lg">
-                        <Tag className="h-4 w-4 text-slate-400" />
+                <TableRow key={idx} className="hover:bg-muted/30 transition-colors">
+                  <TableCell className="pl-6 font-semibold text-foreground flex items-center gap-3 py-4">
+                    <div className="p-2 bg-background rounded-lg">
+                        <Tag className="h-4 w-4 text-muted-foreground/60" />
                     </div>
                     {item.category_name || "Uncategorized"}
                   </TableCell>
                   <TableCell className="text-center font-medium">
                     {parseFloat(item.total_quantity).toFixed(0)}
                   </TableCell>
-                  <TableCell className="text-right font-bold text-slate-900">
+                  <TableCell className="text-right font-bold text-foreground">
                     {formatCurrency(item.total_revenue)}
                   </TableCell>
                   <TableCell className="text-right pr-6">
                     <div className="flex items-center justify-end gap-3">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-muted-foreground">
                             {((parseFloat(item.total_revenue) / (totalRevenue || 1)) * 100).toFixed(1)}%
                         </span>
-                        <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="w-24 h-1.5 bg-background rounded-full overflow-hidden">
                             <div 
-                                className="h-full bg-blue-500" 
+                                className="h-full bg-emerald-500" 
                                 style={{ width: `${(parseFloat(item.total_revenue) / (totalRevenue || 1)) * 100}%` }}
                             />
                         </div>
@@ -245,7 +245,7 @@ export default function CategorySalesReportPage({ type = "main" }) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-slate-500 italic">
+                <TableCell colSpan={4} className="h-32 text-center text-muted-foreground italic">
                   No sales data found for Categories.
                 </TableCell>
               </TableRow>

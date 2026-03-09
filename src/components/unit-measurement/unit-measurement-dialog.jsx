@@ -10,13 +10,13 @@ import { useFormRestore } from "@/hooks/use-form-restore";
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Form,
   FormControl,
@@ -109,103 +109,124 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Measurement Unit" : "Create Measurement Unit"}</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-md flex flex-col h-full bg-card/50 backdrop-blur-xl p-0 overflow-hidden border-l border-border/60 shadow-2xl">
+        <SheetHeader className="p-6 border-b border-border/50 bg-muted/30">
+          <SheetTitle className="text-2xl font-black text-foreground">
+            {isEditing ? "Edit Measurement Unit" : "Create Measurement Unit"}
+          </SheetTitle>
+          <SheetDescription className="text-muted-foreground font-medium">
             {isEditing
               ? "Make changes to the measurement unit details here."
               : "Add a new measurement unit to your inventory."}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Unit Name (e.g. Liter)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="short_code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Short Code</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. L" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Volume" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Description..."
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter className="pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditing ? "Updating..." : "Creating..."}
-                  </>
-                ) : (
-                  <>
-                    {isEditing ? <Save className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-                    {isEditing ? "Save Changes" : "Create Measurement Unit"}
-                  </>
+          </SheetDescription>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Name</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Unit Name (e.g. Liter)" 
+                        className="h-11 bg-background border-border/50 focus-visible:ring-emerald-500 font-bold"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+              />
+              <FormField
+                control={form.control}
+                name="short_code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Short Code</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="e.g. L" 
+                        className="h-11 bg-background border-border/50 focus-visible:ring-emerald-500 font-mono"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Type</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="e.g. Volume" 
+                        className="h-11 bg-background border-border/50 focus-visible:ring-emerald-500 font-bold"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Description (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Description..."
+                        className="resize-none min-h-[100px] border-border/50 bg-background/50 focus-visible:ring-emerald-500"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </div>
+
+        <SheetFooter className="p-6 border-t border-border/50 bg-muted/20 flex-none">
+          <div className="flex w-full items-center justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className=" px-6 font-bold text-muted-foreground hover:bg-muted transition-colors rounded-xl border-border/50"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSubmitting}
+              className="px-8 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isEditing ? "Updating..." : "Creating..."}
+                </>
+              ) : (
+                <>
+                  {isEditing ? <Save className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+                  {isEditing ? "Save Changes" : "Create Unit"}
+                </>
+              )}
+            </Button>
+          </div>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

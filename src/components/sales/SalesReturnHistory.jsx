@@ -231,19 +231,19 @@ export default function SalesReturnHistoryPage() {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-slate-50/50 p-8 space-y-8 pb-20">
+    <div className="flex-1 min-h-screen bg-muted/20 p-8 space-y-8 pb-20">
       {/* --- Header Actions --- */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Sales Returns</h1>
-          <p className="text-sm text-slate-500 font-medium">Monitor and audit customer return activities</p>
+          <h1 className="text-3xl font-black tracking-tight text-foreground">Sales Returns</h1>
+          <p className="text-sm text-muted-foreground font-medium">Monitor and audit customer return activities</p>
         </div>
         
         <div className="flex items-center gap-3">
-          <Button onClick={handleExportCSV} variant="outline" className="bg-white hover:bg-slate-50 border-slate-200 h-11 px-5 font-bold gap-2 rounded-xl transition-all shadow-sm">
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card hover:bg-muted/30 border-border/50 h-11 px-5 font-bold gap-2 rounded-xl transition-all shadow-sm">
             <Download className="h-4 w-4" /> Export CSV
           </Button>
-          <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
+          <Button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
             <Printer className="h-4 w-4" /> Print View
           </Button>
         </div>
@@ -252,7 +252,7 @@ export default function SalesReturnHistoryPage() {
       {/* --- Stats Grid --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, idx) => (
-          <div key={idx} className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden">
+          <div key={idx} className="group relative bg-card rounded-2xl p-6 border border-border/30 shadow-sm hover:shadow-xl hover:shadow-foreground/5 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden">
             {/* Subtle Background Decoration */}
             <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${stat.gradient} opacity-[0.03] rounded-bl-full group-hover:scale-150 transition-transform duration-500`} />
 
@@ -263,17 +263,17 @@ export default function SalesReturnHistoryPage() {
             </div>
 
             <div className="relative z-10">
-              <p className="text-sm font-semibold text-slate-500 mb-1">{stat.label}</p>
-              <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
+              <p className="text-sm font-semibold text-muted-foreground mb-1">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-foreground tracking-tight">
                 {stat.value}
               </h3>
               
               <div className="flex items-center mt-3">
-                <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600`}>
+                <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-background text-muted-foreground`}>
                   <TrendingUp className="w-3 h-3 mr-1" />
                   {stat.change}
                 </span>
-                <span className="text-xs text-slate-400 ml-2">vs last period</span>
+                <span className="text-xs text-muted-foreground/60 ml-2">vs last period</span>
               </div>
             </div>
           </div>
@@ -281,16 +281,16 @@ export default function SalesReturnHistoryPage() {
       </div>
 
       {/* --- Search & Filter Bar --- */}
-      <Card className="border-none shadow-sm bg-white/80 backdrop-blur-sm sticky top-4 z-20">
+      <Card className="border-none shadow-sm bg-card/80 backdrop-blur-sm sticky top-4 z-20">
         <CardContent className="p-4 lg:p-6">
           <div className="flex flex-col lg:flex-row gap-6 items-end">
             <div className="flex-1 space-y-2 w-full">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaction Audit</label>
+              <label className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Transaction Audit</label>
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-emerald-500 transition-colors" />
                 <Input 
                   placeholder="Search by Return #, Invoice #, or Customer..." 
-                  className="pl-11 h-12 bg-slate-50/50 border-slate-100 rounded-xl focus:bg-white transition-all font-medium"
+                  className="pl-11 h-12 bg-muted/20 border-border/30 rounded-xl focus:bg-card transition-all font-medium"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -298,20 +298,20 @@ export default function SalesReturnHistoryPage() {
             </div>
 
             <div className="w-full lg:w-72 space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Return Timeline</label>
+              <label className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Return Timeline</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-full justify-start text-left font-bold h-12 border-slate-100 bg-slate-50/50 rounded-xl px-4",
+                      "w-full justify-start text-left font-bold h-12 border-border/30 bg-muted/20 rounded-xl px-4",
                       !date && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-3 h-4 w-4 text-slate-400" />
+                    <CalendarIcon className="mr-3 h-4 w-4 text-muted-foreground/60" />
                     {date?.from ? (
                       date.to ? (
-                        <span className="text-slate-700">{format(date.from, "MMM dd")} - {format(date.to, "MMM dd, y")}</span>
+                        <span className="text-foreground">{format(date.from, "MMM dd")} - {format(date.to, "MMM dd, y")}</span>
                       ) : (
                         format(date.from, "MMM dd, y")
                       )
@@ -334,7 +334,7 @@ export default function SalesReturnHistoryPage() {
               </Popover>
             </div>
 
-            <Button onClick={fetchData} variant="secondary" className="h-12 w-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all p-0 shadow-sm">
+            <Button onClick={fetchData} variant="secondary" className="h-12 w-12 rounded-xl bg-background hover:bg-muted text-muted-foreground transition-all p-0 shadow-sm">
               <RefreshCcw className={cn("h-5 w-5", loading && "animate-spin")} />
             </Button>
           </div>
@@ -342,38 +342,38 @@ export default function SalesReturnHistoryPage() {
       </Card>
 
       {/* --- Data Table --- */}
-      <Card className="border-none shadow-sm bg-white overflow-hidden rounded-2xl">
+      <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-slate-50/50 border-b border-slate-100">
+            <TableHeader className="bg-muted/20 border-b border-border/30">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest w-40">Return #</TableHead>
-                <TableHead className="py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</TableHead>
-                <TableHead className="py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Invoice Ref</TableHead>
-                <TableHead className="py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Customer</TableHead>
-                <TableHead className="text-right py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Value</TableHead>
-                <TableHead className="text-right py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Refunded</TableHead>
-                <TableHead className="text-center py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</TableHead>
-                <TableHead className="text-right pr-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Audit</TableHead>
+                <TableHead className="pl-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest w-40">Return #</TableHead>
+                <TableHead className="py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Date</TableHead>
+                <TableHead className="py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Invoice Ref</TableHead>
+                <TableHead className="py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Customer</TableHead>
+                <TableHead className="text-right py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Value</TableHead>
+                <TableHead className="text-right py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Refunded</TableHead>
+                <TableHead className="text-center py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
+                <TableHead className="text-right pr-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Audit</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i} className="animate-pulse">
-                    <TableCell colSpan={8} className="h-16 bg-slate-50/20"></TableCell>
+                    <TableCell colSpan={8} className="h-16 bg-muted/10"></TableCell>
                   </TableRow>
                 ))
               ) : filteredData.length > 0 ? (
                 filteredData.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-slate-50 group border-b border-slate-50 transition-colors">
+                  <TableRow key={item.id} className="hover:bg-muted/30 group border-b border-border/30 transition-colors">
                     <TableCell className="pl-8 py-4">
                       <span className="font-mono text-[13px] font-black text-orange-600 tracking-tighter uppercase">
                         {item.return_number}
                       </span>
                     </TableCell>
                     <TableCell className="py-4">
-                      <div className="flex items-center gap-2 text-slate-500">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         <span className="text-[12px] font-medium">
                           {format(new Date(item.return_date), 'MMM dd, yyyy')}
@@ -381,21 +381,21 @@ export default function SalesReturnHistoryPage() {
                       </div>
                     </TableCell>
                     <TableCell className="py-4">
-                      <span className="font-bold text-slate-500 text-[12px] hover:text-blue-600 cursor-pointer transition-colors">
+                      <span className="font-bold text-muted-foreground text-[12px] hover:text-emerald-500 cursor-pointer transition-colors">
                         {item.sale?.invoice_number || "N/A"}
                       </span>
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-bold text-slate-500">
+                        <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center text-[11px] font-bold text-muted-foreground">
                           {(item.customer?.name || "W").charAt(0).toUpperCase()}
                         </div>
-                        <span className="font-bold text-slate-700 text-[13px]">
+                        <span className="font-bold text-foreground text-[13px]">
                           {item.customer?.name || "Walk-in Customer"}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right py-4 font-bold text-slate-600">
+                    <TableCell className="text-right py-4 font-bold text-muted-foreground">
                       {formatCurrency(item.total_amount)}
                     </TableCell>
                     <TableCell className="text-right py-4 font-black text-emerald-600">
@@ -410,7 +410,7 @@ export default function SalesReturnHistoryPage() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-9 px-4 gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg font-bold transition-all"
+                        className="h-9 px-4 gap-2 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10 rounded-lg font-bold transition-all"
                         onClick={() => handleViewDetails(item)}
                       >
                         <Eye className="h-4 w-4" />
@@ -423,8 +423,8 @@ export default function SalesReturnHistoryPage() {
                 <TableRow>
                   <TableCell colSpan={8} className="h-64 text-center">
                     <div className="flex flex-col items-center justify-center space-y-3 opacity-40">
-                      <RotateCcw className="h-12 w-12 text-slate-300" />
-                      <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">No matching return records found</p>
+                      <RotateCcw className="h-12 w-12 text-muted-foreground/40" />
+                      <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">No matching return records found</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -436,22 +436,22 @@ export default function SalesReturnHistoryPage() {
 
       {/* --- Detail Sheet --- */}
       <Sheet open={isDetailOpen} onOpenChange={handleCloseDetails}>
-        <SheetContent className="sm:max-w-[600px] flex flex-col h-full p-0 overflow-hidden border-l border-slate-200">
-          <SheetHeader className="relative p-8 bg-blue-600 text-white shrink-0 overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
+        <SheetContent className="sm:max-w-[600px] flex flex-col h-full p-0 overflow-hidden border-l border-border/50">
+          <SheetHeader className="relative p-8 bg-emerald-600 text-white shrink-0 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
             
             <div className="flex justify-between items-start relative z-10">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="p-1.5 bg-blue-500 rounded-md">
+                  <div className="p-1.5 bg-emerald-500 rounded-md">
                     <RotateCcw className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-[10px] font-black tracking-[0.2em] text-blue-100 uppercase">Return Voucher</span>
+                  <span className="text-[10px] font-black tracking-[0.2em] text-emerald-100 uppercase">Return Voucher</span>
                 </div>
                 <SheetTitle className="text-3xl font-black text-white tracking-tight">
                   {selectedReturn?.return_number}
                 </SheetTitle>
-                <SheetDescription className="text-blue-100 font-medium tracking-wide">
+                <SheetDescription className="text-emerald-100 font-medium tracking-wide">
                   Return initiated on {selectedReturn && formatDate(selectedReturn.return_date)}
                 </SheetDescription>
               </div>
@@ -461,7 +461,7 @@ export default function SalesReturnHistoryPage() {
                   {selectedReturn?.status}
                 </Badge>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest mb-1">Refund Value</p>
+                  <p className="text-[10px] font-bold text-emerald-200 uppercase tracking-widest mb-1">Refund Value</p>
                   <p className="text-2xl font-black text-white tracking-tighter">
                     {selectedReturn && formatCurrency(selectedReturn.refund_amount)}
                   </p>
@@ -470,28 +470,28 @@ export default function SalesReturnHistoryPage() {
             </div>
           </SheetHeader>
 
-          <ScrollArea className="flex-1 bg-white min-h-0">
+          <ScrollArea className="flex-1 bg-card min-h-0">
             <div className="p-8 space-y-10">
               <div className="grid grid-cols-2 gap-10">
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                      <User className="h-3.5 w-3.5 text-slate-400" />
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Client Info</h4>
+                  <div className="flex items-center gap-2 pb-2 border-b border-border/30">
+                      <User className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      <h4 className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Client Info</h4>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-base font-bold text-slate-800">{selectedReturn?.customer?.name || "Walk-in Customer"}</p>
-                    <p className="text-sm text-slate-500">{selectedReturn?.customer?.phone || "No contact info"}</p>
+                    <p className="text-base font-bold text-foreground">{selectedReturn?.customer?.name || "Walk-in Customer"}</p>
+                    <p className="text-sm text-muted-foreground">{selectedReturn?.customer?.phone || "No contact info"}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                      <Hash className="h-3.5 w-3.5 text-slate-400" />
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Original Reference</h4>
+                  <div className="flex items-center gap-2 pb-2 border-b border-border/30">
+                      <Hash className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      <h4 className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Original Reference</h4>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-bold text-slate-700">{selectedReturn?.sale?.invoice_number || 'N/A'}</p>
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-700 font-bold uppercase text-[9px]">
+                    <p className="text-sm font-bold text-foreground">{selectedReturn?.sale?.invoice_number || 'N/A'}</p>
+                    <Badge variant="secondary" className="bg-background text-foreground font-bold uppercase text-[9px]">
                         METHOD: {selectedReturn?.refund_method || 'CASH'}
                     </Badge>
                   </div>
@@ -499,26 +499,26 @@ export default function SalesReturnHistoryPage() {
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Returned Items</h4>
+                <div className="flex items-center justify-between pb-2 border-b border-border/30">
+                    <h4 className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Returned Items</h4>
                     <Badge variant="outline" className="text-[9px] font-bold py-0">{selectedReturn?.items?.length || 0} ITEMS</Badge>
                 </div>
                 
-                <div className="rounded-xl border border-slate-100 overflow-hidden shadow-sm">
+                <div className="rounded-xl border border-border/30 overflow-hidden shadow-sm">
                   <Table>
-                    <TableHeader className="bg-slate-50/50">
-                      <TableRow className="hover:bg-transparent border-slate-100">
-                        <TableHead className="h-10 text-[10px] font-bold text-slate-500 uppercase px-4">Description</TableHead>
-                        <TableHead className="h-10 text-[10px] font-bold text-slate-500 uppercase text-center w-20">Qty</TableHead>
-                        <TableHead className="h-10 text-[10px] font-bold text-slate-500 uppercase text-right w-24">Unit</TableHead>
-                        <TableHead className="h-10 text-[10px] font-bold text-slate-500 uppercase text-right w-28 px-4">Total</TableHead>
+                    <TableHeader className="bg-muted/20">
+                      <TableRow className="hover:bg-transparent border-border/30">
+                        <TableHead className="h-10 text-[10px] font-bold text-muted-foreground uppercase px-4">Description</TableHead>
+                        <TableHead className="h-10 text-[10px] font-bold text-muted-foreground uppercase text-center w-20">Qty</TableHead>
+                        <TableHead className="h-10 text-[10px] font-bold text-muted-foreground uppercase text-right w-24">Unit</TableHead>
+                        <TableHead className="h-10 text-[10px] font-bold text-muted-foreground uppercase text-right w-28 px-4">Total</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {selectedReturn?.items?.map((item, idx) => (
-                        <TableRow key={idx} className="border-slate-50 group hover:bg-slate-50/50 transition-colors">
+                        <TableRow key={idx} className="border-border/30 group hover:bg-muted/20 transition-colors">
                           <TableCell className="py-4 px-4">
-                            <span className="text-[13px] font-bold text-slate-800 leading-tight">
+                            <span className="text-[13px] font-bold text-foreground leading-tight">
                               {item.product?.name}
                             </span>
                           </TableCell>
@@ -527,11 +527,11 @@ export default function SalesReturnHistoryPage() {
                               {parseFloat(item.quantity).toFixed(0)}
                             </span>
                           </TableCell>
-                          <TableCell className="py-4 text-right text-[12px] text-slate-500 font-medium">
+                          <TableCell className="py-4 text-right text-[12px] text-muted-foreground font-medium">
                             {formatCurrency(item.unit_price)}
                           </TableCell>
                           <TableCell className="py-4 text-right px-4">
-                            <span className="text-[13px] font-bold text-slate-900">
+                            <span className="text-[13px] font-bold text-foreground">
                               {formatCurrency(item.total_amount)}
                             </span>
                           </TableCell>
@@ -551,14 +551,14 @@ export default function SalesReturnHistoryPage() {
                 </div>
               )}
 
-              <div className="bg-slate-50/80 rounded-2xl p-6 space-y-4 border border-slate-100">
+              <div className="bg-muted/30/80 rounded-2xl p-6 space-y-4 border border-border/30">
                 <div className="flex justify-between items-center py-2">
                   <div>
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Return Value</h3>
-                    <span className="text-xl font-black text-slate-900 tracking-tighter">{selectedReturn && formatCurrency(selectedReturn.total_amount)}</span>
+                    <h3 className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] mb-1">Return Value</h3>
+                    <span className="text-xl font-black text-foreground tracking-tighter">{selectedReturn && formatCurrency(selectedReturn.total_amount)}</span>
                   </div>
                   <div className="text-right">
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Refunded</h3>
+                    <h3 className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] mb-1">Total Refunded</h3>
                     <Badge className="bg-orange-50 text-orange-600 border-orange-100 text-sm font-black px-4 py-1">
                       {selectedReturn && formatCurrency(selectedReturn.refund_amount)}
                     </Badge>
@@ -568,9 +568,9 @@ export default function SalesReturnHistoryPage() {
             </div>
           </ScrollArea>
 
-          <div className="p-6 bg-white border-t border-slate-100 flex gap-4 shrink-0">
+          <div className="p-6 bg-card border-t border-border/30 flex gap-4 shrink-0">
             <Button
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-12 rounded-xl font-bold gap-2 shadow-lg"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-12 rounded-xl font-bold gap-2 shadow-lg"
               onClick={() => window.print()}
             >
               <Printer className="h-4 w-4" />
@@ -578,7 +578,7 @@ export default function SalesReturnHistoryPage() {
             </Button>
             <Button
               variant="outline"
-              className="h-12 w-12 rounded-xl border-slate-200 hover:bg-slate-50 hover:text-red-500"
+              className="h-12 w-12 rounded-xl border-border/50 hover:bg-muted/30 hover:text-red-500"
               onClick={() => handleCloseDetails(false)}
             >
               <X className="h-5 w-5" />

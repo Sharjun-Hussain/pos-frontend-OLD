@@ -20,8 +20,12 @@ import {
   Tag,
   Wallet,
   UserPlus,
-  Truck
+  Truck,
+  Sun,
+  Moon,
+  Bell
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +55,7 @@ export function SystemBreadcrumb() {
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
   const [showBackButton, setShowBackButton] = useState(false);
   const { breadcrumbs } = useBreadcrumbStore();
+  const { theme, setTheme } = useTheme();
 
   // Format segment names to be more readable
   const getSegmentIcon = (segment) => {
@@ -80,7 +85,8 @@ export function SystemBreadcrumb() {
 
   useEffect(() => {
     // Don't render breadcrumb if we're only on home or app page
-    if (pathname === "/" || pathname === "/pos") {
+    // Also hide on dashboard as it has its own header
+    if (pathname === "/" || pathname === "/pos" || pathname === "/dashboard") {
       setBreadcrumbItems([]);
       setShowBackButton(false);
       return;
@@ -105,7 +111,7 @@ export function SystemBreadcrumb() {
     items.push(
       <BreadcrumbItem key="home">
         <BreadcrumbLink asChild>
-          <Link href="/" className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+          <Link href="/" className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors">
             <Home className="h-3.5 w-3.5" />
             <span className="hidden md:inline text-xs font-medium">Home</span>
           </Link>
@@ -130,13 +136,13 @@ export function SystemBreadcrumb() {
         <BreadcrumbItem key={href}>
           {!isLast ? (
             <BreadcrumbLink asChild>
-              <Link href={href} className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+              <Link href={href} className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors">
                 {icon}
                 <span className="text-xs font-medium">{formattedName}</span>
               </Link>
             </BreadcrumbLink>
           ) : (
-            <BreadcrumbPage className="flex items-center gap-1.5 font-semibold text-slate-900">
+            <BreadcrumbPage className="flex items-center gap-1.5 font-bold text-foreground">
               {icon}
               <span className="text-xs">{formattedName}</span>
             </BreadcrumbPage>
@@ -153,20 +159,16 @@ export function SystemBreadcrumb() {
     setBreadcrumbItems(items);
   }, [pathname, breadcrumbs]);
 
-  // Don't render anything if no breadcrumb items
   const renderHeader = (content) => (
-    <header className="sticky top-0 z-30 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-md transition-all duration-200">
-    <div className="flex h-14 items-center gap-2 px-4">
-        <div className="flex items-center gap-1">
-          <SidebarTrigger className="h-8 w-8" />
-          <div className="h-6 w-px bg-slate-200 mx-0.5 hidden sm:block" />
-          
+    <header className="sticky top-0 z-30 w-full border-b border-border/40 bg-background/95 backdrop-blur-md transition-all duration-500">
+      <div className="flex h-14 items-center gap-4 px-6">
+        <div className="flex items-center gap-2">
           {showBackButton && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => router.back()}
-              className="h-9 px-3 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all group"
+              className="h-9 px-3 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50 rounded-xl transition-all group"
             >
               <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium">Back</span>
@@ -182,16 +184,16 @@ export function SystemBreadcrumb() {
           </Breadcrumb>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="hidden lg:flex items-center gap-2 mr-2">
+        <div className="flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3 mr-3">
             <Button
               variant="outline"
               size="sm"
               asChild
-              className="h-8 gap-1.5 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium shadow-xs"
+              className="h-9 gap-2 border-border bg-card hover:bg-sidebar-accent/50 text-foreground font-black uppercase tracking-widest text-[10px] shadow-sm rounded-xl"
             >
               <Link href="/pos">
-                <Monitor className="h-3.5 w-3.5 text-blue-600" />
+                <Monitor className="h-4 w-4 text-[#10b981]" />
                 <span>POS</span>
               </Link>
             </Button>
@@ -200,62 +202,73 @@ export function SystemBreadcrumb() {
               <DropdownMenuTrigger asChild>
                 <Button
                   size="sm"
-                  className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm"
+                  className="h-9 gap-2 bg-[#10b981] hover:bg-[#059669] text-white font-black uppercase tracking-widest text-[10px] shadow-sm rounded-xl"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-4 w-4" />
                   <span>Quick Action</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Create New</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/pos" className="flex items-center gap-2">
-                    <ShoppingCart className="h-4 w-4 text-blue-600" />
-                    <span className="font-semibold">New Sale (POS)</span>
+              <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-card border border-border shadow-2xl transition-all duration-500">
+                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground p-3">Create New</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 focus:bg-sidebar-accent">
+                  <Link href="/pos" className="flex items-center gap-3">
+                    <ShoppingCart className="h-4 w-4 text-[#10b981]" />
+                    <span className="font-bold">New Sale (POS)</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/products/new" className="flex items-center gap-2">
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 focus:bg-sidebar-accent">
+                  <Link href="/products/new" className="flex items-center gap-3">
                     <PlusCircle className="h-4 w-4 text-blue-500" />
-                    <span>New Product</span>
+                    <span className="font-medium">New Product</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/brand" className="flex items-center gap-2">
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 focus:bg-sidebar-accent">
+                  <Link href="/brand" className="flex items-center gap-3">
                     <Tag className="h-4 w-4 text-indigo-500" />
-                    <span>New Brand</span>
+                    <span className="font-medium">New Brand</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/expenses/new" className="flex items-center gap-2">
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 focus:bg-sidebar-accent">
+                  <Link href="/expenses/new" className="flex items-center gap-3">
                     <Wallet className="h-4 w-4 text-emerald-500" />
-                    <span>New Expense</span>
+                    <span className="font-medium">New Expense</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/customers" className="flex items-center gap-2">
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 focus:bg-sidebar-accent">
+                  <Link href="/customers" className="flex items-center gap-3">
                     <UserPlus className="h-4 w-4 text-orange-500" />
-                    <span>New Customer</span>
+                    <span className="font-medium">New Customer</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/purchase/suppliers" className="flex items-center gap-2">
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 focus:bg-sidebar-accent">
+                  <Link href="/purchase/suppliers" className="flex items-center gap-3">
                     <Truck className="h-4 w-4 text-slate-500" />
-                    <span>New Supplier</span>
+                    <span className="font-medium">New Supplier</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <div className="hidden md:flex items-center">
-            <ZoomControl className="border-none shadow-none bg-slate-100/50 hover:bg-slate-100 transition-colors" />
+          <div className="hidden md:flex items-center gap-1">
+            <ZoomControl className="border-none shadow-none bg-sidebar-accent/30 hover:bg-sidebar-accent/50 transition-colors" />
+            
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/30 rounded-xl transition-all duration-300 group"
+              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4 group-hover:rotate-45 transition-transform duration-500" />
+              ) : (
+                <Moon className="h-4 w-4 group-hover:-rotate-12 transition-transform duration-500" />
+              )}
+            </button>
           </div>
           
-          {/* Action buttons placeholder */}
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:scale-105 transition-transform">
+          <div className="h-9 w-9 rounded-2xl bg-[#10b981]/10 text-[#10b981] flex items-center justify-center text-xs font-black border border-[#10b981]/20 cursor-pointer hover:scale-105 transition-transform shadow-sm ml-2">
             {session?.user?.name?.charAt(0) || "U"}
           </div>
         </div>
@@ -263,8 +276,8 @@ export function SystemBreadcrumb() {
     </header>
   );
 
-  if (breadcrumbItems.length === 0) {
-    return renderHeader(null);
+  if (breadcrumbItems.length === 0 && pathname !== "/dashboard") {
+    return null;
   }
 
   return renderHeader(breadcrumbItems);

@@ -44,7 +44,10 @@ import {
   Store,
   Truck,
   Eye,
+  Sun,
+  Moon
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -258,18 +261,18 @@ const CustomerSelector = ({
     <div className="relative flex gap-2">
       <Button
         variant="outline"
-        className="h-11 flex-1 justify-start gap-3 text-left bg-white"
+        className="h-11 flex-1 justify-start gap-3 text-left bg-card"
         onClick={() => {
           setIsOpen(!isOpen);
           setShowCreateFields(false);
         }}
       >
-        <Users className="h-5 w-5 text-slate-400" />
+        <Users className="h-5 w-5 text-muted-foreground" />
         <div className="flex-1">
-          <p className="font-semibold text-slate-800 truncate text-sm">
+          <p className="font-semibold text-foreground truncate text-sm">
             {selectedCustomer ? selectedCustomer.name : "Walk-in Customer"}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted-foreground">
             {selectedCustomer
               ? selectedCustomer.phone
               : "Select a customer profile"}
@@ -279,7 +282,7 @@ const CustomerSelector = ({
       <Button
         variant="outline"
         size="icon"
-        className="h-11 w-11 bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+        className="h-11 w-11 bg-card text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-600"
         onClick={() => {
           openCreateForm("");
         }}
@@ -288,7 +291,7 @@ const CustomerSelector = ({
         <Plus className="h-5 w-5" />
       </Button>
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-20 p-2 min-w-[280px]">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-lg shadow-xl z-20 p-2 min-w-[280px]">
           {!showCreateFields ? (
             <>
               <Input
@@ -304,7 +307,7 @@ const CustomerSelector = ({
                     <Button
                       key={customer.id}
                       variant="ghost"
-                      className="w-full justify-start h-auto py-2 px-3 hover:bg-slate-100"
+                      className="w-full justify-start h-auto py-2 px-3 hover:bg-background"
                       onClick={() => {
                         onSelectCustomer(customer);
                         setIsOpen(false);
@@ -321,12 +324,12 @@ const CustomerSelector = ({
                   ))
                 ) : (
                   <div className="py-4 px-2 text-center">
-                    <p className="text-sm text-slate-500 mb-3">No customers found</p>
+                    <p className="text-sm text-muted-foreground mb-3">No customers found</p>
                     {searchTerm.trim() !== "" && (
                       <Button 
                         variant="soft" 
                         size="sm" 
-                        className="w-full bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                        className="w-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20"
                         onClick={() => openCreateForm(searchTerm)}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -340,7 +343,7 @@ const CustomerSelector = ({
                  <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs py-1"
+                    className="w-full text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10 text-xs py-1"
                     onClick={() => openCreateForm(searchTerm)}
                   >
                     <Plus className="h-3 w-3 mr-1" />
@@ -349,13 +352,13 @@ const CustomerSelector = ({
               )}
             </>
           ) : (
-            <div className="space-y-3 p-2 bg-blue-50/50 rounded-lg border border-blue-100">
+            <div className="space-y-3 p-2 bg-emerald-500/5 rounded-lg border border-emerald-500/20">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold text-blue-700 uppercase">New Customer</p>
+                <p className="text-xs font-bold text-emerald-600 uppercase">New Customer</p>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-6 w-6 text-slate-400 hover:text-slate-600"
+                  className="h-6 w-6 text-muted-foreground hover:text-muted-foreground"
                   onClick={() => setShowCreateFields(false)}
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -366,7 +369,7 @@ const CustomerSelector = ({
                   placeholder="Customer Name *"
                   value={newCustomerName}
                   onChange={(e) => setNewCustomerName(e.target.value)}
-                  className="h-9 text-sm bg-white"
+                  className="h-9 text-sm bg-card"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateCustomer();
                   }}
@@ -376,14 +379,14 @@ const CustomerSelector = ({
                   placeholder="Phone Number (Optional)"
                   value={newCustomerPhone}
                   onChange={(e) => setNewCustomerPhone(e.target.value)}
-                  className="h-9 text-sm bg-white"
+                  className="h-9 text-sm bg-card"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateCustomer();
                   }}
                 />
                 <Button
                   size="sm"
-                  className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
                   onClick={handleCreateCustomer}
                   disabled={isCreating}
                 >
@@ -400,7 +403,7 @@ const CustomerSelector = ({
                   )}
                 </Button>
               </div>
-              <p className="text-[10px] text-slate-500 italic text-center">
+              <p className="text-[10px] text-muted-foreground italic text-center">
                 Full profile can be added in Customers dashboard
               </p>
             </div>
@@ -415,7 +418,7 @@ const CustomerSelector = ({
 const ProductCardWithImage = ({ product, onAddToCart }) => (
   <Card
     onClick={() => onAddToCart(product)}
-    className="cursor-pointer group border-slate-200/80 hover:border-blue-400/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full flex flex-col overflow-hidden"
+    className="cursor-pointer group border-border/60 hover:border-emerald-500/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full flex flex-col overflow-hidden"
   >
     <CardContent className="p-0 flex-1 flex flex-col">
       <div className="overflow-hidden">
@@ -426,27 +429,27 @@ const ProductCardWithImage = ({ product, onAddToCart }) => (
             className="w-full h-32 object-cover rounded-t-lg group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <div className="h-32 flex items-center justify-center bg-slate-100 rounded-t-lg">
-            <ImageIcon className="h-8 w-8 text-slate-400" />
+          <div className="h-32 flex items-center justify-center bg-background rounded-t-lg">
+            <ImageIcon className="h-8 w-8 text-muted-foreground" />
           </div>
         )}
       </div>
-      <div className="p-3 flex-1 flex flex-col bg-white">
+      <div className="p-3 flex-1 flex flex-col bg-card">
         <div className="flex justify-between items-start mb-1">
-          <p className="font-semibold text-sm text-slate-800 flex-1">
+          <p className="font-semibold text-sm text-foreground flex-1">
             {product.name}
           </p>
           {product.size && (
             <Badge
               variant="secondary"
-              className="ml-2 shrink-0 text-xs bg-blue-50 text-blue-700 border border-blue-200"
+              className="ml-2 shrink-0 text-xs bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
             >
               {product.size}
             </Badge>
           )}
         </div>
         <div className="mt-auto pt-2">
-          <p className="text-blue-600 font-bold">
+          <p className="text-emerald-500 font-bold">
             LKR {product.retailPrice.toFixed(2)}
           </p>
         </div>
@@ -457,16 +460,16 @@ const ProductCardWithImage = ({ product, onAddToCart }) => (
 const ProductCardSimple = ({ product, onAddToCart }) => (
   <button
     onClick={() => onAddToCart(product)}
-    className="w-full text-left p-3 border border-slate-200/80 bg-white rounded-lg hover:border-blue-400 hover:bg-blue-50/50 transition-colors flex justify-between items-center group"
+    className="w-full text-left p-3 border border-border/60 bg-card rounded-lg hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-colors flex justify-between items-center group"
   >
     <div>
-      <p className="font-semibold text-sm text-slate-800 group-hover:text-blue-800">
+      <p className="font-semibold text-sm text-foreground group-hover:text-emerald-700">
         {product.name}
       </p>
-      <p className="text-xs text-slate-500">{product.size}</p>
+      <p className="text-xs text-muted-foreground">{product.size}</p>
     </div>
     <div className="text-right">
-      <p className="font-bold text-sm text-blue-600">
+      <p className="font-bold text-sm text-emerald-500">
         LKR {product.retailPrice.toFixed(2)}
       </p>
     </div>
@@ -496,22 +499,22 @@ const CartItemCard = forwardRef(
         className={clsx(
           "group flex items-center gap-x-4 p-2 rounded-lg border-2 transition-all duration-200",
           isSelected
-            ? "bg-blue-50 border-blue-500 shadow-md"
-            : "bg-white border-transparent hover:border-slate-200"
+            ? "bg-emerald-500/10 border-emerald-500 shadow-md"
+            : "bg-card border-transparent hover:border-border/50"
         )}
       >
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-slate-800 truncate">{item.name}</p>
-          <p className="text-xs text-slate-500">
+          <p className="font-bold text-foreground truncate">{item.name}</p>
+          <p className="text-xs text-muted-foreground">
             {item.barcode} {item.size && `• ${item.size}`}
           </p>
         </div>
 
         {/* Price */}
         <div className="w-24 shrink-0 text-right">
-          <label className="text-xs text-slate-500 block">Price</label>
-          <p className="font-medium text-sm text-slate-700">
+          <label className="text-xs text-muted-foreground block">Price</label>
+          <p className="font-medium text-sm text-foreground">
             {item.price.toFixed(2)}
           </p>
         </div>
@@ -521,7 +524,7 @@ const CartItemCard = forwardRef(
           <Button
             size="icon"
             variant="outline"
-            className="h-8 w-8 bg-white shrink-0"
+            className="h-8 w-8 bg-card shrink-0"
             onClick={() => handleQuantityChange(item.quantity - 1)}
           >
             <Minus className="h-4 w-4" />
@@ -532,12 +535,12 @@ const CartItemCard = forwardRef(
             type="number"
             value={item.quantity}
             onChange={(e) => handleQuantityChange(Number(e.target.value))}
-            className="h-8 w-full min-w-0 text-center text-base font-semibold p-0 bg-white"
+            className="h-8 w-full min-w-0 text-center text-base font-semibold p-0 bg-card"
           />
           <Button
             size="icon"
             variant="outline"
-            className="h-8 w-8 bg-white shrink-0"
+            className="h-8 w-8 bg-card shrink-0"
             onClick={() => handleQuantityChange(item.quantity + 1)}
           >
             <Plus className="h-4 w-4" />
@@ -546,7 +549,7 @@ const CartItemCard = forwardRef(
 
         {/* Discount */}
         <div className="w-24 shrink-0">
-          <label className="text-xs text-slate-500 block text-center">
+          <label className="text-xs text-muted-foreground block text-center">
             Discount
           </label>
           <div className="relative">
@@ -554,9 +557,9 @@ const CartItemCard = forwardRef(
               type="number"
               value={item.discount}
               onChange={(e) => handleDiscountChange(Number(e.target.value))}
-              className="h-8 w-full text-center text-sm p-1 bg-white pr-5"
+              className="h-8 w-full text-center text-sm p-1 bg-card pr-5"
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
               %
             </span>
           </div>
@@ -564,8 +567,8 @@ const CartItemCard = forwardRef(
 
         {/* Amount */}
         <div className="w-32 shrink-0 text-right">
-          <label className="text-xs text-slate-500 block">Amount</label>
-          <p className="font-bold text-lg text-blue-700">
+          <label className="text-xs text-muted-foreground block">Amount</label>
+          <p className="font-bold text-lg text-emerald-600">
             {netTotal.toFixed(2)}
           </p>
         </div>
@@ -666,11 +669,11 @@ const CalculatorModal = ({ onClose }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl w-80"
+        className="bg-card rounded-xl shadow-2xl w-80"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-4 border-b flex justify-between items-center">
-          <h3 className="font-bold text-slate-800">Calculator</h3>
+          <h3 className="font-bold text-foreground">Calculator</h3>
           <Button
             variant="ghost"
             size="icon"
@@ -681,7 +684,7 @@ const CalculatorModal = ({ onClose }) => {
           </Button>
         </div>
         <div className="p-4">
-          <div className="bg-slate-100 text-right text-4xl font-mono p-4 rounded-lg mb-4 break-all">
+          <div className="bg-background text-right text-4xl font-mono p-4 rounded-lg mb-4 break-all">
             {displayValue}
           </div>
           <div className="grid grid-cols-4 gap-2">
@@ -712,6 +715,7 @@ const CalculatorModal = ({ onClose }) => {
 // --- Main POS Page Component ---
 export default function PosPage() {
   const [products, setProducts] = useState([]);
+  const { theme, setTheme } = useTheme();
   const [customers, setCustomers] = useState([]);
   const [activeEmployees, setActiveEmployees] = useState([]);
   const [editMode, setEditMode] = useState("search");
@@ -748,7 +752,7 @@ export default function PosPage() {
 
   const PAYMENT_METHODS_MAP = [
     { id: "cash", label: "Cash", icon: Banknote, color: "text-emerald-500" },
-    { id: "card", label: "Card", icon: CreditCard, color: "text-blue-500" },
+    { id: "card", label: "Card", icon: CreditCard, color: "text-emerald-500" },
     { id: "online", label: "Online", icon: Globe, color: "text-purple-500" },
     { id: "qr", label: "QR Pay", icon: QrCode, color: "text-cyan-500" },
     { id: "wallet", label: "Wallet", icon: Smartphone, color: "text-pink-500" },
@@ -1435,37 +1439,50 @@ export default function PosPage() {
 
   return (
     <>
-      <div className="flex h-screen flex-col items-center justify-center bg-slate-100 p-4 text-center lg:hidden">
-        <MonitorX className="h-16 w-16 text-slate-400" />
-        <h1 className="mt-6 text-2xl font-bold text-slate-800">
+      <div className="flex h-screen flex-col items-center justify-center bg-background p-4 text-center lg:hidden">
+        <MonitorX className="h-16 w-16 text-muted-foreground" />
+        <h1 className="mt-6 text-2xl font-bold text-foreground">
           Optimal Experience on Larger Screens
         </h1>
-        <p className="mt-2 max-w-sm text-slate-600">
+        <p className="mt-2 max-w-sm text-muted-foreground">
           This POS system is designed for tablets and desktops. Please switch to
           a larger device to continue.
         </p>
       </div>
 
-      <div className="hidden h-screen flex-col bg-slate-50 font-sans lg:flex">
+      <div className="hidden h-screen flex-col bg-muted/30 font-sans lg:flex">
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <ResizablePanelGroup
             direction="horizontal"
             className="flex-1 lg:flex"
           >
             <ResizablePanel defaultSize={35} minSize={30}>
-              <aside className="flex flex-col h-full border-r border-slate-200/60 bg-white">
-                <header className="p-4 border-b border-slate-200/60">
+              <aside className="flex flex-col h-full border-r border-border/50/60 bg-card">
+                <header className="p-4 border-b border-border/50/60">
                   <div className="space-y-3 ">
                     <div className="relative w-full flex gap-3 items-center justify-start">
-                      <Button type="button" variant="outline" className="h-12" onClick={() => router.back()}>
-                        <ArrowLeft />
-                        Back
-                      </Button>
-                      <Search className="absolute left-26 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                      <div className="flex items-center gap-2">
+                        <Button type="button" variant="outline" className="h-12" onClick={() => router.back()}>
+                          <ArrowLeft />
+                          Back
+                        </Button>
+                        <button
+                          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                          className="h-12 w-12 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background border border-border/50 rounded-xl transition-all duration-300 group"
+                          title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                        >
+                          {theme === "dark" ? (
+                            <Sun className="h-5 w-5 group-hover:rotate-45 transition-transform duration-500" />
+                          ) : (
+                            <Moon className="h-5 w-5 group-hover:-rotate-12 transition-transform duration-500" />
+                          )}
+                        </button>
+                      </div>
+                      <Search className="absolute left-26 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                       <Input
                         ref={searchInputRef}
                         placeholder="Search products... (Ctrl+Q)"
-                        className="pl-11 h-12 text-base bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                        className="pl-11 h-12 text-base bg-card border-border focus:border-emerald-500 focus:ring-blue-500"
                         value={productSearch}
                         onChange={(e) => setProductSearch(e.target.value)}
                         onFocus={() => setEditMode("search")}
@@ -1473,7 +1490,7 @@ export default function PosPage() {
                     </div>
                     {session?.user?.branches?.length > 1 && (
                       <div className="flex items-center gap-2">
-                        <Store className="h-4 w-4 text-slate-500" />
+                        <Store className="h-4 w-4 text-muted-foreground" />
                         <Select
                           value={selectedBranch?.id}
                           onValueChange={(id) => {
@@ -1481,7 +1498,7 @@ export default function PosPage() {
                             setSelectedBranch(branch);
                           }}
                         >
-                          <SelectTrigger className="h-9 w-full bg-white">
+                          <SelectTrigger className="h-9 w-full bg-card">
                             <SelectValue placeholder="Select Branch" />
                           </SelectTrigger>
                           <SelectContent>
@@ -1503,7 +1520,7 @@ export default function PosPage() {
                       />
                       <Button
                         variant="outline"
-                        className="h-11 bg-white"
+                        className="h-11 bg-card"
                         onClick={() => setShowProductImages(!showProductImages)}
                         title={
                           showProductImages
@@ -1520,7 +1537,7 @@ export default function PosPage() {
                     </div>
                   </div>
                 </header>
-                <div className="flex-1 p-4 overflow-y-auto bg-slate-50/50">
+                <div className="flex-1 p-4 overflow-y-auto bg-muted/20">
                   {showProductImages ? (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
                       {filteredProducts.map((p) => (
@@ -1547,7 +1564,7 @@ export default function PosPage() {
             </ResizablePanel>
             <ResizableHandle
               withHandle
-              className="bg-slate-100 hidden lg:flex"
+              className="bg-background hidden lg:flex"
             />
             <ResizablePanel defaultSize={65} minSize={40}>
               <div className="flex flex-col h-full overflow-hidden">
@@ -1555,22 +1572,22 @@ export default function PosPage() {
                   <ResizablePanelGroup direction="vertical">
                 <ResizablePanel defaultSize={70} minSize={30}>
                   <main className="flex flex-col h-full overflow-hidden">
-                    <header className="p-4 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm">
+                    <header className="p-4 border-b border-border/50/60 bg-card/80 backdrop-blur-sm">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-3">
-                          <ShoppingCart className="h-6 w-6 text-blue-600" />
+                          <ShoppingCart className="h-6 w-6 text-emerald-500" />
                           <div>
-                            <h2 className="text-xl font-bold text-slate-800">
+                            <h2 className="text-xl font-bold text-foreground">
                               Current Sale
                             </h2>
-                            <p className="text-xs text-slate-500 -mt-0.5">
+                            <p className="text-xs text-muted-foreground -mt-0.5">
                               {currentDateTime.toLocaleString()}
                             </p>
                           </div>
                           {state.cart.length > 0 && (
                             <Badge
                               variant="secondary"
-                              className="px-2.5 py-1 text-sm bg-blue-100 text-blue-800 border-blue-200"
+                              className="px-2.5 py-1 text-sm bg-emerald-500/20 text-emerald-700 border-emerald-500/20"
                             >
                               {state.cart.length} items
                             </Badge>
@@ -1581,7 +1598,7 @@ export default function PosPage() {
                             <Button
                               variant={state.isWholesale ? "secondary" : "outline"}
                               size="sm"
-                              className="h-9 bg-white data-[state=active]:bg-white"
+                              className="h-9 bg-card data-[state=active]:bg-card"
                               onClick={handleWholesaleToggle}
                             >
                               Wholesale
@@ -1591,7 +1608,7 @@ export default function PosPage() {
                                 <Input
                                   type="number"
                                   placeholder="Discount"
-                                  className="h-9 w-28 pl-2 pr-7 text-sm bg-white"
+                                  className="h-9 w-28 pl-2 pr-7 text-sm bg-card"
                                   value={wholesaleDiscount || ""}
                                   onChange={(e) =>
                                     setWholesaleDiscount(
@@ -1599,7 +1616,7 @@ export default function PosPage() {
                                     )
                                   }
                                 />
-                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                                   %
                                 </span>
                               </div>
@@ -1608,7 +1625,7 @@ export default function PosPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-9 w-9 bg-white"
+                            className="h-9 w-9 bg-card"
                             onClick={() => setIsCalculatorOpen(true)}
                           >
                             <Calculator className="h-4 w-4" />
@@ -1616,7 +1633,7 @@ export default function PosPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-9 w-9 bg-white"
+                            className="h-9 w-9 bg-card"
                             onClick={toggleFullScreen}
                           >
                             {isFullScreen ? (
@@ -1628,7 +1645,7 @@ export default function PosPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 text-red-600 hover:text-red-700 hover:bg-red-50/80 border-red-200/80 bg-white"
+                            className="h-9 text-red-600 hover:text-red-700 hover:bg-red-50/80 border-red-200/80 bg-card"
                             onClick={resetSale}
                           >
                             <X className="h-4 w-4 mr-1.5" /> Clear
@@ -1636,7 +1653,7 @@ export default function PosPage() {
                         </div>
                       </div>
                     </header>
-                    <div className="flex-1 p-4 overflow-y-auto bg-slate-100/60">
+                    <div className="flex-1 p-4 overflow-y-auto bg-background/60">
                       {state.cart.length > 0 ? (
                         <div className="space-y-2 max-w-full mx-auto">
                           {state.cart.map((item, index) => (
@@ -1656,7 +1673,7 @@ export default function PosPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                           <ShoppingCart className="h-20 w-20 mb-4 opacity-10" />
                           <p className="text-lg font-medium mb-2">
                             Your cart is empty
@@ -1669,18 +1686,18 @@ export default function PosPage() {
                     </div>
                   </main>
                 </ResizablePanel>
-                <ResizableHandle withHandle className="bg-slate-100" />
+                <ResizableHandle withHandle className="bg-background" />
                 <ResizablePanel defaultSize={30} minSize={15}>
-                  <section className="h-full flex flex-col bg-white overflow-hidden border-t">
-                    <header className="px-4 py-2 border-b bg-slate-50 flex justify-between items-center shrink-0">
-                      <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                  <section className="h-full flex flex-col bg-card overflow-hidden border-t">
+                    <header className="px-4 py-2 border-b bg-muted/30 flex justify-between items-center shrink-0">
+                      <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                         <RotateCcw className="h-4 w-4 text-orange-500" />
                         Recent Sales
                       </h3>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-8 text-xs text-blue-600 hover:text-blue-700"
+                        className="h-8 text-xs text-emerald-500 hover:text-emerald-600"
                         onClick={() => {
                           setIsSaleListOpen(true);
                           fetchSales("completed");
@@ -1692,37 +1709,37 @@ export default function PosPage() {
                     <ScrollArea className="flex-1">
                       {isLoadingRecentSales ? (
                         <div className="flex items-center justify-center p-8">
-                          <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/50" />
                         </div>
                       ) : recentSales.length > 0 ? (
                         <div className="p-2 space-y-1">
                           {recentSales.map((sale) => (
                             <div 
                               key={sale.id}
-                              className="group flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-200 transition-all"
+                              className="group flex items-center justify-between p-2 rounded-lg hover:bg-muted/30 cursor-pointer border border-transparent hover:border-border/50 transition-all"
                               onClick={() => {
                                 setSelectedSaleDetail(sale);
                                 setIsDetailOpen(true);
                               }}
                             >
                               <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                                   <List className="h-4 w-4" />
                                 </div>
                                 <div>
-                                  <p className="text-xs font-bold text-slate-800">{sale.invoice_number}</p>
-                                  <p className="text-[10px] text-slate-500">{new Date(sale.created_at).toLocaleTimeString()}</p>
+                                  <p className="text-xs font-bold text-foreground">{sale.invoice_number}</p>
+                                  <p className="text-[10px] text-muted-foreground">{new Date(sale.created_at).toLocaleTimeString()}</p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-4">
                                 <div className="text-right">
-                                  <p className="text-xs font-black text-slate-900">LKR {parseFloat(sale.payable_amount).toFixed(2)}</p>
-                                  <p className="text-[10px] text-slate-500 uppercase font-bold">{sale.payment_method}</p>
+                                  <p className="text-xs font-black text-foreground">LKR {parseFloat(sale.payable_amount).toFixed(2)}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase font-bold">{sale.payment_method}</p>
                                 </div>
                                 <Button 
                                   size="icon" 
                                   variant="ghost" 
-                                  className="h-8 w-8 text-slate-400 hover:text-blue-600"
+                                  className="h-8 w-8 text-muted-foreground hover:text-emerald-500"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setPrintableSale(sale);
@@ -1735,7 +1752,7 @@ export default function PosPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="p-8 text-center text-slate-400 text-xs italic">
+                        <div className="p-8 text-center text-muted-foreground text-xs italic">
                           No recent sales to display
                         </div>
                       )}
@@ -1744,7 +1761,7 @@ export default function PosPage() {
                 </ResizablePanel>
                   </ResizablePanelGroup>
                 </div>
-                <footer className="shrink-0 border-t border-slate-200/60 bg-white/80 backdrop-blur-sm p-4 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.02)]">
+                <footer className="shrink-0 border-t border-border/50/60 bg-card/80 backdrop-blur-sm p-4 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.02)]">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-7xl mx-auto items-start">
                       <div className="lg:col-span-7 flex flex-col gap-3">
                         {/* Top: Utilities & Other Actions */}
@@ -1753,7 +1770,7 @@ export default function PosPage() {
                             <Button
                               key={action.label}
                               variant="outline"
-                              className="h-14 flex-col gap-1 text-[10px] bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                              className="h-14 flex-col gap-1 text-[10px] bg-card text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                               onClick={action.action}
                               disabled={action.disabled}
                             >
@@ -1775,19 +1792,19 @@ export default function PosPage() {
                                 key={pm.id}
                                 variant={paymentMethod.toLowerCase() === pm.id ? "default" : "outline"}
                                 className={clsx(
-                                  "h-16 flex-col justify-center gap-1 text-[10px] uppercase font-bold tracking-tight bg-white hover:bg-slate-50",
+                                  "h-16 flex-col justify-center gap-1 text-[10px] uppercase font-bold tracking-tight bg-card hover:bg-muted/30",
                                   paymentMethod.toLowerCase() === pm.id ? 
                                     (pm.id === 'cash' ? "ring-2 ring-emerald-500 bg-emerald-50 text-emerald-700" :
-                                     pm.id === 'card' ? "ring-2 ring-blue-500 bg-blue-50 text-blue-700" :
-                                     "ring-2 ring-slate-500 bg-slate-50 text-slate-700") 
-                                    : "text-slate-600 hover:text-slate-800"
+                                     pm.id === 'card' ? "ring-2 ring-blue-500 bg-emerald-500/10 text-emerald-600" :
+                                     "ring-2 ring-slate-500 bg-muted/30 text-foreground") 
+                                    : "text-muted-foreground hover:text-foreground"
                                 )}
                                 onClick={() => {
                                   setPaymentMethod(pm.label);
                                   playBeep('subtle');
                                 }}
                               >
-                                <pm.icon className={clsx("h-5 w-5", pm.id === 'cash' ? "text-emerald-500" : pm.id === 'card' ? "text-blue-500" : pm.color)} />
+                                <pm.icon className={clsx("h-5 w-5", pm.id === 'cash' ? "text-emerald-500" : pm.id === 'card' ? "text-emerald-500" : pm.color)} />
                                 <span>{pm.label}</span>
                               </Button>
                             ))
@@ -1816,7 +1833,7 @@ export default function PosPage() {
                                 <label className="text-[10px] font-bold text-amber-700 uppercase">Bank Name</label>
                                 <Input 
                                     placeholder="Enter Bank" 
-                                    className="h-8 text-xs bg-white border-amber-200"
+                                    className="h-8 text-xs bg-card border-amber-200"
                                     value={chequeDetails.bank_name}
                                     onChange={(e) => setChequeDetails({...chequeDetails, bank_name: e.target.value})}
                                 />
@@ -1825,7 +1842,7 @@ export default function PosPage() {
                                 <label className="text-[10px] font-bold text-amber-700 uppercase">Cheque #</label>
                                 <Input 
                                     placeholder="Enter Cheque #" 
-                                    className="h-8 text-xs bg-white border-amber-200"
+                                    className="h-8 text-xs bg-card border-amber-200"
                                     value={chequeDetails.cheque_number}
                                     onChange={(e) => setChequeDetails({...chequeDetails, cheque_number: e.target.value})}
                                 />
@@ -1834,7 +1851,7 @@ export default function PosPage() {
                                 <label className="text-[10px] font-bold text-amber-700 uppercase">Date</label>
                                 <Input 
                                     type="date"
-                                    className="h-8 text-xs bg-white border-amber-200"
+                                    className="h-8 text-xs bg-card border-amber-200"
                                     value={chequeDetails.cheque_date}
                                     onChange={(e) => setChequeDetails({...chequeDetails, cheque_date: e.target.value})}
                                 />
@@ -1843,7 +1860,7 @@ export default function PosPage() {
                                 <label className="text-[10px] font-bold text-amber-700 uppercase">Payor</label>
                                 <Input 
                                     placeholder="Payor Name" 
-                                    className="h-8 text-xs bg-white border-amber-200"
+                                    className="h-8 text-xs bg-card border-amber-200"
                                     value={chequeDetails.payee_payor_name}
                                     onChange={(e) => setChequeDetails({...chequeDetails, payee_payor_name: e.target.value})}
                                 />
@@ -1852,7 +1869,7 @@ export default function PosPage() {
                         )}
 
                         <Button 
-                          className="h-16 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 mt-auto"
+                          className="h-16 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 mt-auto"
                           onClick={handlePayNow}
                         >
                           <DollarSign className="h-7 w-7" />
@@ -1861,22 +1878,22 @@ export default function PosPage() {
                       </div>
 
                       {/* Right Column: Calculations */}
-                      <div className="lg:col-span-5 space-y-2.5 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80">
+                      <div className="lg:col-span-5 space-y-2.5 bg-muted/30/80 p-4 rounded-xl border border-border/60">
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Subtotal</span>
-                          <span className="font-medium text-slate-800">
+                          <span className="text-muted-foreground">Subtotal</span>
+                          <span className="font-medium text-foreground">
                             LKR {totals.subtotal.toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Item Discounts</span>
+                          <span className="text-muted-foreground">Item Discounts</span>
                           <span className="font-medium text-red-600">
                             - LKR {totals.totalItemDiscount.toFixed(2)}
                           </span>
                         </div>
                         {state.isWholesale && wholesaleDiscount > 0 && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-slate-600">
+                            <span className="text-muted-foreground">
                               Wholesale Discount ({wholesaleDiscount}%)
                             </span>
                             <span className="font-medium text-red-600">
@@ -1886,7 +1903,7 @@ export default function PosPage() {
                         )}
                         {generalDiscount > 0 && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-slate-600">
+                            <span className="text-muted-foreground">
                               General Discount ({generalDiscount}%)
                             </span>
                             <span className="font-medium text-red-600">
@@ -1895,14 +1912,14 @@ export default function PosPage() {
                           </div>
                         )}
                         <div className="flex justify-between items-center text-sm border-t pt-2 mt-2">
-                          <span className="text-slate-600">Discount (%)</span>
+                          <span className="text-muted-foreground">Discount (%)</span>
                           <div className="relative">
                             <Input
                               type="number"
                               min="0"
                               max="100"
                               step="0.01"
-                              className="h-8 w-28 pl-2 pr-7 text-sm bg-white"
+                              className="h-8 w-28 pl-2 pr-7 text-sm bg-card"
                               value={generalDiscount || ""}
                               onChange={(e) =>
                                 setGeneralDiscount(
@@ -1911,36 +1928,36 @@ export default function PosPage() {
                               }
                               placeholder="0"
                             />
-                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                               %
                             </span>
                           </div>
                         </div>
                         <div className="flex justify-between text-base font-semibold pt-2 border-t mt-2">
-                          <span className="text-slate-800">Grand Total</span>
-                          <span className="text-slate-900">
+                          <span className="text-foreground">Grand Total</span>
+                          <span className="text-foreground">
                             LKR {grandTotal.toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-slate-600">Adjustment</span>
+                          <span className="text-muted-foreground">Adjustment</span>
                           <Input
                             type="number"
-                            className="h-8 max-w-[120px] text-right bg-white"
+                            className="h-8 max-w-[120px] text-right bg-card"
                             value={adjustment}
                             onChange={(e) =>
                               setAdjustment(parseFloat(e.target.value) || 0)
                             }
                           />
                         </div>
-                        <div className="flex justify-between text-2xl font-bold text-blue-700 pt-3 border-t border-slate-200 mt-3 items-center">
+                        <div className="flex justify-between text-2xl font-bold text-emerald-600 pt-3 border-t border-border/50 mt-3 items-center">
                           <div className="flex items-center gap-2">
-                             <span className="text-slate-900">Net Total</span>
+                             <span className="text-foreground">Net Total</span>
                              {posResponse?.data?.showReceiptPreview && (
                                <Button 
                                 size="icon" 
                                 variant="ghost" 
-                                className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                                className="h-8 w-8 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
                                 onClick={handleLivePreview}
                                 title="Live Preview"
                                >
@@ -1952,13 +1969,13 @@ export default function PosPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-3 mt-2">
                           <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
                               Cash In
                             </label>
                             <Input
                               type="number"
                               placeholder="0.00"
-                              className="h-10 text-lg font-bold bg-white"
+                              className="h-10 text-lg font-bold bg-card"
                               value={cashIn || ""}
                               onChange={(e) =>
                                 setCashIn(parseFloat(e.target.value) || 0)
@@ -1966,7 +1983,7 @@ export default function PosPage() {
                             />
                           </div>
                           <div className="text-right">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
                               Balance
                             </label>
                             <div className="h-10 flex items-center justify-end rounded-md bg-emerald-100 text-emerald-700 font-bold text-xl px-3 border border-emerald-200">
@@ -1987,8 +2004,8 @@ export default function PosPage() {
         <Dialog open={isHoldListOpen} onOpenChange={setIsHoldListOpen}>
           <DialogContent className="min-w-7xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
             <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-slate-800">
-                <Archive className="h-6 w-6 text-blue-600" />
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-foreground">
+                <Archive className="h-6 w-6 text-emerald-500" />
                 Held Sales (Drafts)
               </DialogTitle>
               <DialogDescription>
@@ -1999,73 +2016,73 @@ export default function PosPage() {
             <ScrollArea className="flex-1">
               {isLoadingSales ? (
                 <div className="flex items-center justify-center py-20">
-                  <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+                  <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
                 </div>
               ) : salesData.length > 0 ? (
                 <Table className="">
-                  <TableHeader className="bg-slate-50 sticky top-0 z-10">
+                  <TableHeader className="bg-muted/30 sticky top-0 z-10">
                     <TableRow>
-                      <TableHead className="w-[180px] px-6 font-bold text-slate-700">Invoice #</TableHead>
-                      <TableHead className="w-[200px] px-6 font-bold text-slate-700">Date & Time</TableHead>
-                      <TableHead className="px-6 font-bold text-slate-700">Customer</TableHead>
-                      <TableHead className="px-6 font-bold text-slate-700">Items (Details)</TableHead>
-                      <TableHead className="px-6 text-right font-bold text-slate-700">Total</TableHead>
-                      <TableHead className="px-6 text-center font-bold text-slate-700">Actions</TableHead>
+                      <TableHead className="w-[180px] px-6 font-bold text-foreground">Invoice #</TableHead>
+                      <TableHead className="w-[200px] px-6 font-bold text-foreground">Date & Time</TableHead>
+                      <TableHead className="px-6 font-bold text-foreground">Customer</TableHead>
+                      <TableHead className="px-6 font-bold text-foreground">Items (Details)</TableHead>
+                      <TableHead className="px-6 text-right font-bold text-foreground">Total</TableHead>
+                      <TableHead className="px-6 text-center font-bold text-foreground">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {salesData.map((sale) => (
-                      <TableRow key={sale.id} className="group hover:bg-blue-50/50 transition-colors">
-                        <TableCell className="px-6 font-mono font-medium text-blue-600">
+                      <TableRow key={sale.id} className="group hover:bg-emerald-500/5 transition-colors">
+                        <TableCell className="px-6 font-mono font-medium text-emerald-500">
                           {sale.invoice_number}
                         </TableCell>
-                        <TableCell className="px-6 text-slate-500 text-xs">
+                        <TableCell className="px-6 text-muted-foreground text-xs">
                           {new Date(sale.created_at).toLocaleString()}
                         </TableCell>
                         <TableCell className="px-6">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900">{sale.customer?.name || "Walk-in"}</span>
-                            <span className="text-[10px] text-slate-400">{sale.customer?.phone || "No Phone"}</span>
+                            <span className="font-semibold text-foreground">{sale.customer?.name || "Walk-in"}</span>
+                            <span className="text-[10px] text-muted-foreground">{sale.customer?.phone || "No Phone"}</span>
                           </div>
                         </TableCell>
                         <TableCell className="px-6">
                           <HoverCard openDelay={100} closeDelay={100}>
                             <HoverCardTrigger asChild>
                               <div className="flex flex-col gap-0.5 cursor-pointer group/items">
-                                <Badge variant="secondary" className="w-fit text-[10px] h-5 px-1.5 mb-1 bg-blue-50 text-blue-600 border-none group-hover/items:bg-blue-600 group-hover/items:text-white transition-colors">
+                                <Badge variant="secondary" className="w-fit text-[10px] h-5 px-1.5 mb-1 bg-emerald-500/10 text-emerald-500 border-none group-hover/items:bg-emerald-600 group-hover/items:text-white transition-colors">
                                   {sale.items?.length || 0} Items
                                 </Badge>
                                 <div className="max-w-[400px]">
-                                  <p className="text-[11px] text-slate-500 truncate italic group-hover/items:text-blue-600 transition-colors">
+                                  <p className="text-[11px] text-muted-foreground truncate italic group-hover/items:text-emerald-500 transition-colors">
                                     {sale.items?.map(item => `${item.product?.name} (${parseFloat(item.quantity).toFixed(0)})`).join(", ")}
                                   </p>
                                 </div>
                               </div>
                             </HoverCardTrigger>
-                            <HoverCardContent className="w-96 p-0 overflow-hidden border-slate-200 shadow-2xl animate-in zoom-in-95 duration-200" side="right" align="start">
-                              <div className="bg-slate-900 p-4 text-white">
+                            <HoverCardContent className="w-96 p-0 overflow-hidden border-border/50 shadow-2xl animate-in zoom-in-95 duration-200" side="right" align="start">
+                              <div className="bg-muted/80 backdrop-blur-sm p-4 text-foreground border-b border-border/50">
                                 <div className="flex justify-between items-center mb-1">
                                   <h4 className="text-sm font-bold uppercase tracking-wider opacity-70">Sale Items Details</h4>
-                                  <Badge className="bg-blue-500 hover:bg-blue-500 border-none">{sale.items?.length || 0} Products</Badge>
+                                  <Badge className="bg-emerald-500/100 hover:bg-emerald-500/100 border-none">{sale.items?.length || 0} Products</Badge>
                                 </div>
                                 <p className="text-[10px] opacity-50 font-mono">{sale.invoice_number}</p>
                               </div>
-                              <div className="p-2 bg-white max-h-[400px] overflow-y-auto">
+                              <div className="p-2 bg-card max-h-[400px] overflow-y-auto">
                                 <Table>
-                                  <TableHeader className="bg-slate-50">
+                                  <TableHeader className="bg-muted/30">
                                     <TableRow className="hover:bg-transparent border-none">
                                       <TableHead className="h-8 w-12"></TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500">Product</TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500 text-center">Qty</TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500 text-right">Price</TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500 text-right">Total</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground">Product</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground text-center">Qty</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground text-right">Price</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground text-right">Total</TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                     {sale.items?.map((item, idx) => (
-                                      <TableRow key={idx} className="border-slate-100 hover:bg-slate-50 transition-colors group/item">
+                                      <TableRow key={idx} className="border-border/30 hover:bg-muted/30 transition-colors group/item">
                                         <TableCell className="py-2 px-2">
-                                          <div className="h-10 w-10 rounded-md bg-slate-100 overflow-hidden border border-slate-200 flex-shrink-0 relative">
+                                          <div className="h-10 w-10 rounded-md bg-background overflow-hidden border border-border/50 flex-shrink-0 relative">
                                             {item.product?.image ? (
                                               <img 
                                                 src={`${process.env.NEXT_PUBLIC_API_BASE_URL.replace('/api/v1', '')}/${JSON.parse(item.product.image)[0]}`} 
@@ -2074,20 +2091,20 @@ export default function PosPage() {
                                               />
                                             ) : (
                                               <div className="h-full w-full flex items-center justify-center">
-                                                <PackageSearch className="h-5 w-5 text-slate-300" />
+                                                <PackageSearch className="h-5 w-5 text-muted-foreground/40" />
                                               </div>
                                             )}
                                           </div>
                                         </TableCell>
-                                        <TableCell className="py-2 text-xs font-medium text-slate-800">
+                                        <TableCell className="py-2 text-xs font-medium text-foreground">
                                           <div className="flex flex-col">
                                             <span>{item.product?.name}</span>
-                                            {item.variant?.name && <span className="text-[9px] text-slate-400">{item.variant.name}</span>}
+                                            {item.variant?.name && <span className="text-[9px] text-muted-foreground">{item.variant.name}</span>}
                                           </div>
                                         </TableCell>
-                                        <TableCell className="py-2 text-xs text-center text-slate-600">{parseFloat(item.quantity || 0).toFixed(0)}</TableCell>
-                                        <TableCell className="py-2 text-xs text-right text-slate-600">{parseFloat(item.unit_price || item.price || 0).toLocaleString()}</TableCell>
-                                        <TableCell className="py-2 text-xs text-right font-bold text-slate-900">
+                                        <TableCell className="py-2 text-xs text-center text-muted-foreground">{parseFloat(item.quantity || 0).toFixed(0)}</TableCell>
+                                        <TableCell className="py-2 text-xs text-right text-muted-foreground">{parseFloat(item.unit_price || item.price || 0).toLocaleString()}</TableCell>
+                                        <TableCell className="py-2 text-xs text-right font-bold text-foreground">
                                           {(parseFloat(item.unit_price || item.price || 0) * parseFloat(item.quantity || 0)).toLocaleString()}
                                         </TableCell>
                                       </TableRow>
@@ -2095,15 +2112,15 @@ export default function PosPage() {
                                   </TableBody>
                                 </Table>
                               </div>
-                              <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                                <span className="text-xs font-bold text-slate-500">PAYABLE AMOUNT</span>
-                                <span className="text-lg font-black text-blue-600">LKR {parseFloat(sale.payable_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                              <div className="p-4 bg-muted/30 border-t border-border/30 flex justify-between items-center">
+                                <span className="text-xs font-bold text-muted-foreground">PAYABLE AMOUNT</span>
+                                <span className="text-lg font-black text-emerald-500">LKR {parseFloat(sale.payable_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                               </div>
                             </HoverCardContent>
                           </HoverCard>
                         </TableCell>
                         <TableCell className="px-6 text-right">
-                          <span className="font-bold text-slate-900">
+                          <span className="font-bold text-foreground">
                             LKR {parseFloat(sale.payable_amount).toFixed(2)}
                           </span>
                         </TableCell>
@@ -2120,7 +2137,7 @@ export default function PosPage() {
                             </Button>
                             <Button 
                               size="sm" 
-                              className="h-8 bg-blue-600 hover:bg-blue-700 font-bold px-4"
+                              className="h-8 bg-emerald-600 hover:bg-emerald-700 font-bold px-4"
                               onClick={() => resumeSale(sale)}
                             >
                               Resume
@@ -2132,7 +2149,7 @@ export default function PosPage() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+                <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
                   <Archive className="h-20 w-20 mb-4 opacity-10" />
                   <p className="text-xl font-medium">No held sales found</p>
                   <p className="text-sm">Held sales will appear here for you to resume or delete.</p>
@@ -2146,7 +2163,7 @@ export default function PosPage() {
         <Dialog open={isSaleListOpen} onOpenChange={setIsSaleListOpen}>
           <DialogContent className="min-w-7xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
             <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-slate-800">
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-foreground">
                 <List className="h-6 w-6 text-emerald-600" />
                 Recent Completed Sales
               </DialogTitle>
@@ -2162,15 +2179,15 @@ export default function PosPage() {
                 </div>
               ) : salesData.length > 0 ? (
                 <Table>
-                  <TableHeader className="bg-slate-50 sticky top-0 z-10">
+                  <TableHeader className="bg-muted/30 sticky top-0 z-10">
                     <TableRow>
-                      <TableHead className="w-[180px] px-6 font-bold text-slate-700">Invoice #</TableHead>
-                      <TableHead className="w-[200px] px-6 font-bold text-slate-700">Date & Time</TableHead>
-                      <TableHead className="px-6 font-bold text-slate-700">Customer</TableHead>
-                      <TableHead className="px-6 font-bold text-slate-700">Items (Details)</TableHead>
-                      <TableHead className="px-6 text-right font-bold text-slate-700">Total</TableHead>
-                      <TableHead className="px-6 text-center font-bold text-slate-700">Status</TableHead>
-                      <TableHead className="px-6 text-right font-bold text-slate-700">Actions</TableHead>
+                      <TableHead className="w-[180px] px-6 font-bold text-foreground">Invoice #</TableHead>
+                      <TableHead className="w-[200px] px-6 font-bold text-foreground">Date & Time</TableHead>
+                      <TableHead className="px-6 font-bold text-foreground">Customer</TableHead>
+                      <TableHead className="px-6 font-bold text-foreground">Items (Details)</TableHead>
+                      <TableHead className="px-6 text-right font-bold text-foreground">Total</TableHead>
+                      <TableHead className="px-6 text-center font-bold text-foreground">Status</TableHead>
+                      <TableHead className="px-6 text-right font-bold text-foreground">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -2179,53 +2196,53 @@ export default function PosPage() {
                         <TableCell className="px-6 font-mono font-medium text-emerald-600">
                           {sale.invoice_number}
                         </TableCell>
-                        <TableCell className="px-6 text-slate-500 text-xs">
+                        <TableCell className="px-6 text-muted-foreground text-xs">
                           {new Date(sale.created_at).toLocaleString()}
                         </TableCell>
                         <TableCell className="px-6">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900">{sale.customer?.name || "Walk-in"}</span>
-                            <span className="text-[10px] text-slate-400">{sale.customer?.phone || "No Phone"}</span>
+                            <span className="font-semibold text-foreground">{sale.customer?.name || "Walk-in"}</span>
+                            <span className="text-[10px] text-muted-foreground">{sale.customer?.phone || "No Phone"}</span>
                           </div>
                         </TableCell>
                         <TableCell className="px-6">
                           <HoverCard openDelay={100} closeDelay={100}>
                             <HoverCardTrigger asChild>
                               <div className="flex flex-col gap-0.5 cursor-pointer group/items">
-                                <Badge variant="secondary" className="w-fit text-[10px] h-5 px-1.5 mb-1 bg-emerald-50 text-emerald-600 border-none group-hover/items:bg-emerald-600 group-hover/items:text-white transition-colors">
+                                <Badge variant="secondary" className="w-fit text-[10px] h-5 px-1.5 mb-1 bg-emerald-500/10 text-emerald-500 border-none group-hover/items:bg-emerald-600 group-hover/items:text-white transition-colors">
                                   {sale.items?.length || 0} Items
                                 </Badge>
                                 <div className="max-w-[400px]">
-                                  <p className="text-[11px] text-slate-500 truncate italic group-hover/items:text-emerald-600 transition-colors">
+                                  <p className="text-[11px] text-muted-foreground truncate italic group-hover/items:text-emerald-600 transition-colors">
                                     {sale.items?.map(item => `${item.product?.name} (${parseFloat(item.quantity).toFixed(0)})`).join(", ")}
                                   </p>
                                 </div>
                               </div>
                             </HoverCardTrigger>
-                            <HoverCardContent className="w-96 p-0 overflow-hidden border-slate-200 shadow-2xl animate-in zoom-in-95 duration-200" side="right" align="start">
-                              <div className="bg-emerald-900 p-4 text-white">
+                            <HoverCardContent className="w-96 p-0 overflow-hidden border-border/50 shadow-2xl animate-in zoom-in-95 duration-200" side="right" align="start">
+                              <div className="bg-emerald-500/10 backdrop-blur-sm p-4 text-foreground border-b border-border/50">
                                 <div className="flex justify-between items-center mb-1">
                                   <h4 className="text-sm font-bold uppercase tracking-wider opacity-70">Transaction Details</h4>
                                   <Badge className="bg-emerald-500 hover:bg-emerald-500 border-none">{sale.items?.length || 0} Products</Badge>
                                 </div>
                                 <p className="text-[10px] opacity-50 font-mono">{sale.invoice_number}</p>
                               </div>
-                              <div className="p-2 bg-white max-h-[400px] overflow-y-auto">
+                              <div className="p-2 bg-card max-h-[400px] overflow-y-auto">
                                 <Table>
-                                  <TableHeader className="bg-slate-50">
+                                  <TableHeader className="bg-muted/30">
                                     <TableRow className="hover:bg-transparent border-none">
                                       <TableHead className="h-8 w-12"></TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500">Product</TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500 text-center">Qty</TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500 text-right">Price</TableHead>
-                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-slate-500 text-right">Total</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground">Product</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground text-center">Qty</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground text-right">Price</TableHead>
+                                      <TableHead className="h-8 text-[10px] uppercase font-bold text-muted-foreground text-right">Total</TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                     {sale.items?.map((item, idx) => (
-                                      <TableRow key={idx} className="border-slate-100 hover:bg-slate-50 transition-colors group/item">
+                                      <TableRow key={idx} className="border-border/30 hover:bg-muted/30 transition-colors group/item">
                                         <TableCell className="py-2 px-2">
-                                          <div className="h-10 w-10 rounded-md bg-slate-100 overflow-hidden border border-slate-200 flex-shrink-0 relative">
+                                          <div className="h-10 w-10 rounded-md bg-background overflow-hidden border border-border/50 flex-shrink-0 relative">
                                             {item.product?.image ? (
                                               <img 
                                                 src={`${process.env.NEXT_PUBLIC_API_BASE_URL.replace('/api/v1', '')}/${JSON.parse(item.product.image)[0]}`} 
@@ -2234,20 +2251,20 @@ export default function PosPage() {
                                               />
                                             ) : (
                                               <div className="h-full w-full flex items-center justify-center">
-                                                <PackageSearch className="h-5 w-5 text-slate-300" />
+                                                <PackageSearch className="h-5 w-5 text-muted-foreground/40" />
                                               </div>
                                             )}
                                           </div>
                                         </TableCell>
-                                        <TableCell className="py-2 text-xs font-medium text-slate-800">
+                                        <TableCell className="py-2 text-xs font-medium text-foreground">
                                           <div className="flex flex-col">
                                             <span>{item.product?.name}</span>
-                                            {item.variant?.name && <span className="text-[9px] text-slate-400">{item.variant.name}</span>}
+                                            {item.variant?.name && <span className="text-[9px] text-muted-foreground">{item.variant.name}</span>}
                                           </div>
                                         </TableCell>
-                                        <TableCell className="py-2 text-xs text-center text-slate-600">{parseFloat(item.quantity || 0).toFixed(0)}</TableCell>
-                                        <TableCell className="py-2 text-xs text-right text-slate-600">{parseFloat(item.unit_price || item.price || 0).toLocaleString()}</TableCell>
-                                        <TableCell className="py-2 text-xs text-right font-bold text-slate-900">
+                                        <TableCell className="py-2 text-xs text-center text-muted-foreground">{parseFloat(item.quantity || 0).toFixed(0)}</TableCell>
+                                        <TableCell className="py-2 text-xs text-right text-muted-foreground">{parseFloat(item.unit_price || item.price || 0).toLocaleString()}</TableCell>
+                                        <TableCell className="py-2 text-xs text-right font-bold text-foreground">
                                           {(parseFloat(item.unit_price || item.price || 0) * parseFloat(item.quantity || 0)).toLocaleString()}
                                         </TableCell>
                                       </TableRow>
@@ -2255,15 +2272,15 @@ export default function PosPage() {
                                   </TableBody>
                                 </Table>
                               </div>
-                              <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                                <span className="text-xs font-bold text-slate-500">TOTAL PAID</span>
+                              <div className="p-4 bg-muted/30 border-t border-border/30 flex justify-between items-center">
+                                <span className="text-xs font-bold text-muted-foreground">TOTAL PAID</span>
                                 <span className="text-lg font-black text-emerald-600">LKR {parseFloat(sale.payable_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                               </div>
                             </HoverCardContent>
                           </HoverCard>
                         </TableCell>
                         <TableCell className="px-6 text-right">
-                          <span className="font-bold text-slate-900">
+                          <span className="font-bold text-foreground">
                             LKR {parseFloat(sale.payable_amount).toFixed(2)}
                           </span>
                         </TableCell>
@@ -2277,7 +2294,7 @@ export default function PosPage() {
                             <Button 
                               size="sm" 
                               variant="ghost" 
-                              className="h-8 w-8 p-0 text-slate-400 hover:text-orange-600 hover:bg-orange-50"
+                              className="h-8 w-8 p-0 text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
                               onClick={() => {
                                 setSelectedReturnSale(sale);
                                 setIsReturnDialogOpen(true);
@@ -2289,7 +2306,7 @@ export default function PosPage() {
                             <Button 
                               size="sm" 
                               variant="ghost" 
-                              className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
+                              className="h-8 w-8 p-0 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50"
                               onClick={() => {
                                 setPrintableSale(sale);
                               }}
@@ -2304,7 +2321,7 @@ export default function PosPage() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+                <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
                   <List className="h-20 w-20 mb-4 opacity-10" />
                   <p className="text-xl font-medium">No completed sales found</p>
                 </div>
@@ -2317,7 +2334,7 @@ export default function PosPage() {
         <Dialog open={isStockModalOpen} onOpenChange={setIsStockModalOpen}>
           <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 overflow-hidden">
             <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-slate-800">
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-foreground">
                 <PackageSearch className="h-6 w-6 text-orange-600" />
                 Check Stock Availability
               </DialogTitle>
@@ -2328,7 +2345,7 @@ export default function PosPage() {
             <Separator />
             <div className="p-6 pb-0">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Enter product name or barcode..."
                   className="pl-10 h-12 text-lg"
@@ -2346,11 +2363,11 @@ export default function PosPage() {
               ) : stockData.length > 0 ? (
                 <div className="space-y-6">
                   {stockData.map((item) => (
-                    <div key={item.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                      <div className="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
+                    <div key={item.id} className="bg-card rounded-xl border border-border/50 overflow-hidden shadow-sm">
+                      <div className="bg-muted/30 p-4 border-b border-border/50 flex justify-between items-center">
                         <div>
-                          <h3 className="font-bold text-slate-900">{item.name}</h3>
-                          <p className="text-xs text-slate-500 font-mono tracking-wider">{item.barcode}</p>
+                          <h3 className="font-bold text-foreground">{item.name}</h3>
+                          <p className="text-xs text-muted-foreground font-mono tracking-wider">{item.barcode}</p>
                         </div>
                         <Button 
                           size="sm" 
@@ -2369,23 +2386,23 @@ export default function PosPage() {
                           <Plus className="h-3.5 w-3.5" /> Add to Cart
                         </Button>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 border-t border-slate-100">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 border-t border-border/30">
                         {item.stocks && item.stocks.length > 0 ? (
                           item.stocks.map((s, idx) => (
-                            <div key={idx} className="p-4 flex flex-col items-center justify-center border-r border-b border-slate-100 last:border-r-0">
-                              <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">{s.branch}</span>
+                            <div key={idx} className="p-4 flex flex-col items-center justify-center border-r border-b border-border/30 last:border-r-0">
+                              <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">{s.branch}</span>
                               <span className={clsx(
                                 "text-2xl font-black",
                                 parseFloat(s.quantity) > 10 ? "text-emerald-600" : parseFloat(s.quantity) > 0 ? "text-orange-500" : "text-red-500"
                               )}>
                                 {parseFloat(s.quantity).toFixed(0)}
                               </span>
-                              <span className="text-[10px] text-slate-400">Available Units</span>
+                              <span className="text-[10px] text-muted-foreground">Available Units</span>
                               {parseFloat(s.quantity) > 0 && s.branch !== (selectedBranch?.name || 'Current Branch') && (
                                 <Button 
                                   size="sm" 
                                   variant="ghost" 
-                                  className="mt-2 h-7 text-[10px] uppercase font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 gap-1 px-2"
+                                  className="mt-2 h-7 text-[10px] uppercase font-bold text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10 gap-1 px-2"
                                   onClick={() => {
                                     toast.success(`Transfer request sent to ${s.branch} for ${item.name}`);
                                     // Placeholder for actual transfer logic
@@ -2397,7 +2414,7 @@ export default function PosPage() {
                             </div>
                           ))
                         ) : (
-                          <div className="col-span-full p-8 text-center text-slate-400 italic">
+                          <div className="col-span-full p-8 text-center text-muted-foreground italic">
                             No stock records found for this item in any branch.
                           </div>
                         )}
@@ -2406,14 +2423,14 @@ export default function PosPage() {
                   ))}
                 </div>
               ) : stockSearch.length >= 2 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                   <Search className="h-16 w-16 mb-4 opacity-10" />
                   <p className="text-lg">No products found matching "{stockSearch}"</p>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                   <PackageSearch className="h-16 w-16 mb-4 opacity-10" />
-                  <p className="text-lg font-medium text-slate-500">Search to view availability</p>
+                  <p className="text-lg font-medium text-muted-foreground">Search to view availability</p>
                   <p className="text-sm">Type at least 2 characters to start searching.</p>
                 </div>
               )}

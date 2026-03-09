@@ -66,18 +66,18 @@ const StockTransferDetails = ({ open, onOpenChange, transferId }) => {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden bg-white border-none shadow-2xl">
-                <DialogHeader className="p-6 border-b border-slate-50 bg-slate-50/50">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden bg-card/50 backdrop-blur-xl border border-border/60 shadow-2xl">
+                <DialogHeader className="p-6 border-b border-border/50 bg-muted/30">
                     <div className="flex items-center justify-between">
-                        <DialogTitle className="flex items-center gap-2 text-2xl font-black">
-                            <FileText className="h-6 w-6 text-indigo-600" />
+                        <DialogTitle className="flex items-center gap-2 text-2xl font-black text-foreground">
+                            <FileText className="h-6 w-6 text-emerald-500" />
                             Transfer Details
                         </DialogTitle>
                         <Badge className={cn(
                             "text-[10px] font-bold uppercase tracking-widest px-3 py-1",
-                            transfer?.status === 'completed' ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
-                            "bg-slate-100 text-slate-600 border-slate-200"
-                        )}>
+                            transfer?.status === 'completed' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
+                            "bg-muted/50 text-muted-foreground border-border"
+                        )} variant="outline">
                             {transfer?.status}
                         </Badge>
                     </div>
@@ -85,34 +85,34 @@ const StockTransferDetails = ({ open, onOpenChange, transferId }) => {
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     {/* Header Info Grid */}
-                    <div className="grid grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                    <div className="grid grid-cols-2 gap-6 bg-muted/30 p-6 rounded-2xl border border-border/50">
                         <div className="space-y-4">
                             <div>
-                                <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1.5">Transfer ID</p>
-                                <p className="text-sm font-black text-slate-900">{transfer?.transfer_number}</p>
+                                <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1.5">Transfer ID</p>
+                                <p className="text-sm font-black text-foreground">{transfer?.transfer_number}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1.5">Date</p>
-                                <div className="flex items-center gap-2 text-slate-600">
+                                <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1.5">Date</p>
+                                <div className="flex items-center gap-2 text-muted-foreground">
                                     <Calendar className="h-3.5 w-3.5" />
-                                    <span className="text-xs font-bold">{transfer?.transfer_date ? format(new Date(transfer.transfer_date), "MMMM dd, yyyy") : "N/A"}</span>
+                                    <span className="text-xs font-bold text-foreground">{transfer?.transfer_date ? format(new Date(transfer.transfer_date), "MMMM dd, yyyy") : "N/A"}</span>
                                 </div>
                             </div>
                         </div>
                         <div className="space-y-4">
                             <div>
-                                <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1.5">Processed By</p>
-                                <div className="flex items-center gap-2 text-slate-600">
+                                <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1.5">Processed By</p>
+                                <div className="flex items-center gap-2 text-muted-foreground">
                                     <User className="h-3.5 w-3.5" />
-                                    <span className="text-xs font-bold">{transfer?.user?.name}</span>
+                                    <span className="text-xs font-bold text-foreground">{transfer?.user?.name}</span>
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1.5">Route</p>
+                                <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1.5">Route</p>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-bold text-slate-700">{transfer?.from_branch?.name}</span>
-                                    <ArrowRight className="h-3 w-3 text-slate-300" />
-                                    <span className="text-xs font-bold text-indigo-600">{transfer?.to_branch?.name}</span>
+                                    <span className="text-xs font-bold text-foreground">{transfer?.from_branch?.name}</span>
+                                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-xs font-bold text-emerald-600">{transfer?.to_branch?.name}</span>
                                 </div>
                             </div>
                         </div>
@@ -120,39 +120,39 @@ const StockTransferDetails = ({ open, onOpenChange, transferId }) => {
 
                     {/* Items List */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2 px-1">
-                            <Package className="h-4 w-4 text-indigo-600" />
+                        <h3 className="text-sm font-black text-foreground uppercase tracking-tight flex items-center gap-2 px-1">
+                            <Package className="h-4 w-4 text-emerald-500" />
                             Transferred Items
                         </h3>
-                        <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                        <div className="border border-border/50 rounded-2xl overflow-hidden shadow-sm bg-card/30 backdrop-blur-sm">
                             <Table>
-                                <TableHeader className="bg-white border-b border-slate-100">
+                                <TableHeader className="bg-muted/30 border-b border-border/50">
                                     <TableRow className="hover:bg-transparent border-none">
-                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 h-10 px-6">Product Details</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 h-10 text-right pr-8">Quantity</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-muted-foreground h-10 px-6">Product Details</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-muted-foreground h-10 text-right pr-8">Quantity</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {transfer?.items?.map((item, idx) => (
-                                        <TableRow key={idx} className="border-slate-50 last:border-none group hover:bg-slate-50/50 transition-colors">
+                                        <TableRow key={idx} className="border-border/40 last:border-none group hover:bg-muted/30 transition-colors">
                                             <TableCell className="py-4 px-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-white transition-colors">
+                                                    <div className="size-10 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground group-hover:bg-background transition-colors">
                                                         <Package className="h-5 w-5" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-slate-900 leading-tight">{item.product?.name}</p>
+                                                        <p className="text-sm font-bold text-foreground leading-tight">{item.product?.name}</p>
                                                         {item.variant && (
-                                                            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider mt-0.5">{item.variant.name}</p>
+                                                            <p className="inline-block text-[10px] text-primary font-bold uppercase tracking-wider mt-0.5 px-2 py-0.5 bg-primary/10 rounded-full">{item.variant.name}</p>
                                                         )}
-                                                        <p className="text-[10px] text-slate-400 font-mono mt-0.5 italic">{item.variant?.sku || item.product?.code}</p>
+                                                        <p className="text-[10px] text-muted-foreground font-mono mt-0.5 italic">{item.variant?.sku || item.product?.code}</p>
                                                     </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4 text-right pr-8">
                                                 <div className="flex flex-col items-end">
-                                                    <span className="text-sm font-black text-slate-900">{parseFloat(item.quantity).toFixed(2)}</span>
-                                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Units Transferred</span>
+                                                    <span className="text-sm font-black text-foreground">{parseFloat(item.quantity).toFixed(2)}</span>
+                                                    <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">Units Transferred</span>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -165,19 +165,19 @@ const StockTransferDetails = ({ open, onOpenChange, transferId }) => {
                     {/* Notes */}
                     {transfer?.notes && (
                         <div className="space-y-3 px-1">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
-                                <History className="h-4 w-4 text-indigo-600" />
+                            <h3 className="text-sm font-black text-foreground uppercase tracking-tight flex items-center gap-2">
+                                <History className="h-4 w-4 text-emerald-500" />
                                 Transfer Notes
                             </h3>
-                            <div className="bg-indigo-50/30 p-4 rounded-xl border border-indigo-100/50">
-                                <p className="text-sm text-slate-600 italic leading-relaxed">"{transfer.notes}"</p>
+                            <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
+                                <p className="text-sm text-foreground/80 italic leading-relaxed">"{transfer.notes}"</p>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <DialogFooter className="p-6 border-t border-slate-50 bg-slate-50/30">
-                    <Button onClick={() => onOpenChange(false)} className="h-11 px-8 bg-zinc-900 hover:bg-zinc-800 font-black shadow-lg shadow-zinc-200">
+                <DialogFooter className="p-6 border-t border-border/50 bg-muted/20">
+                    <Button onClick={() => onOpenChange(false)} variant="outline" className="h-11 px-8 focus:ring-emerald-500 font-black shadow-sm">
                         Close Details
                     </Button>
                 </DialogFooter>

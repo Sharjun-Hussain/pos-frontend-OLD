@@ -1,15 +1,10 @@
-
 'use client';
+
 import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { AppSidebar } from "@/components/app-sidebar"
-
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
-import { DashboardLayoutSkeleton } from '../skeletons/Dashboard-skeleton';
+import { CustomSidebar } from "@/components/custom-sidebar";
+import { DashboardLayoutSkeleton } from '../skeletons/dashboard/dashboard-skeleton';
 import { SystemBreadcrumb } from '@/components/general/breadcrumb/Breadcrumb';
 
 export default function AppLayout({ children }) {
@@ -17,10 +12,8 @@ export default function AppLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Check if current route is POS
   const isPosScreen = pathname === '/pos';
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
@@ -29,42 +22,33 @@ export default function AppLayout({ children }) {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <DashboardLayoutSkeleton />
       </div>
     );
   }
 
-  // If unauthenticated, don't render anything (redirect will handle it)
-  if (status === 'unauthenticated') {
-    return null;
-  }
+  if (status === 'unauthenticated') return null;
 
-  // POS Screen - No sidebar, no breadcrumb
+  // POS Screen - Full width, optimized for touch/speed
   if (isPosScreen) {
     return (
-      <div className="min-h-screen w-full">
+      <div className="min-h-screen w-full bg-background font-sans selection:bg-[#10b981] selection:text-white">
         {children}
       </div>
     );
   }
 
-  // Regular screens - With sidebar and breadcrumb
+  // Standard Dashboard Screens
   return (
-    <SidebarProvider defaultOpen={false}>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar variant="sidebar" />
-        <div className="flex-1 flex flex-col min-w-0">
-          <SidebarInset>
-            <div className='flex flex-col min-h-screen bg-slate-50/50 border-l border-slate-200'>
-              <SystemBreadcrumb />
-              <main className='flex-1 p-4'>
-                {children}
-              </main>
-            </div>
-          </SidebarInset>
-        </div>
+    <div className="flex h-screen w-full bg-background text-foreground font-sans selection:bg-[#10b981] selection:text-white transition-colors duration-500 overflow-hidden">
+      <CustomSidebar />
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        <SystemBreadcrumb />
+        <main className="flex-1 overflow-y-auto scroll-smooth thin-scrollbar">
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }

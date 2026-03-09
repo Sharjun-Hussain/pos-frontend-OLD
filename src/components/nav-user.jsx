@@ -41,36 +41,39 @@ export function NavUser({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className={cn(
-                "h-14 transition-all duration-300 rounded-2xl group",
-                "bg-white hover:bg-zinc-100 border border-zinc-200/80 hover:border-zinc-300 shadow-sm",
-                "data-[state=open]:bg-zinc-100"
-              )}
-            >
-              <Avatar className="h-9 w-9 rounded-xl border border-zinc-200 shadow-inner group-hover:scale-105 transition-transform duration-300 overflow-hidden bg-zinc-50">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="bg-zinc-900 text-[11px] font-black text-white uppercase">
-                  {(user.name || "U").substring(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              
-              {state !== "collapsed" && (
-                <div className="grid flex-1 text-left text-sm leading-tight ml-1">
-                  <span className="truncate text-[13.5px] font-black text-zinc-900 tracking-tight">
-                    {user.name}
-                  </span>
-                  <span className="truncate text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-none mt-1">
-                    Security Session
-                  </span>
+              <SidebarMenuButton
+                size="lg"
+                className={cn(
+                  "h-12 w-12 p-0 flex items-center justify-center transition-all duration-300 rounded-full mx-auto",
+                  "hover:bg-white/10",
+                  "data-[state=open]:bg-white/10"
+                )}
+              >
+                <div className="relative">
+                  <Avatar className="h-9 w-9 rounded-full border-none shadow-none group-hover:scale-105 transition-transform duration-300 overflow-hidden bg-zinc-800">
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback className="bg-zinc-800 text-[11px] font-bold text-white uppercase">
+                      {(user.name || "U").substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-[#10b981] border-2 border-[#0B1521]" />
                 </div>
-              )}
-              
-              {state !== "collapsed" && (
-                <Settings className="ml-auto size-4 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
-              )}
-            </SidebarMenuButton>
+                
+                {state !== "collapsed" && (
+                  <div className="grid flex-1 text-left text-sm leading-tight ml-1">
+                    <span className="truncate text-[13.5px] font-black text-white tracking-tight">
+                      {user.name}
+                    </span>
+                    <span className="truncate text-[10px] font-medium text-zinc-400 uppercase tracking-widest leading-none mt-1">
+                      Security Session
+                    </span>
+                  </div>
+                )}
+                
+                {state !== "collapsed" && (
+                  <Settings className="ml-auto size-4 text-zinc-400 group-hover:text-white transition-colors" />
+                )}
+              </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-2xl bg-white border-zinc-200 p-2 shadow-2xl shadow-zinc-300/50"
@@ -109,7 +112,7 @@ export function NavUser({
               onClick={() => signOut()}
             >
               <LogOut className="size-4.5" />
-              <span className="text-[13px] uppercase tracking-[0.1em]">Terminate Access</span>
+              <span className="text-[13px] uppercase tracking-widest">Terminate Access</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,7 +1,7 @@
 // app/brands/brand-columns.tsx
 "use client";
 
-import { ArrowUpDown, MoreHorizontal, Tag } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Tag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -23,9 +23,10 @@ const DataTableColumnHeader = ({ column, title }) => {
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      className="h-8 hover:bg-emerald-500/5 group"
     >
-      {title}
-      <ArrowUpDown className="ml-2 h-4 w-4 text-gray-700 opacity-60" />
+      <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 transition-colors group-hover:text-emerald-600">{title}</span>
+      <ArrowUpDown className="ml-2 size-3 text-muted-foreground/30 transition-colors group-hover:text-emerald-500/50" />
     </Button>
   );
 };
@@ -70,13 +71,13 @@ export const getBrandColumns = ({
       const initials = brand.name.substring(0, 2).toUpperCase();
       
       return (
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary">
-            {initials}
+        <div className="flex items-center gap-4 py-1">
+          <div className="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm shadow-emerald-500/5 transition-transform hover:scale-105">
+            <span className="text-[13px] font-black text-emerald-600 tracking-tighter">{initials}</span>
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-semibold text-slate-900 truncate">{brand.name}</span>
-            <span className="text-xs text-slate-500 truncate">{brand.slug || "No slug"}</span>
+            <span className="text-[13px] font-bold text-foreground tracking-tight truncate leading-tight">{brand.name}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-0.5 truncate">{brand.slug || "No identifier"}</span>
           </div>
         </div>
       );
@@ -90,8 +91,8 @@ export const getBrandColumns = ({
     cell: ({ row }) => {
       const description = row.getValue("description");
       return (
-        <div className="max-w-[200px] truncate text-slate-600 italic">
-          {description || "No description provided"}
+        <div className="max-w-[300px] truncate text-[12px] font-medium text-muted-foreground/60 italic leading-relaxed">
+          {description || "Awaiting catalog details..."}
         </div>
       );
     },
@@ -101,7 +102,17 @@ export const getBrandColumns = ({
     header: "Status",
     cell: ({ row }) => {
       const isActive = row.getValue("is_active");
-      return <StatusBadge value={isActive} />;
+      return (
+        <div className={cn(
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border shadow-sm transition-all animate-in fade-in zoom-in duration-300",
+          isActive 
+            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 shadow-emerald-500/5" 
+            : "bg-red-500/10 border-red-500/20 text-red-600 shadow-red-500/5"
+        )}>
+          <div className={cn("size-1.5 rounded-full", isActive ? "bg-emerald-500 animate-pulse" : "bg-red-500")} />
+          <span className="text-[10px] font-black uppercase tracking-widest">{isActive ? "Active" : "Suspended"}</span>
+        </div>
+      );
     },
   },
   {
@@ -114,37 +125,48 @@ export const getBrandColumns = ({
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full">
+            <Button variant="ghost" className="size-8 p-0 hover:bg-emerald-500/5 rounded-full group transition-all">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4 text-slate-500" />
+              <MoreHorizontal className="size-4 text-muted-foreground/40 group-hover:text-emerald-500 transition-colors" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuLabel className="text-xs font-semibold text-slate-500">Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-52 rounded-2xl border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl p-2 animate-in fade-in zoom-in duration-200">
+            <DropdownMenuLabel className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Authority Actions</DropdownMenuLabel>
 
             {canEdit && (
-              <DropdownMenuItem onClick={() => onEdit(brand)} className="cursor-pointer">
-                Edit Details
+              <DropdownMenuItem onClick={() => onEdit(brand)} className="cursor-pointer rounded-xl px-3 py-2 focus:bg-emerald-500/10 focus:text-emerald-600 group transition-all">
+                <div className="flex items-center gap-3">
+                  <Tag className="size-4 opacity-40 group-hover:scale-110 transition-transform" />
+                  <span className="text-[12px] font-bold tracking-tight">Modify Details</span>
+                </div>
               </DropdownMenuItem>
             )}
 
             {canToggleStatus && (
               <DropdownMenuItem
-                className="cursor-pointer"
+                className="cursor-pointer rounded-xl px-3 py-2 focus:bg-emerald-500/10 focus:text-emerald-600 group transition-all"
                 onClick={() => onToggleStatus(brand)}
               >
-                {brand.is_active ? "Deactivate" : "Activate"}
+                <div className="flex items-center gap-3">
+                  <ArrowUpDown className="size-4 opacity-40 group-hover:scale-110 transition-transform" />
+                  <span className="text-[12px] font-bold tracking-tight">
+                    {brand.is_active ? "Suspend Entry" : "Restore Entry"}
+                  </span>
+                </div>
               </DropdownMenuItem>
             )}
 
             {canDelete && (
               <>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-border/40 my-1" />
                 <DropdownMenuItem
-                  className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+                  className="text-red-600 focus:text-red-700 focus:bg-red-500/10 cursor-pointer rounded-xl px-3 py-2 group transition-all"
                   onClick={() => onDelete(brand.id)}
                 >
-                  Delete Brand
+                  <div className="flex items-center gap-3">
+                    <Trash2 className="size-4 opacity-40 group-hover:scale-110 transition-transform" />
+                    <span className="text-[12px] font-bold tracking-tight">Permanent Removal</span>
+                  </div>
                 </DropdownMenuItem>
               </>
             )}

@@ -59,7 +59,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import CreateGRNSkeleton from "@/app/skeletons/CreateGRNSkeleton";
+import CreateGRNSkeleton from "@/app/skeletons/purchases/create-grn-skeleton";
 
 // --- ZOD SCHEMA ---
 const grnItemSchema = z.object({
@@ -99,7 +99,7 @@ const RestrictedProductSelect = ({ value, onChange, availableProducts }) => {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between bg-white h-9", !value && "text-muted-foreground")}
+          className={cn("w-full justify-between bg-card h-9", !value && "text-muted-foreground")}
         >
           {selectedProduct ? (
             <span className="truncate font-medium text-sm">{selectedProduct.name}</span>
@@ -329,36 +329,52 @@ export default function GRNPage() {
   };
 
   return (
-    <div className="flex-1 space-y-6 p-6 bg-gray-50/50 min-h-screen">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              Linked to {poData?.referenceNo || poData?.po_number}
-            </Badge>
+    <div className="flex-1 space-y-6 p-6 bg-background min-h-screen">
+      {/* ── Premium Header ── */}
+      <div className="flex items-center justify-between pb-2">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-xl border border-border/50 bg-card h-10 w-10 shrink-0"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+              <PackageCheck className="w-4.5 h-4.5 text-[#10b981]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-xl font-semibold text-foreground tracking-tight">Process GRN</h1>
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs">
+                  {poData?.referenceNo || poData?.po_number}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+                Goods Receipt Note
+              </p>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Process GRN</h1>
         </div>
-        <Button variant="outline" asChild className="bg-white">
-          <Link href="/purchase/purchase-orders"><ArrowLeft className="mr-2 h-4 w-4" /> Back to PO List</Link>
-        </Button>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card className="border-none shadow-md bg-white">
+          <Card className="border-none shadow-md bg-card">
             <CardContent className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-1 md:col-span-1">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Supplier</span>
                   <div className="font-medium text-lg">{poData?.supplier?.name || poData?.supplier_name}</div>
-                  <div className="text-sm text-gray-500">{poData?.supplier?.email || poData?.supplier_email}</div>
+                  <div className="text-sm text-muted-foreground">{poData?.supplier?.email || poData?.supplier_email}</div>
                 </div>
 
                 <div className="space-y-1 md:col-span-1">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Order Date</span>
                   <div className="font-medium text-base">{poData?.orderDate || poData?.created_at?.split('T')[0]}</div>
-                  <div className="text-sm text-gray-500">Ref: {poData?.referenceNo || poData?.po_number}</div>
+                  <div className="text-sm text-muted-foreground">Ref: {poData?.referenceNo || poData?.po_number}</div>
                 </div>
 
                 <div className="space-y-1 md:col-span-1">
@@ -400,7 +416,7 @@ export default function GRNPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Invoice No <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input placeholder="e.g. INV-99887" {...field} className="bg-gray-50/30" /></FormControl>
+                        <FormControl><Input placeholder="e.g. INV-99887" {...field} className="bg-muted/20" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -414,7 +430,7 @@ export default function GRNPage() {
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
-                              <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal bg-gray-50/30", !field.value && "text-muted-foreground")}>
+                              <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal bg-muted/20", !field.value && "text-muted-foreground")}>
                                 {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -435,7 +451,7 @@ export default function GRNPage() {
                       <FormItem className="md:col-span-2">
                         <FormLabel>Attach Invoice</FormLabel>
                         <FormControl>
-                          <Input {...fieldProps} type="file" accept=".jpg,.png,.pdf" onChange={(e) => onChange(e.target.files && e.target.files[0])} className="cursor-pointer bg-gray-50/30" />
+                          <Input {...fieldProps} type="file" accept=".jpg,.png,.pdf" onChange={(e) => onChange(e.target.files && e.target.files[0])} className="cursor-pointer bg-muted/20" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -446,24 +462,24 @@ export default function GRNPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-md overflow-hidden">
-            <CardHeader className="bg-gray-50 border-b px-6 py-4">
+          <Card className="border border-border/50 shadow-sm overflow-hidden">
+            <CardHeader className="bg-muted/30 border-b px-6 py-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Received Items</CardTitle>
                 <div className="text-right">
                   <span className="text-sm text-muted-foreground block">Total GRN Value</span>
-                  <span className="text-2xl font-bold text-gray-900">LKR {grandTotal.toLocaleString("en-LK", { minimumFractionDigits: 2 })}</span>
+                  <span className="text-2xl font-bold text-foreground">LKR {grandTotal.toLocaleString("en-LK", { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
             </CardHeader>
             <div className="p-0 overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+                <thead className="text-xs text-muted-foreground uppercase bg-muted/30 border-b">
                   <tr>
                     <th className="px-4 py-3 min-w-[200px]">Product</th>
                     <th className="px-4 py-3 w-[100px]">Batch</th>
                     <th className="px-4 py-3 w-[130px]">Expiry</th>
-                    <th className="px-4 py-3 w-[80px] text-center bg-yellow-50/50">Ord.</th>
+                    <th className="px-4 py-3 w-[80px] text-center bg-amber-500/5">Ord.</th>
                     <th className="px-4 py-3 w-[100px]">Rec.</th>
                     <th className="px-4 py-3 w-[80px]">Free</th>
                     <th className="px-4 py-3 w-[110px]">Cost</th>
@@ -472,7 +488,7 @@ export default function GRNPage() {
                     <th className="px-4 py-3 w-[120px] text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-border/30">
                   {fields.map((field, index) => {
                     const qty = form.watch(`items.${index}.receivedQty`) || 0;
                     const ordered = form.watch(`items.${index}.orderedQty`) || 0;
@@ -480,7 +496,7 @@ export default function GRNPage() {
                     const isOver = qty > ordered;
 
                     return (
-                      <tr key={field.id} className="bg-white hover:bg-gray-50">
+                      <tr key={field.id} className="bg-card hover:bg-muted/30">
                         <td className="px-4 py-2">
                           <RestrictedProductSelect 
                             value={form.watch(`items.${index}.poItemId`)} 
@@ -504,14 +520,14 @@ export default function GRNPage() {
                         <td className="px-4 py-2">
                            <Input type="date" className="h-8 text-xs" {...form.register(`items.${index}.expiryDate`, { valueAsDate: true })} />
                         </td>
-                        <td className="px-4 py-2 text-center bg-yellow-50/30 font-semibold text-gray-700">{ordered}</td>
+                        <td className="px-4 py-2 text-center bg-amber-500/5 font-semibold text-foreground/80">{ordered}</td>
                         <td className="px-4 py-2">
-                          <Input type="number" className={cn("h-8 font-medium", isOver && "border-orange-300 bg-orange-50 text-orange-700")} {...form.register(`items.${index}.receivedQty`)} />
+                          <Input type="number" className={cn("h-8 font-medium", isOver && "border-orange-400 bg-orange-500/10 text-orange-600")} {...form.register(`items.${index}.receivedQty`)} />
                         </td>
-                        <td className="px-4 py-2"><Input type="number" className="h-8 bg-green-50 text-xs" {...form.register(`items.${index}.freeQty`)} /></td>
+                        <td className="px-4 py-2"><Input type="number" className="h-8 bg-emerald-500/10 text-xs" {...form.register(`items.${index}.freeQty`)} /></td>
                         <td className="px-4 py-2"><Input type="number" className="h-8 text-xs" step="0.01" {...form.register(`items.${index}.unitCost`)} /></td>
-                        <td className="px-4 py-2"><Input type="number" className="h-8 text-amber-600 font-medium text-xs" step="0.01" {...form.register(`items.${index}.wholesalePrice`)} /></td>
-                        <td className="px-4 py-2"><Input type="number" className="h-8 text-blue-600 font-medium text-xs" step="0.01" {...form.register(`items.${index}.sellingPrice`)} /></td>
+                        <td className="px-4 py-2"><Input type="number" className="h-8 text-amber-500 font-medium text-xs" step="0.01" {...form.register(`items.${index}.wholesalePrice`)} /></td>
+                        <td className="px-4 py-2"><Input type="number" className="h-8 text-emerald-500 font-medium text-xs" step="0.01" {...form.register(`items.${index}.sellingPrice`)} /></td>
                         <td className="px-4 py-2 text-right font-medium">{total.toLocaleString("en-LK", { minimumFractionDigits: 2 })}</td>
                       </tr>
                     );
@@ -521,9 +537,11 @@ export default function GRNPage() {
             </div>
           </Card>
 
-          <div className="flex gap-4 justify-end mt-6">
-            <Button variant="destructive" size="lg" type="button" onClick={() => router.back()}>Cancel</Button>
-            <Button type="submit" size="lg" disabled={isSubmitting} className="gap-2 min-w-[150px] bg-gray-900 text-white hover:bg-gray-800">
+          <div className="flex gap-3 justify-end mt-6">
+            <Button variant="outline" size="lg" type="button" onClick={() => router.back()} className="rounded-xl border-border/60">
+              Cancel
+            </Button>
+            <Button type="submit" size="lg" disabled={isSubmitting} className="gap-2 min-w-[150px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/20">
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackageCheck className="h-4 w-4" />} Confirm GRN
             </Button>
           </div>

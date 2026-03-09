@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Save, Plus } from "lucide-react";
+import { Loader2, Save, Plus, Folder } from "lucide-react";
 import { toast } from "sonner";
 import { useFormRestore } from "@/hooks/use-form-restore";
 
@@ -102,27 +102,36 @@ export function MainCategoryDialog({ open, onOpenChange, onSuccess, session, ini
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Category" : "Create Category"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[480px] rounded-3xl border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-0">
+          <div className="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-4 shadow-sm shadow-emerald-500/10">
+            <Folder className="size-6 text-emerald-600" />
+          </div>
+          <DialogTitle className="text-xl font-black tracking-tight">
+            {isEditing ? "Modify Category" : "New Taxonomy Entry"}
+          </DialogTitle>
+          <DialogDescription className="text-[12px] font-medium text-muted-foreground/60 uppercase tracking-wider">
             {isEditing
-              ? "Make changes to the category details here."
-              : "Add a new main category to your inventory."}
+              ? "Update Primary Product Classification"
+              : "Forge a new market segment"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 pt-4 space-y-5">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
+                <FormItem className="space-y-2.5">
+                  <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Category Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Category Name" {...field} />
+                    <Input 
+                      placeholder="e.g. Electronics, Apparel, Beverages" 
+                      className="h-12 bg-background border-border/60 rounded-xl px-4 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20"
+                      {...field} 
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                 </FormItem>
               )}
             />
@@ -130,41 +139,42 @@ export function MainCategoryDialog({ open, onOpenChange, onSuccess, session, ini
               control={form.control}
               name="description"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
+                <FormItem className="space-y-2.5">
+                  <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Description (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Category description..."
-                      className="resize-none"
+                      placeholder="Defining characteristics and segment scope..."
+                      className="min-h-[100px] bg-background border-border/60 rounded-2xl px-4 py-3 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20 resize-none"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                 </FormItem>
               )}
             />
-            <DialogFooter className="pt-4">
+            <DialogFooter className="p-6 pt-2 gap-3 bg-muted/20">
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
+                className="h-12 px-6 rounded-xl font-black uppercase text-[10px] tracking-widest text-muted-foreground/60 hover:text-foreground hover:bg-muted/40 transition-all border-none"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                Dismiss
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95 border-none"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditing ? "Updating..." : "Creating..."}
+                    <Loader2 className="mr-3 h-4 w-4 animate-spin opacity-60" />
+                    Processing
                   </>
                 ) : (
                   <>
-                    {isEditing ? <Save className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-                    {isEditing ? "Save Changes" : "Create Category"}
+                    {isEditing ? <Save className="mr-3 h-4 w-4 opacity-60" /> : <Plus className="mr-3 h-4 w-4 opacity-60" />}
+                    {isEditing ? "Update Category" : "Forge Entry"}
                   </>
                 )}
               </Button>

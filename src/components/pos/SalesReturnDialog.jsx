@@ -149,13 +149,13 @@ export default function SalesReturnDialog({ open, onOpenChange, sale, onSuccess 
             Process Sales Return
           </DialogTitle>
           <DialogDescription>
-            Original Invoice: <span className="font-mono font-bold text-slate-900">{sale.invoice_number}</span> | Customer: {sale.customer?.name || "Walk-in"}
+            Original Invoice: <span className="font-mono font-bold text-foreground">{sale.invoice_number}</span> | Customer: {sale.customer?.name || "Walk-in"}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-6">
           <Table>
-            <TableHeader className="bg-slate-50 sticky top-0 z-10">
+            <TableHeader className="bg-muted/30 sticky top-0 z-10">
               <TableRow>
                 <TableHead className="w-12"></TableHead>
                 <TableHead>Product</TableHead>
@@ -176,7 +176,7 @@ export default function SalesReturnDialog({ open, onOpenChange, sale, onSuccess 
                   </TableCell>
                   <TableCell>
                     <div className="font-medium">{item.product?.name}</div>
-                    {item.variant?.name && <div className="text-xs text-slate-500">{item.variant.name}</div>}
+                    {item.variant?.name && <div className="text-xs text-muted-foreground">{item.variant.name}</div>}
                   </TableCell>
                   <TableCell className="text-center">{parseFloat(item.quantity).toFixed(0)}</TableCell>
                   <TableCell>
@@ -205,7 +205,7 @@ export default function SalesReturnDialog({ open, onOpenChange, sale, onSuccess 
               <div className="space-y-2">
                 <Label>Notes / Reason for Return</Label>
                 <textarea
-                  className="w-full min-h-[100px] p-3 rounded-md border border-slate-200 text-sm"
+                  className="w-full min-h-[100px] p-3 rounded-md border border-border/50 text-sm"
                   placeholder="Defective, wrong item, change of mind..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -213,9 +213,9 @@ export default function SalesReturnDialog({ open, onOpenChange, sale, onSuccess 
               </div>
             </div>
 
-            <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="space-y-4 bg-muted/30 p-4 rounded-xl border border-border/50">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-600">Total Return Value</span>
+                <span className="text-sm font-medium text-muted-foreground">Total Return Value</span>
                 <span className="text-lg font-bold">LKR {totalReturnVal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
 
@@ -227,7 +227,7 @@ export default function SalesReturnDialog({ open, onOpenChange, sale, onSuccess 
                   value={refundAmount}
                   onChange={(e) => setRefundAmount(parseFloat(e.target.value) || 0)}
                 />
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-muted-foreground">
                   {refundAmount < totalReturnVal ? 
                     "Partial refund: Remaining will adjust credit/AR." : 
                     "Full refund of returned value."}
@@ -251,8 +251,8 @@ export default function SalesReturnDialog({ open, onOpenChange, sale, onSuccess 
           </div>
         </div>
 
-        <DialogFooter className="p-6 bg-slate-50 border-t items-center shadow-inner">
-           <div className="flex-1 text-sm text-slate-500 flex items-center gap-2">
+        <DialogFooter className="p-6 bg-muted/30 border-t items-center shadow-inner">
+           <div className="flex-1 text-sm text-muted-foreground flex items-center gap-2">
              <AlertTriangle className="h-4 w-4 text-orange-500" />
              Restoring {returnItems.filter(i=>i.selected).length} items to stock.
            </div>

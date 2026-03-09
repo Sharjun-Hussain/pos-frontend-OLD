@@ -122,23 +122,23 @@ export default function StatsGrid() {
       {stats.map((stat, index) => (
         <div
           key={stat.name}
-          className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden"
+          className="group relative bg-card rounded-[24px] p-6 border border-border shadow-sm hover:shadow-xl hover:shadow-sidebar-accent/20 hover:-translate-y-1 transition-all duration-500 ease-out overflow-hidden"
         >
           {/* Subtle Background Decoration */}
-          <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.gradient} opacity-[0.03] rounded-bl-full group-hover:scale-150 transition-transform duration-500`} />
+          <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${stat.gradient} opacity-[0.05] rounded-bl-full group-hover:scale-150 transition-transform duration-700`} />
 
           <div className="flex justify-between items-start mb-4 relative z-10">
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}>
+            <div className={`p-3 rounded-2xl bg-linear-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow} group-hover:scale-110 transition-transform duration-300`}>
               <stat.icon className="w-5 h-5" />
             </div>
-             <button className="text-slate-300 hover:text-slate-500 transition-colors">
+             <button className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-xl hover:bg-sidebar-accent/50">
                 <MoreHorizontal className="w-5 h-5" />
              </button>
           </div>
 
           <div className="relative z-10">
-            <p className="text-sm font-semibold text-slate-500 mb-1">{stat.name}</p>
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">
+            <p className="text-[12px] font-black text-muted-foreground uppercase tracking-widest mb-1 transition-colors duration-500">{stat.name}</p>
+            <h3 className="text-3xl font-black text-foreground tracking-tight transition-colors duration-500">
                <AnimatedNumber 
                   value={stat.value} 
                   isCurrency={stat.isCurrency} 
@@ -146,12 +146,12 @@ export default function StatsGrid() {
                />
             </h3>
             
-            <div className="flex items-center mt-3">
-              <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-opacity-10 ${stat.trend === "up" ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600"}`}>
+            <div className="flex items-center mt-4">
+              <span className={`flex items-center text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg transition-colors ${stat.trend === "up" ? "bg-emerald-100/10 text-emerald-500 border border-emerald-500/20" : "bg-red-100/10 text-red-500 border border-red-500/20"}`}>
                 {stat.trend === "up" ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
                 {stat.change}
               </span>
-              <span className="text-xs text-slate-400 ml-2">vs last month</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-2.5">vs last month</span>
             </div>
           </div>
         </div>

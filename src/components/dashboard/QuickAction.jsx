@@ -113,7 +113,7 @@ export default function QuickActions() {
   });
 
   return (
-    <div ref={containerRef} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+    <div ref={containerRef} className="bg-card rounded-[24px] border border-border shadow-sm p-6 transition-colors duration-500">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {quickActions.map((action) => (
           <Link
@@ -121,25 +121,25 @@ export default function QuickActions() {
             href={action.href}
             onMouseEnter={onHoverEnter}
             onMouseLeave={onHoverLeave}
-            className="group relative flex flex-col items-center justify-center p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-100 hover:shadow-lg hover:shadow-blue-100/50 transition-colors duration-300"
+            className="group relative flex flex-col items-center justify-center p-4 rounded-2xl border border-border bg-sidebar-accent/30 hover:bg-card hover:border-[#10b981]/30 hover:shadow-xl hover:shadow-sidebar-accent/20 transition-all duration-500"
           >
             <div
-              className={`action-icon mb-3 p-3.5 rounded-xl bg-gradient-to-br ${action.gradient} text-white shadow-md will-change-transform`}
+              className={`action-icon mb-4 p-3.5 rounded-2xl bg-linear-to-br ${action.gradient} text-white shadow-lg will-change-transform group-hover:scale-110 transition-transform duration-300`}
             >
-              <action.icon className="w-6 h-6" strokeWidth={2.5} />
+              <action.icon className="w-5 h-5" strokeWidth={2.5} />
             </div>
             
             <div className="text-center">
-              <span className="block text-sm font-bold text-slate-700 group-hover:text-blue-700 transition-colors">
+              <span className="block text-[12px] font-black text-foreground uppercase tracking-widest group-hover:text-[#10b981] transition-colors duration-300">
                 {action.name}
               </span>
-              <span className="text-xs font-medium text-slate-400 mt-0.5 block">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 block opacity-70">
                 {action.description}
               </span>
             </div>
 
             {action.soon && (
-              <span className="absolute top-2 right-2 text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
+              <span className="absolute top-2 right-2 text-[9px] font-black bg-[#10b981]/10 text-[#10b981] px-1.5 py-0.5 rounded-lg border border-[#10b981]/20">
                 SOON
               </span>
             )}

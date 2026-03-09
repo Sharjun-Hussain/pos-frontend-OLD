@@ -206,22 +206,22 @@ const StockTransferCreate = ({ open, onOpenChange, onSuccess }) => {
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-xl flex flex-col h-full bg-white p-0 overflow-hidden border-l border-slate-100">
-                <SheetHeader className="p-6 border-b border-slate-50 bg-slate-50/50">
-                    <SheetTitle className="text-2xl font-black flex items-center gap-2">
-                        <ArrowRightLeft className="h-6 w-6 text-indigo-600" />
+            <SheetContent className="sm:max-w-xl flex flex-col h-full bg-card/50 backdrop-blur-xl p-0 overflow-hidden border-l border-border/60">
+                <SheetHeader className="p-6 border-b border-border/50 bg-muted/30">
+                    <SheetTitle className="text-2xl font-black flex items-center gap-2 text-foreground">
+                        <ArrowRightLeft className="h-6 w-6 text-emerald-500" />
                         Create Stock Transfer
                     </SheetTitle>
-                    <SheetDescription>Move products between your business locations.</SheetDescription>
+                    <SheetDescription className="text-muted-foreground">Move products between your business locations.</SheetDescription>
                 </SheetHeader>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     {/* Branch Selection */}
-                    <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4 bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200">
+                    <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4 bg-muted/30 p-6 rounded-2xl border border-dashed border-border/50">
                         <div className="md:col-span-5 space-y-2">
-                            <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest pl-1">Source Branch</Label>
+                            <Label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Source Branch</Label>
                             <Select value={fromBranchId} onValueChange={setFromBranchId}>
-                                <SelectTrigger className="h-12 bg-white border-slate-200">
+                                <SelectTrigger className="h-12 bg-background border-border/50 focus:ring-emerald-500">
                                     <SelectValue placeholder="Select Source" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -232,14 +232,14 @@ const StockTransferCreate = ({ open, onOpenChange, onSuccess }) => {
                             </Select>
                         </div>
                         <div className="md:col-span-2 flex justify-center pt-5">
-                            <div className="size-10 rounded-full bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-300">
+                            <div className="size-10 rounded-full bg-background border border-border/50 shadow-sm flex items-center justify-center text-muted-foreground">
                                 <ArrowRight className="h-5 w-5" />
                             </div>
                         </div>
                         <div className="md:col-span-5 space-y-2">
-                            <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest pl-1">Destination Branch</Label>
+                            <Label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Destination Branch</Label>
                             <Select value={toBranchId} onValueChange={setToBranchId}>
-                                <SelectTrigger className="h-12 bg-white border-slate-200">
+                                <SelectTrigger className="h-12 bg-background border-border/50 focus:ring-emerald-500">
                                     <SelectValue placeholder="Select Target" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -254,43 +254,43 @@ const StockTransferCreate = ({ open, onOpenChange, onSuccess }) => {
                     {/* Product Search */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
-                                <Boxes className="h-4 w-4 text-indigo-600" />
+                            <h3 className="text-sm font-black text-foreground uppercase tracking-tight flex items-center gap-2">
+                                <Boxes className="h-4 w-4 text-emerald-500" />
                                 Transfer Items
                             </h3>
-                            <Badge variant="outline" className="bg-slate-50 text-slate-500 border-slate-100 font-bold">
+                            <Badge variant="outline" className="bg-muted text-muted-foreground border-border font-bold">
                                 {items.length} Items Selected
                             </Badge>
                         </div>
 
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input 
                                 placeholder="Search products by name or code..." 
-                                className="pl-10 h-12 bg-white border-slate-200 ring-offset-indigo-600 focus-visible:ring-indigo-600"
+                                className="pl-10 h-12 bg-background border-border/50 focus-visible:ring-emerald-500"
                                 value={searchQuery}
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
 
                             {/* Search Results Dropdown */}
                             {searchResults.length > 0 && (
-                                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-slate-100 shadow-2xl rounded-xl max-h-64 overflow-y-auto">
+                                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-card border border-border/50 shadow-2xl rounded-xl max-h-64 overflow-y-auto">
                                     {searchResults.map((result, idx) => (
                                         <button
                                             key={idx}
-                                            className="w-full text-left p-3 hover:bg-slate-50 border-b border-slate-50 last:border-none flex items-center justify-between group"
+                                            className="w-full text-left p-3 hover:bg-muted/50 border-b border-border/30 last:border-none flex items-center justify-between group transition-colors"
                                             onClick={() => addItem(result)}
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="size-8 rounded bg-slate-100 flex items-center justify-center text-slate-400">
+                                                <div className="size-8 rounded bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:text-foreground group-hover:bg-muted transition-colors">
                                                     <Package className="h-4 w-4" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-slate-900 leading-tight">{result.display_name}</p>
-                                                    <p className="text-[10px] text-slate-400 font-mono italic">{result.sku}</p>
+                                                    <p className="text-sm font-bold text-foreground leading-tight">{result.display_name}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-mono italic">{result.sku}</p>
                                                 </div>
                                             </div>
-                                            <Plus className="h-4 w-4 text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                                            <Plus className="h-4 w-4 text-muted-foreground group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
                                         </button>
                                     ))}
                                 </div>
@@ -298,37 +298,37 @@ const StockTransferCreate = ({ open, onOpenChange, onSuccess }) => {
                         </div>
 
                         {/* Items Table */}
-                        <div className="border border-slate-100 rounded-xl overflow-hidden">
+                        <div className="border border-border/50 rounded-xl overflow-hidden bg-card/30 backdrop-blur-sm shadow-sm">
                             <Table>
-                                <TableHeader className="bg-slate-50/50">
-                                    <TableRow className="border-slate-50">
-                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 h-9">Product</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 h-9 w-24">Qty</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase text-slate-400 h-9 w-12"></TableHead>
+                                <TableHeader className="bg-muted/30 border-b border-border/50">
+                                    <TableRow className="border-none hover:bg-transparent">
+                                        <TableHead className="text-[10px] font-black uppercase text-muted-foreground h-9">Product</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-muted-foreground h-9 w-24">Qty</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase text-muted-foreground h-9 w-12"></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {items.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={3} className="h-24 text-center text-slate-400 text-xs italic">
+                                        <TableRow className="hover:bg-transparent">
+                                            <TableCell colSpan={3} className="h-24 text-center text-muted-foreground text-xs italic">
                                                 Search and add products to transfer.
                                             </TableCell>
                                         </TableRow>
                                     ) : (
                                         items.map((item, idx) => (
-                                            <TableRow key={idx} className="border-slate-50">
+                                            <TableRow key={idx} className="border-border/40 hover:bg-muted/30 transition-colors">
                                                 <TableCell className="py-3">
                                                     <div className="flex flex-col">
-                                                        <span className="text-xs font-bold text-slate-900">{item.name}</span>
+                                                        <span className="text-xs font-bold text-foreground">{item.name}</span>
                                                         {item.variant_name && (
-                                                            <span className="text-[10px] text-indigo-600 font-medium">({item.variant_name})</span>
+                                                            <span className="text-[10px] text-primary font-medium mt-0.5">({item.variant_name})</span>
                                                         )}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="py-3">
                                                     <Input 
                                                         type="number" 
-                                                        className="h-8 text-xs font-black border-slate-200"
+                                                        className="h-8 text-xs font-black border-border/50 focus-visible:ring-emerald-500 bg-background/50"
                                                         value={item.quantity}
                                                         onChange={(e) => updateQuantity(idx, e.target.value)}
                                                     />
@@ -337,7 +337,7 @@ const StockTransferCreate = ({ open, onOpenChange, onSuccess }) => {
                                                     <Button 
                                                         variant="ghost" 
                                                         size="icon" 
-                                                        className="h-8 w-8 text-slate-300 hover:text-red-500 hover:bg-red-50"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
                                                         onClick={() => removeItem(idx)}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -353,32 +353,32 @@ const StockTransferCreate = ({ open, onOpenChange, onSuccess }) => {
 
                     {/* Notes */}
                     <div className="space-y-2">
-                        <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest pl-1">Transfer Notes</Label>
+                        <Label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Transfer Notes</Label>
                         <Textarea 
                             placeholder="Add any specific instructions or reasons for this transfer..." 
-                            className="min-h-[80px] border-slate-200 bg-slate-50/30"
+                            className="min-h-[80px] border-border/50 bg-muted/30 focus-visible:ring-emerald-500"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                         />
                     </div>
                 </div>
 
-                <SheetFooter className="p-6 border-t border-slate-50 bg-slate-50/30">
+                <SheetFooter className="p-6 border-t border-border/50 bg-muted/20">
                     <div className="flex w-full items-center justify-between gap-4">
-                        <div className="flex items-center gap-2 text-slate-400 italic text-xs">
+                        <div className="flex items-center gap-2 text-muted-foreground italic text-xs">
                              <AlertCircle className="h-3 w-3" />
                              Review items before submitting.
                         </div>
                         <div className="flex gap-3">
                             <Button 
                                 variant="outline" 
-                                className="h-12 px-6 font-bold text-slate-600 border-slate-200"
+                                className="h-12 px-6 font-bold text-muted-foreground hover:bg-muted transition-colors rounded-xl uppercase tracking-wider text-[11px]"
                                 onClick={() => onOpenChange(false)}
                             >
                                 Cancel
                             </Button>
                             <Button 
-                                className="h-12 px-8 bg-indigo-600 hover:bg-indigo-700 font-bold shadow-lg shadow-indigo-100"
+                                className="h-12 px-8 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] shadow-lg shadow-emerald-500/20 transition-all active:scale-95 gap-2"
                                 onClick={handleSubmit}
                                 disabled={submitting}
                             >

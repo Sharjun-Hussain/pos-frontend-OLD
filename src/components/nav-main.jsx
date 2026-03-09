@@ -46,17 +46,17 @@ export function NavMain({ items, label = "Platform" }) {
                     tooltip={item.title} 
                     isActive={isParentActive}
                     className={cn(
-                      "h-11 px-3 rounded-xl transition-all duration-300 border border-transparent",
-                      "hover:bg-zinc-100 hover:text-zinc-900",
+                      "flex items-center justify-center p-3 rounded-xl transition-all duration-300 border border-transparent mx-auto",
+                      "hover:bg-white/10 hover:text-white",
                       isParentActive 
-                        ? "bg-indigo-50 text-indigo-700 font-bold border-indigo-100 shadow-sm" 
-                        : "text-zinc-600 font-bold"
+                        ? "text-[#10b981] font-bold" 
+                        : "text-zinc-400 font-medium"
                     )}
                   >
                     {item.icon ? (
-                       <item.icon className={cn("size-4.5 transition-transform group-hover/collapsible:scale-110", isParentActive ? "text-indigo-700" : "text-zinc-500")} />
+                       <item.icon className={cn("size-5 transition-transform group-hover/collapsible:scale-110", isParentActive ? "text-[#10b981]" : "text-zinc-400 group-hover/menu-button:text-white")} />
                     ) : (
-                       <LayoutGrid className="size-4.5" />
+                       <LayoutGrid className="size-5" />
                     )}
                     <span className="text-[13.5px] tracking-tight">{item.title}</span>
                     <ChevronRight className={cn(

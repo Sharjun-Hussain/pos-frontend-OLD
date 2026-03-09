@@ -127,7 +127,7 @@ export default function CardReconciliationPage() {
   };
 
   return (
-    <div className="flex-1 p-8 bg-slate-50/50 min-h-screen space-y-8 font-sans text-slate-900">
+    <div className="flex-1 p-8 bg-muted/20 min-h-screen space-y-8 font-sans text-foreground">
       
       {/* Print Template */}
       <CardReconcilePrintTemplate ref={printRef} data={filteredData} stats={stats} filters={{ store, cardType }} />
@@ -135,20 +135,20 @@ export default function CardReconciliationPage() {
       {/* --- HEADER --- */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Card Reconciliation</h1>
-          <p className="text-slate-500 mt-1">Settlement verification and discrepancy tracking.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Card Reconciliation</h1>
+          <p className="text-muted-foreground mt-1">Settlement verification and discrepancy tracking.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handlePrint} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 text-slate-700 hover:bg-slate-50">
+          <Button onClick={handlePrint} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 text-foreground hover:bg-muted/30">
             <FileText className="h-4 w-4" /> PDF
           </Button>
-          <Button onClick={handleExportCSV} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 text-slate-700 hover:bg-slate-50">
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 text-foreground hover:bg-muted/30">
             <Download className="h-4 w-4" /> CSV
           </Button>
-          <Button onClick={handleExportExcel} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 text-slate-700 hover:bg-slate-50">
+          <Button onClick={handleExportExcel} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 text-foreground hover:bg-muted/30">
             <FileText className="h-4 w-4" /> Excel
           </Button>
-          <Button onClick={handlePrint} className="bg-slate-900 text-white shadow-sm gap-2 hover:bg-slate-800">
+          <Button onClick={handlePrint} className="bg-emerald-600 text-white shadow-sm gap-2 hover:bg-emerald-700">
             <Printer className="h-4 w-4" /> Print Report
           </Button>
         </div>
@@ -156,27 +156,27 @@ export default function CardReconciliationPage() {
 
       {/* --- KPIS --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-none shadow-sm bg-white border-l-4 border-l-blue-500">
+        <Card className="border-none shadow-sm bg-card border-l-4 border-l-emerald-500">
           <CardContent className="p-5">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Card Sales</p>
-            <h3 className="text-2xl font-bold text-slate-900">{formatLKR(stats.totalSales)}</h3>
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Total Card Sales</p>
+            <h3 className="text-2xl font-bold text-foreground">{formatLKR(stats.totalSales)}</h3>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white border-l-4 border-l-slate-300">
+        <Card className="border-none shadow-sm bg-card border-l-4 border-l-slate-300">
           <CardContent className="p-5">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Transactions</p>
-            <h3 className="text-2xl font-bold text-slate-900">{stats.totalCount}</h3>
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Transactions</p>
+            <h3 className="text-2xl font-bold text-foreground">{stats.totalCount}</h3>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white border-l-4 border-l-red-500">
+        <Card className="border-none shadow-sm bg-card border-l-4 border-l-red-500">
           <CardContent className="p-5">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Refunds / Voids</p>
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Refunds / Voids</p>
             <h3 className="text-2xl font-bold text-red-600">{formatLKR(stats.totalRefunds)}</h3>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white border-l-4 border-l-emerald-500">
+        <Card className="border-none shadow-sm bg-card border-l-4 border-l-emerald-500">
           <CardContent className="p-5">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Net Settlement</p>
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Net Settlement</p>
             <h3 className="text-2xl font-bold text-emerald-700">{formatLKR(stats.netAmount)}</h3>
           </CardContent>
         </Card>
@@ -189,16 +189,16 @@ export default function CardReconciliationPage() {
         <div className="lg:col-span-2 space-y-6">
             
             {/* Filter Bar */}
-            <Card className="border-none shadow-sm bg-white">
+            <Card className="border-none shadow-sm bg-card">
                 <CardContent className="p-4 flex flex-wrap gap-3 items-center">
                     <div className="flex-1 min-w-[200px]">
                         <div className="relative">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                            <Input placeholder="Search Invoice / Last 4" className="pl-9 h-10 border-slate-200 bg-slate-50/50" value={search} onChange={(e) => setSearch(e.target.value)} />
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground/60" />
+                            <Input placeholder="Search Invoice / Last 4" className="pl-9 h-10 border-border/50 bg-muted/20" value={search} onChange={(e) => setSearch(e.target.value)} />
                         </div>
                     </div>
                     <Select value={cardType} onValueChange={setCardType}>
-                        <SelectTrigger className="w-[140px] h-10 border-slate-200 bg-slate-50/50"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-[140px] h-10 border-border/50 bg-muted/20"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="All">All Cards</SelectItem>
                             <SelectItem value="Visa">Visa</SelectItem>
@@ -207,7 +207,7 @@ export default function CardReconciliationPage() {
                         </SelectContent>
                     </Select>
                     <Select value={status} onValueChange={setStatus}>
-                        <SelectTrigger className="w-[140px] h-10 border-slate-200 bg-slate-50/50"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-[140px] h-10 border-border/50 bg-muted/20"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="All">All Status</SelectItem>
                             <SelectItem value="Matched">Matched</SelectItem>
@@ -219,8 +219,8 @@ export default function CardReconciliationPage() {
                     {/* Date Popover */}
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button variant="outline" className={cn("w-[240px] justify-start text-left font-normal h-10 border-slate-200 bg-slate-50/50", !date && "text-muted-foreground")}>
-                                <CalendarIcon className="mr-2 h-4 w-4 text-slate-500" />
+                            <Button variant="outline" className={cn("w-[240px] justify-start text-left font-normal h-10 border-border/50 bg-muted/20", !date && "text-muted-foreground")}>
+                                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                                 {date?.from ? (date.to ? <>{format(date.from, "LLL dd")} - {format(date.to, "LLL dd")}</> : format(date.from, "LLL dd")) : "Date Range"}
                             </Button>
                         </PopoverTrigger>
@@ -232,36 +232,36 @@ export default function CardReconciliationPage() {
             </Card>
 
             {/* Transaction Table */}
-            <Card className="border-none shadow-sm bg-white overflow-hidden">
+            <Card className="border-none shadow-sm bg-card overflow-hidden">
                 <div className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50 border-b border-slate-200">
+                        <TableHeader className="bg-muted/30 border-b border-border/50">
                             <TableRow>
-                                <TableHead className="pl-6 font-semibold text-slate-600">Time</TableHead>
-                                <TableHead className="font-semibold text-slate-600">Invoice</TableHead>
-                                <TableHead className="font-semibold text-slate-600">Details</TableHead>
-                                <TableHead className="font-semibold text-slate-600 text-right">Amount</TableHead>
-                                <TableHead className="font-semibold text-slate-600 text-center">Status</TableHead>
+                                <TableHead className="pl-6 font-semibold text-muted-foreground">Time</TableHead>
+                                <TableHead className="font-semibold text-muted-foreground">Invoice</TableHead>
+                                <TableHead className="font-semibold text-muted-foreground">Details</TableHead>
+                                <TableHead className="font-semibold text-muted-foreground text-right">Amount</TableHead>
+                                <TableHead className="font-semibold text-muted-foreground text-center">Status</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredData.length > 0 ? (
                                 filteredData.map((item) => (
-                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-b border-slate-50">
+                                    <TableRow key={item.id} className="hover:bg-muted/20 transition-colors border-b border-border/20">
                                         <TableCell className="pl-6 py-4">
-                                            <div className="font-medium text-slate-900">{format(new Date(item.date), "MMM dd")}</div>
-                                            <div className="text-xs text-slate-500">{format(new Date(item.date), "HH:mm")}</div>
+                                            <div className="font-medium text-foreground">{format(new Date(item.date), "MMM dd")}</div>
+                                            <div className="text-xs text-muted-foreground">{format(new Date(item.date), "HH:mm")}</div>
                                         </TableCell>
-                                        <TableCell className="font-mono text-xs text-slate-600">{item.invoice}</TableCell>
+                                        <TableCell className="font-mono text-xs text-muted-foreground">{item.invoice}</TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2 text-slate-900">
-                                                <CreditCard className="h-3 w-3 text-slate-400"/> {item.cardType}
+                                            <div className="flex items-center gap-2 text-foreground">
+                                                <CreditCard className="h-3 w-3 text-muted-foreground/60"/> {item.cardType}
                                             </div>
-                                            <div className="text-xs text-slate-500 font-mono mt-0.5">
+                                            <div className="text-xs text-muted-foreground font-mono mt-0.5">
                                                 ****{item.last4} • Auth: {item.authCode}
                                             </div>
                                         </TableCell>
-                                        <TableCell className={`text-right font-mono font-medium ${item.amount < 0 ? 'text-red-600' : 'text-slate-900'}`}>
+                                        <TableCell className={`text-right font-mono font-medium ${item.amount < 0 ? 'text-red-600' : 'text-foreground'}`}>
                                             {formatLKR(item.amount)}
                                         </TableCell>
                                         <TableCell className="text-center">
@@ -269,7 +269,7 @@ export default function CardReconciliationPage() {
                                                 "border-0 capitalize",
                                                 item.status === 'Matched' ? "bg-emerald-100 text-emerald-700" : 
                                                 item.status === 'Pending' ? "bg-amber-100 text-amber-700" : 
-                                                item.status === 'Failed' ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-700"
+                                                item.status === 'Failed' ? "bg-red-100 text-red-700" : "bg-background text-foreground"
                                             )}>
                                                 {item.status}
                                             </Badge>
@@ -277,7 +277,7 @@ export default function CardReconciliationPage() {
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow><TableCell colSpan={5} className="h-32 text-center text-slate-500 italic">No transactions found.</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={5} className="h-32 text-center text-muted-foreground italic">No transactions found.</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>
@@ -291,7 +291,7 @@ export default function CardReconciliationPage() {
             {/* Reconciliation Status Card */}
             <Card className={cn("border-none shadow-sm", stats.discrepancyCount > 0 ? "bg-amber-50" : "bg-emerald-50")}>
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                         <Wallet className="h-5 w-5 opacity-70"/> Settlement Status
                     </CardTitle>
                 </CardHeader>
@@ -322,9 +322,9 @@ export default function CardReconciliationPage() {
             </Card>
 
             {/* Card Distribution Chart */}
-            <Card className="border-none shadow-sm bg-white">
+            <Card className="border-none shadow-sm bg-card">
                 <CardHeader>
-                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">Revenue by Card</CardTitle>
+                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Revenue by Card</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">

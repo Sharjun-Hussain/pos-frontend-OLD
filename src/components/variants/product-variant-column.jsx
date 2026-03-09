@@ -27,9 +27,10 @@ const DataTableColumnHeader = ({ column, title }) => {
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      className="hover:bg-sidebar-accent/50 -ml-4 h-8 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60 transition-colors"
     >
       {title}
-      <ArrowUpDown className="ml-2 h-4 w-4 text-gray-700 opacity-60" />
+      <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40" />
     </Button>
   );
 };
@@ -79,7 +80,7 @@ export const getProductVariantColumns = ({
       <DataTableColumnHeader column={column} title="Product" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium text-gray-900">
+      <div className="font-semibold text-foreground text-[13px] tracking-tight">
         {row.getValue("parent_product_name")}
       </div>
     ),
@@ -97,23 +98,23 @@ export const getProductVariantColumns = ({
 
       return (
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10 border border-gray-200 rounded-lg bg-gray-50">
+          <Avatar className="h-10 w-10 border border-border/60 rounded-xl bg-muted/30 shadow-sm overflow-hidden">
             <AvatarImage
               src={imageUrl}
               alt={variant.sku}
               className="object-cover"
             />
-            <AvatarFallback className="rounded-lg">
-              <ImageIcon className="h-4 w-4 text-gray-400" />
+            <AvatarFallback className="rounded-xl bg-muted">
+              <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col">
-            <div className="font-medium flex items-center gap-2">
+          <div className="flex flex-col min-w-0">
+            <div className="font-semibold text-foreground text-[13px] tracking-tight truncate">
               {variant.sku}
             </div>
-            <div className="flex flex-wrap gap-1 mt-1">
+            <div className="flex flex-wrap gap-1 mt-1.5">
               {variant.attribute_values?.map((av, idx) => (
-                <Badge key={idx} variant="outline" className="text-[10px] py-0 h-4 font-normal">
+                <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-bold uppercase tracking-wider bg-emerald-500/5 text-emerald-600 border-emerald-500/20">
                   {av.value}
                 </Badge>
               ))}
@@ -129,14 +130,15 @@ export const getProductVariantColumns = ({
     cell: ({ row }) => {
       const { code, barcode } = row.original;
       return (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           {code && (
-            <span className="text-xs font-mono bg-gray-100 px-1 rounded w-fit">
+            <span className="text-[10px] font-black tracking-widest uppercase text-muted-foreground/40 bg-muted/50 px-2 py-0.5 rounded-md border border-border/40 w-fit">
               {code}
             </span>
           )}
           {barcode && (
-            <span className="text-xs font-mono bg-gray-100 px-1 rounded w-fit">
+            <span className="text-[10px] font-black tracking-widest uppercase text-emerald-600/70 bg-emerald-500/5 px-2 py-0.5 rounded-md border border-emerald-500/10 w-fit flex items-center gap-1.5">
+              <div className="size-1 rounded-full bg-emerald-500/40" />
               {barcode}
             </span>
           )}
@@ -161,11 +163,11 @@ export const getProductVariantColumns = ({
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" className="h-9 w-9 p-0 rounded-xl hover:bg-emerald-500/10 hover:text-emerald-600 transition-all group">
+              <MoreHorizontal className="h-4.5 w-4.5 opacity-40 group-hover:opacity-100" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-56 rounded-xl border border-border bg-background/95 backdrop-blur-xl shadow-2xl">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => copyToClipboard(variant.sku, "SKU")}

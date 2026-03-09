@@ -22,11 +22,18 @@ import {
   Search,
   X,
   Loader2,
+  FileSpreadsheet,
 } from "lucide-react";
 
 import { useFormRestore } from "@/hooks/use-form-restore";
 
-import CreatePOSkeleton from "@/app/skeletons/CreatePOSkeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CreatePOSkeleton } from "@/app/skeletons/purchases/create-po-skeleton";
 import { CreateSupplierSheet } from "@/components/purchase/suppliers/create-supplier-sheet";
 
 import { cn } from "@/lib/utils";
@@ -161,7 +168,7 @@ const ProductSelect = ({ value, onChange, products, autoFocus, onSelect }) => {
                   />
                   <div className="flex flex-col w-full">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium text-gray-900">{product.fullName || product.name}</span>
+                      <span className="font-medium text-foreground">{product.fullName || product.name}</span>
                       <span className="text-xs text-muted-foreground">
                         {product.code}
                       </span>
@@ -175,13 +182,13 @@ const ProductSelect = ({ value, onChange, products, autoFocus, onSelect }) => {
                             "ml-1 font-medium",
                             (product?.stock_quantity || 0) === 0
                               ? "text-red-500"
-                              : "text-green-600"
+                              : "text-emerald-500"
                           )}
                         >
                           {product?.stock_quantity ?? "N/A"} units
                         </span>
                       </span>
-                      <span className="text-xs font-medium text-slate-600">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {/* Assuming cost_price is available, otherwise 0 */}
                         LKR {(Number(product.cost_price) || 0).toLocaleString()}
                       </span>
@@ -503,18 +510,32 @@ export default function CreatePurchaseOrder({ initialData }) {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6 bg-gray-50/50 min-h-screen">
-      {/* --- Header (No Breadcrumbs) --- */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            {isEditing ? "Edit Purchase Order" : "Create Purchase Order"}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {isEditing
-              ? "Update existing purchase order details."
-              : "Create a new PO for restocking inventory."}
-          </p>
+    <div className="flex-1 space-y-6 p-6 bg-background min-h-screen">
+      {/* ── Premium Header ── */}
+      <div className="flex items-center justify-between pb-2">
+        <div className="flex items-center gap-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-xl border border-border/50 bg-card h-10 w-10 shrink-0"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+              <FileSpreadsheet className="w-4.5 h-4.5 text-[#10b981]" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground tracking-tight">
+                {isEditing ? "Edit Purchase Order" : "Create Purchase Order"}
+              </h1>
+              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+                {isEditing ? "Update procurement details" : "New procurement & restocking"}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -525,7 +546,7 @@ export default function CreatePurchaseOrder({ initialData }) {
         >
           {/* --- Top Section: Supplier & Dates --- */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2 border-none shadow-[0_0_20px_0] shadow-blue-500/50">
+            <Card className="lg:col-span-2 border border-border/50 shadow-sm">
               <CardHeader>
                 <CardTitle>Supplier Details</CardTitle>
                 <CardDescription>Select the vendor and dates.</CardDescription>
@@ -583,7 +604,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                                     type="button"
                                     variant="ghost" 
                                     size="sm" 
-                                    className="w-full justify-start gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    className="w-full justify-start gap-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                     onClick={() => setIsCreateSupplierOpen(true)}
                                   >
                                     <Plus className="h-4 w-4" />
@@ -762,7 +783,7 @@ export default function CreatePurchaseOrder({ initialData }) {
             </Card>
 
             {/* Notes Section */}
-            <Card className="lg:col-span-1 border-none shadow-[0_0_20px_0] shadow-blue-500/50">
+            <Card className="lg:col-span-1 border border-border/50 shadow-sm">
               <CardHeader>
                 <CardTitle>Notes & Terms</CardTitle>
               </CardHeader>
@@ -819,7 +840,7 @@ export default function CreatePurchaseOrder({ initialData }) {
           </div>
 
           {/* --- Section 2: Order Items --- */}
-          <Card className="border-none shadow-[0_0_20px_0] shadow-blue-500/50">
+          <Card className="border border-border/50 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="space-y-1">
                 <CardTitle>Order Items</CardTitle>
@@ -828,7 +849,7 @@ export default function CreatePurchaseOrder({ initialData }) {
               
               <div className="flex items-center gap-4">
                 {/* Supplier Filter Checkbox */}
-                <div className="flex items-center space-x-2 bg-white/50 p-2 rounded-md border border-gray-100">
+                <div className="flex items-center space-x-2 bg-muted/30 p-2 rounded-lg border border-border/50">
                     <Checkbox 
                       id="filterSupplier" 
                       checked={filterBySupplier}
@@ -860,7 +881,7 @@ export default function CreatePurchaseOrder({ initialData }) {
             </CardHeader>
             <CardContent>
               {/* Table Header - Desktop */}
-              <div className="hidden md:grid grid-cols-12 gap-4 mb-4 text-sm font-semibold text-gray-500 px-2 uppercase tracking-wider">
+              <div className="hidden md:grid grid-cols-12 gap-4 mb-4 text-sm font-semibold text-muted-foreground/60 px-2 uppercase tracking-wider">
                 <div className="col-span-6">Product Details</div>
                 <div className="col-span-2">Unit Cost (LKR)</div>
                 <div className="col-span-2">Quantity</div>
@@ -883,7 +904,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                   return (
                     <Collapsible
                       key={field.id}
-                      className="border rounded-lg bg-white shadow-sm group"
+                      className="border border-border/60 rounded-xl bg-card shadow-sm group"
                     >
                       <div className="p-4">
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
@@ -984,7 +1005,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                               <span className="text-xs text-muted-foreground md:hidden">
                                 Total:{" "}
                               </span>
-                              <span className="font-semibold text-gray-900">
+                              <span className="font-semibold text-foreground">
                                 {lineTotal}
                               </span>
                             </div>
@@ -995,7 +1016,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                                 variant="ghost"
                                 size="sm"
                                 type="button"
-                                className="p-0 h-8 w-8 hover:bg-slate-100 [&[data-state=open]>svg]:rotate-180"
+                                className="p-0 h-8 w-8 hover:bg-muted/50 [&[data-state=open]>svg]:rotate-180"
                               >
                                 <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
                                 <span className="sr-only">Toggle details</span>
@@ -1018,7 +1039,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                       </div>
 
                       {/* --- EXPANDABLE SECTION (Accordion) --- */}
-                      <CollapsibleContent className="bg-slate-50/50 border-t px-4 py-4 space-y-4">
+                      <CollapsibleContent className="bg-muted/20 border-t border-border/30 px-4 py-4 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {/* Discount Field */}
                           <FormField
@@ -1034,7 +1055,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                                     type="number"
                                     min="0"
                                     max="100"
-                                    className="bg-white h-9"
+                                    className="bg-background h-9"
                                     placeholder="0"
                                     {...field}
                                   />
@@ -1057,7 +1078,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                                     type="number"
                                     min="0"
                                     max="100"
-                                    className="bg-white h-9"
+                                    className="bg-background h-9"
                                     placeholder="0"
                                     {...field}
                                   />
@@ -1079,7 +1100,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                                   <FormControl>
                                     <Input
                                       placeholder="Specific details for this item (e.g. Size L, Blue)"
-                                      className="bg-white h-9"
+                                      className="bg-background h-9"
                                       {...field}
                                     />
                                   </FormControl>
@@ -1098,7 +1119,7 @@ export default function CreatePurchaseOrder({ initialData }) {
 
               {/* Summary Section */}
               <div className="mt-8 flex justify-end">
-                <div className="w-full md:w-1/3 bg-white p-6 rounded-lg border shadow-sm space-y-4">
+                <div className="w-full md:w-1/3 bg-card p-6 rounded-xl border border-border/50 shadow-sm space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span>
@@ -1110,7 +1131,7 @@ export default function CreatePurchaseOrder({ initialData }) {
                   </div>
 
                   <Separator />
-                  <div className="flex justify-between text-xl font-bold text-gray-900">
+                  <div className="flex justify-between text-xl font-bold text-foreground">
                     <span>Total</span>
                     <span>
                       LKR{" "}
@@ -1124,20 +1145,25 @@ export default function CreatePurchaseOrder({ initialData }) {
             </CardContent>
           </Card>
 
-          {/* --- Footer Actions --- */}
-          <div className="flex items-center justify-end gap-4 sticky bottom-0 bg-white p-4 border-t -mx-6 -mb-6 shadow-lg md:static md:bg-transparent md:border-0 md:shadow-none md:p-0 md:mx-0 md:mb-0">
+          {/* ── Footer Actions ── */}
+          <div className="flex items-center justify-end gap-3 sticky bottom-0 bg-card/80 backdrop-blur-md p-4 border-t border-border/50 -mx-6 -mb-6 shadow-lg md:static md:bg-transparent md:backdrop-blur-none md:border-0 md:shadow-none md:p-0 md:mx-0 md:mb-0">
             <Button
               type="button"
-              variant="destructive"
+              variant="outline"
               onClick={() => router.back()}
+              className="gap-2 rounded-xl border-border/60"
             >
-              <X className="mr-2 h-4 w-4" /> Cancel
+              <X className="h-4 w-4" /> Cancel
             </Button>
-            <Button type="button" variant="secondary" className="gap-2">
+            <Button type="button" variant="secondary" className="gap-2 rounded-xl">
               <Save className="h-4 w-4" />
               Save Draft
             </Button>
-            <Button type="submit" className="gap-2" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/20"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

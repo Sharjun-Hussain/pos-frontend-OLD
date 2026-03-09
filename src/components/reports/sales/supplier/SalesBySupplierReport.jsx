@@ -167,7 +167,7 @@ export default function SalesBySupplierPage() {
   };
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8 font-sans text-slate-900">
+    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-8 font-sans text-foreground">
       
       {/* HIDDEN PRINT TEMPLATE */}
       <SalesBySupplierPrintTemplate 
@@ -180,37 +180,37 @@ export default function SalesBySupplierPage() {
       {/* --- HEADER --- */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Sales Summary By Supplier</h1>
-          <p className="text-slate-500 mt-1">Analyze vendor performance and procurement profitability.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Sales Summary By Supplier</h1>
+          <p className="text-muted-foreground mt-1">Analyze vendor performance and procurement profitability.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handlePrint} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 text-slate-700 hover:bg-slate-50">
+          <Button onClick={handlePrint} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 text-foreground hover:bg-muted/30">
             <FileText className="h-4 w-4" /> Export PDF
           </Button>
-          <Button onClick={handleExportCSV} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 text-slate-700 hover:bg-slate-50">
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 text-foreground hover:bg-muted/30">
             <Download className="h-4 w-4" /> CSV
           </Button>
-          <Button onClick={handleExportExcel} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 text-slate-700 hover:bg-slate-50">
+          <Button onClick={handleExportExcel} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 text-foreground hover:bg-muted/30">
             <FileText className="h-4 w-4" /> Excel
           </Button>
-          <Button onClick={handlePrint} className="bg-slate-900 text-white shadow-sm gap-2 hover:bg-slate-800">
+          <Button onClick={handlePrint} className="bg-emerald-600 text-white shadow-sm gap-2 hover:bg-emerald-700">
             <Printer className="h-4 w-4" /> Print Report
           </Button>
         </div>
       </div>
 
       {/* --- FILTERS --- */}
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-card">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-5 items-end">
             
             {/* Date Range */}
             <div className="space-y-2 flex-1 min-w-[220px]">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date Range</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Date Range</label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-10 border-slate-200 bg-slate-50/50", !date && "text-muted-foreground")}>
-                      <CalendarIcon className="mr-2 h-4 w-4 text-slate-500" />
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-10 border-border/50 bg-muted/20", !date && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                       {date?.from ? (date.to ? <>{format(date.from, "LLL dd")} - {format(date.to, "LLL dd")}</> : format(date.from, "LLL dd")) : "Pick date"}
                     </Button>
                   </PopoverTrigger>
@@ -222,12 +222,12 @@ export default function SalesBySupplierPage() {
 
             {/* Supplier Name Search (Local) */}
             <div className="space-y-2 flex-1 min-w-[200px]">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Search Supplier</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Search Supplier</label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground/60" />
                   <Input 
                     placeholder="Filter list..." 
-                    className="pl-9 h-10 border-slate-200 bg-slate-50/50 focus:bg-white transition-colors"
+                    className="pl-9 h-10 border-border/50 bg-muted/20 focus:bg-card transition-colors"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -236,9 +236,9 @@ export default function SalesBySupplierPage() {
 
             {/* Branch Selector */}
             <div className="space-y-2 w-full lg:w-[180px]">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Branch</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Branch</label>
                 <Select value={store} onValueChange={setStore}>
-                  <SelectTrigger className="h-10 border-slate-200 bg-slate-50/50"><SelectValue placeholder="All" /></SelectTrigger>
+                  <SelectTrigger className="h-10 border-border/50 bg-muted/20"><SelectValue placeholder="All" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Branches</SelectItem>
                     {branches.map(b => (
@@ -249,7 +249,7 @@ export default function SalesBySupplierPage() {
             </div>
 
             <div className="pb-1">
-               {isLoading && <Loader2 className="h-5 w-5 animate-spin text-blue-600" />}
+               {isLoading && <Loader2 className="h-5 w-5 animate-spin text-emerald-500" />}
             </div>
 
           </div>
@@ -258,39 +258,39 @@ export default function SalesBySupplierPage() {
 
       {/* --- KPI METRICS --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-none shadow-sm bg-white transition-all hover:shadow-md">
+        <Card className="border-none shadow-sm bg-card transition-all hover:shadow-md">
           <CardContent className="p-6">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Sales from Suppliers</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-2">{formatCurrency(stats.totalSales)}</h3>
+            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">Total Sales from Suppliers</p>
+            <h3 className="text-2xl font-bold text-foreground mt-2">{formatCurrency(stats.totalSales)}</h3>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white transition-all hover:shadow-md border-l-4 border-l-blue-500">
+        <Card className="border-none shadow-sm bg-card transition-all hover:shadow-md border-l-4 border-l-emerald-500">
           <CardContent className="p-6">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Top Performing Supplier</p>
-            <h3 className="text-xl font-bold text-slate-900 mt-2 truncate" title={stats.topSupplier?.supplier_name}>{stats.topSupplier?.supplier_name || "-"}</h3>
-            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">Top Performing Supplier</p>
+            <h3 className="text-xl font-bold text-foreground mt-2 truncate" title={stats.topSupplier?.supplier_name}>{stats.topSupplier?.supplier_name || "-"}</h3>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                <TrendingUp className="h-3 w-3 text-emerald-500"/> Highest Revenue
             </p>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white transition-all hover:shadow-md">
+        <Card className="border-none shadow-sm bg-card transition-all hover:shadow-md">
           <CardContent className="p-6">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Suppliers with Sales</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-2">{stats.activeSuppliers}</h3>
+            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">Suppliers with Sales</p>
+            <h3 className="text-2xl font-bold text-foreground mt-2">{stats.activeSuppliers}</h3>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white transition-all hover:shadow-md border-l-4 border-l-emerald-500">
+        <Card className="border-none shadow-sm bg-card transition-all hover:shadow-md border-l-4 border-l-emerald-500">
           <CardContent className="p-6">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Overall Gross Profit</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-2">{formatCurrency(stats.totalProfit)}</h3>
+            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">Overall Gross Profit</p>
+            <h3 className="text-2xl font-bold text-foreground mt-2">{formatCurrency(stats.totalProfit)}</h3>
           </CardContent>
         </Card>
       </div>
 
       {/* --- CHART SECTION --- */}
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold text-slate-800">Top 5 Suppliers by Sales</CardTitle>
+          <CardTitle className="text-base font-semibold text-foreground">Top 5 Suppliers by Sales</CardTitle>
         </CardHeader>
         <CardContent className="pl-0 pr-6 pb-6 pt-4">
           <div className="h-[300px] w-full">
@@ -312,38 +312,38 @@ export default function SalesBySupplierPage() {
       </Card>
 
       {/* --- DATA TABLE --- */}
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-card overflow-hidden">
         <div className="p-0">
           <Table>
-            <TableHeader className="bg-slate-50 border-b border-slate-200">
+            <TableHeader className="bg-muted/30 border-b border-border/50">
               <TableRow>
-                <TableHead className="pl-6 py-4 font-semibold text-slate-600 border-l-4 border-l-transparent">Supplier Name</TableHead>
-                <TableHead className="text-center font-semibold text-slate-600">Items Sold</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600">Total Sales</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600">Discount</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600">Net Sales</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600">Gross Profit</TableHead>
-                <TableHead className="text-right pr-6 font-semibold text-slate-600">Margin (%)</TableHead>
+                <TableHead className="pl-6 py-4 font-semibold text-muted-foreground border-l-4 border-l-transparent">Supplier Name</TableHead>
+                <TableHead className="text-center font-semibold text-muted-foreground">Items Sold</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Total Sales</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Discount</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Net Sales</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Gross Profit</TableHead>
+                <TableHead className="text-right pr-6 font-semibold text-muted-foreground">Margin (%)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-slate-500 italic">
+                  <TableCell colSpan={7} className="h-32 text-center text-muted-foreground italic">
                     <div className="flex flex-col items-center gap-2">
-                       <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                       <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
                        <span>Loading supplier data...</span>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : filteredData.length > 0 ? (
                 filteredData.map((item, idx) => (
-                  <TableRow key={idx} className="hover:bg-slate-50/80 transition-colors border-b border-slate-50 last:border-0 group">
-                    <TableCell className="pl-6 py-4 font-bold text-slate-900 border-l-4 border-l-transparent group-hover:border-l-blue-500 transition-all">{item.supplier_name}</TableCell>
-                    <TableCell className="text-center text-slate-700">{item.sold}</TableCell>
-                    <TableCell className="text-right text-slate-600 font-medium">{formatCurrency(item.totalSales)}</TableCell>
+                  <TableRow key={idx} className="hover:bg-muted/40 transition-colors border-b border-border/20 last:border-0 group">
+                    <TableCell className="pl-6 py-4 font-bold text-foreground border-l-4 border-l-transparent group-hover:border-l-emerald-500 transition-all">{item.supplier_name}</TableCell>
+                    <TableCell className="text-center text-foreground">{item.sold}</TableCell>
+                    <TableCell className="text-right text-muted-foreground font-medium">{formatCurrency(item.totalSales)}</TableCell>
                     <TableCell className="text-right text-red-600">({formatCurrency(item.discount)})</TableCell>
-                    <TableCell className="text-right font-bold text-slate-900">{formatCurrency(item.netSales)}</TableCell>
+                    <TableCell className="text-right font-bold text-foreground">{formatCurrency(item.netSales)}</TableCell>
                     <TableCell className="text-right font-bold text-emerald-600">{formatCurrency(item.profit)}</TableCell>
                     <TableCell className="text-right pr-6">
                         <span className={cn(
@@ -357,7 +357,7 @@ export default function SalesBySupplierPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-slate-500 italic">
+                  <TableCell colSpan={7} className="h-32 text-center text-muted-foreground italic">
                     No supplier performance data found for the selected period.
                   </TableCell>
                 </TableRow>
@@ -365,11 +365,11 @@ export default function SalesBySupplierPage() {
             </TableBody>
           </Table>
 
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
-            <p className="text-sm text-slate-500">Showing {filteredData.length} active suppliers</p>
+          <div className="p-4 border-t border-border/30 flex items-center justify-between bg-muted/10">
+            <p className="text-sm text-muted-foreground">Showing {filteredData.length} active suppliers</p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="h-8 bg-white text-slate-600" disabled>Previous</Button>
-              <Button variant="outline" size="sm" className="h-8 bg-white text-slate-600" disabled>Next</Button>
+              <Button variant="outline" size="sm" className="h-8 bg-card text-muted-foreground" disabled>Previous</Button>
+              <Button variant="outline" size="sm" className="h-8 bg-card text-muted-foreground" disabled>Next</Button>
             </div>
           </div>
         </div>

@@ -266,12 +266,12 @@ export default function DailySalesSummaryPage() {
       <div className="w-full">
         <div className="h-4 w-full flex rounded-full overflow-hidden mb-2">
           {cashPct > 0 && <div style={{ width: `${cashPct}%` }} className="bg-emerald-500 h-full" title={`Cash: ${cashPct}%`} />}
-          {cardPct > 0 && <div style={{ width: `${cardPct}%` }} className="bg-blue-500 h-full" title={`Card: ${cardPct}%`} />}
+          {cardPct > 0 && <div style={{ width: `${cardPct}%` }} className="bg-emerald-500 h-full" title={`Card: ${cardPct}%`} />}
           {creditPct > 0 && <div style={{ width: `${creditPct}%` }} className="bg-amber-500 h-full" title={`Credit: ${creditPct}%`} />}
         </div>
-        <div className="flex justify-between text-[10px] text-slate-500 font-medium">
+        <div className="flex justify-between text-[10px] text-muted-foreground font-medium">
           {cashPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div>Cash {cashPct}%</div>}
-          {cardPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></div>Card {cardPct}%</div>}
+          {cardPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div>Card {cardPct}%</div>}
           {creditPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></div>Credit {creditPct}%</div>}
         </div>
       </div>
@@ -279,7 +279,7 @@ export default function DailySalesSummaryPage() {
   };
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8 font-sans text-slate-900">
+    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-8 font-sans text-foreground">
       
       {/* HIDDEN PRINT TEMPLATE 
         The 'display: none' ensures it doesn't clutter the UI, 
@@ -301,22 +301,22 @@ export default function DailySalesSummaryPage() {
       {/* --- HEADER --- */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Daily Sales Summary</h1>
-          <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Daily Sales Summary</h1>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
             <span>Reports</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900 font-medium">Sales Performance</span>
+            <span className="text-muted-foreground/40">/</span>
+            <span className="text-foreground font-medium">Sales Performance</span>
           </div>
         </div>
         
         <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={() => handlePrint()} variant="outline" className="bg-white text-slate-700 border-slate-200 shadow-sm gap-2 hover:bg-slate-50">
+          <Button onClick={() => handlePrint()} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
             <FileText className="h-4 w-4" /> Export PDF
           </Button>
-          <Button onClick={handleExportCSV} variant="outline" className="bg-white text-slate-700 border-slate-200 shadow-sm gap-2 hover:bg-slate-50">
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
             <Download className="h-4 w-4" /> CSV
           </Button>
-          <Button onClick={handleExportExcel} variant="outline" className="bg-white text-slate-700 border-slate-200 shadow-sm gap-2 hover:bg-slate-50">
+          <Button onClick={handleExportExcel} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
             <FileText className="h-4 w-4" /> Excel
           </Button>
           <Button onClick={() => handlePrint()}>
@@ -326,20 +326,20 @@ export default function DailySalesSummaryPage() {
       </div>
 
       {/* --- FILTERS & CONTROLS --- */}
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-card">
         <CardContent className="p-6 space-y-6">
           
           <div className="flex flex-col lg:flex-row gap-4 items-end">
             
             {/* DATE RANGE PICKER */}
             <div className="flex-1 space-y-2 w-full lg:w-auto">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date Range</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Date Range</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-full justify-start text-left font-normal h-10 border-slate-200",
+                      "w-full justify-start text-left font-normal h-10 border-border/50",
                       !date && "text-muted-foreground"
                     )}
                   >
@@ -373,9 +373,9 @@ export default function DailySalesSummaryPage() {
 
             {/* FILTERS */}
             <div className="w-full lg:w-[200px] space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Branch</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Branch</label>
               <Select value={branch} onValueChange={setBranch}>
-                <SelectTrigger className="h-10 w-full bg-white border-slate-200"><SelectValue placeholder="All" /></SelectTrigger>
+                <SelectTrigger className="h-10 w-full bg-card border-border/50"><SelectValue placeholder="All" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Stores</SelectItem>
                   {branches.map(b => (
@@ -386,9 +386,9 @@ export default function DailySalesSummaryPage() {
             </div>
 
             <div className="w-full lg:w-[200px] space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">User</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">User</label>
               <Select value={user} onValueChange={setUser}>
-                <SelectTrigger className="h-10 w-full bg-white border-slate-200"><SelectValue placeholder="All Users" /></SelectTrigger>
+                <SelectTrigger className="h-10 w-full bg-card border-border/50"><SelectValue placeholder="All Users" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Users</SelectItem>
                   {sellers.map(s => (
@@ -401,17 +401,17 @@ export default function DailySalesSummaryPage() {
             {/* ADVANCED FILTER POPOVER */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="h-10 border-dashed border-slate-300 text-slate-600 gap-2">
+                <Button variant="outline" className="h-10 border-dashed border-border text-muted-foreground gap-2">
                   <SlidersHorizontal className="h-4 w-4" /> Advanced
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-4" align="end">
                 <div className="space-y-4">
-                  <h4 className="font-semibold leading-none text-slate-900">Advanced Filters</h4>
+                  <h4 className="font-semibold leading-none text-foreground">Advanced Filters</h4>
                   <div className="space-y-2">
                     <Label className="text-xs">Amount Range ({currencySymbol})</Label>
                     <Slider defaultValue={[0, 1000]} max={5000} step={10} value={amountRange} onValueChange={setAmountRange} />
-                    <div className="flex justify-between text-xs text-slate-500">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                       <span>{currencySymbol} {amountRange[0]}</span>
                       <span>{currencySymbol} {amountRange[1]}</span>
                     </div>
@@ -433,7 +433,7 @@ export default function DailySalesSummaryPage() {
               </PopoverContent>
             </Popover>
 
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 shadow-sm">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-6 shadow-sm">
                 Apply Filters
             </Button>
           </div>
@@ -442,52 +442,52 @@ export default function DailySalesSummaryPage() {
 
       {/* --- SUMMARY DASHBOARD --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-none shadow-sm bg-white p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Sales</p>
-            <h3 className="text-2xl font-bold text-slate-900">{formatCurrency(stats.totalSales || 0)}</h3>
+          <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Total Sales</p>
+            <h3 className="text-2xl font-bold text-foreground">{formatCurrency(stats.totalSales || 0)}</h3>
          </Card>
-         <Card className="border-none shadow-sm bg-white p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Transactions</p>
-            <h3 className="text-2xl font-bold text-slate-900">{stats.totalTransactions || 0}</h3>
+         <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Transactions</p>
+            <h3 className="text-2xl font-bold text-foreground">{stats.totalTransactions || 0}</h3>
          </Card>
-         <Card className="border-none shadow-sm bg-white p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Discounts</p>
+         <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Total Discounts</p>
             <h3 className="text-2xl font-bold text-orange-600">{formatCurrency(Math.abs(stats.totalDiscounts || 0))}</h3>
          </Card>
-         <Card className="border-none shadow-sm bg-white p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Payment Breakdown</p>
+         <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
+            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-3">Payment Breakdown</p>
             <PaymentBar />
          </Card>
       </div>
 
       {/* --- DATA TABLE --- */}
-      <Card className="border-none shadow-sm bg-white">
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+      <Card className="border-none shadow-sm bg-card">
+        <div className="p-4 border-b border-border/30 flex justify-between items-center">
             <div className="relative w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground/60" />
                 <Input 
                     placeholder="Search invoice or customer..." 
-                    className="pl-9 bg-slate-50 border-slate-200 h-9"
+                    className="pl-9 bg-muted/30 border-border/50 h-9"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
-            <div className="text-sm text-slate-500">
-                Showing <span className="font-bold text-slate-900">{filteredData.length}</span> transactions
+            <div className="text-sm text-muted-foreground">
+                Showing <span className="font-bold text-foreground">{filteredData.length}</span> transactions
             </div>
         </div>
         <CardContent className="p-0">
             <Table>
-                <TableHeader className="bg-slate-50 border-b border-slate-100">
+                <TableHeader className="bg-muted/30 border-b border-border/30">
                     <TableRow>
-                        <TableHead className="w-[180px] pl-6 font-semibold text-slate-600">Date</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Invoice No</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Customer</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Total</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Discount</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Net Amount</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Payment</TableHead>
-                        <TableHead className="text-right pr-6 font-semibold text-slate-600">Cashier</TableHead>
+                        <TableHead className="w-[180px] pl-6 font-semibold text-muted-foreground">Date</TableHead>
+                        <TableHead className="font-semibold text-muted-foreground">Invoice No</TableHead>
+                        <TableHead className="font-semibold text-muted-foreground">Customer</TableHead>
+                        <TableHead className="font-semibold text-muted-foreground">Total</TableHead>
+                        <TableHead className="font-semibold text-muted-foreground">Discount</TableHead>
+                        <TableHead className="font-semibold text-muted-foreground">Net Amount</TableHead>
+                        <TableHead className="font-semibold text-muted-foreground">Payment</TableHead>
+                        <TableHead className="text-right pr-6 font-semibold text-muted-foreground">Cashier</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -497,13 +497,13 @@ export default function DailySalesSummaryPage() {
                         const unpaidAmount = item.total - (item.paid_amount || 0);
                         
                         return (
-                            <TableRow key={item.id} className={`hover:bg-slate-50 transition-colors border-b border-slate-50 ${isCredit ? 'bg-amber-50/30' : ''}`}>
-                                <TableCell className="pl-6 py-3 text-slate-600">{formatDateTime(item.date)}</TableCell>
-                                <TableCell className="font-medium text-slate-900">{item.id}</TableCell>
-                                <TableCell className="text-slate-600">{item.customer}</TableCell>
-                                <TableCell className={isReturn ? "text-red-600" : "text-slate-600"}>{formatCurrency(item.subtotal || 0)}</TableCell>
-                                <TableCell className="text-slate-600">{formatCurrency(item.discount || 0)}</TableCell>
-                                <TableCell className={`font-bold ${isReturn ? "text-red-600" : "text-slate-900"}`}>
+                            <TableRow key={item.id} className={`hover:bg-muted/30 transition-colors border-b border-border/20 ${isCredit ? 'bg-amber-50/30' : ''}`}>
+                                <TableCell className="pl-6 py-3 text-muted-foreground">{formatDateTime(item.date)}</TableCell>
+                                <TableCell className="font-medium text-foreground">{item.id}</TableCell>
+                                <TableCell className="text-muted-foreground">{item.customer}</TableCell>
+                                <TableCell className={isReturn ? "text-red-600" : "text-muted-foreground"}>{formatCurrency(item.subtotal || 0)}</TableCell>
+                                <TableCell className="text-muted-foreground">{formatCurrency(item.discount || 0)}</TableCell>
+                                <TableCell className={`font-bold ${isReturn ? "text-red-600" : "text-foreground"}`}>
                                   <div className="flex flex-col gap-1">
                                     <span>{formatCurrency(item.total || 0)}</span>
                                     {isCredit && (
@@ -517,26 +517,26 @@ export default function DailySalesSummaryPage() {
                                     <div className="flex flex-col gap-1">
                                       <Badge variant="outline" className={
                                           isCredit ? "bg-amber-50 text-amber-700 border-amber-200" :
-                                          item.type?.toLowerCase() === 'card' ? "bg-blue-50 text-blue-700 border-blue-100" :
+                                          item.type?.toLowerCase() === 'card' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" :
                                           item.type?.toLowerCase() === 'cash' ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
                                           item.type?.toLowerCase() === 'cheque' ? "bg-purple-50 text-purple-700 border-purple-100" :
-                                          "bg-slate-50 text-slate-700 border-slate-100"
+                                          "bg-muted/30 text-foreground border-border/30"
                                       }>
                                           {isCredit ? "Credit" : item.type}
                                       </Badge>
                                       {isCredit && (
-                                        <div className="text-[10px] text-slate-400 font-medium px-1">
+                                        <div className="text-[10px] text-muted-foreground/60 font-medium px-1">
                                           via {item.type}
                                         </div>
                                       )}
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-right pr-6 text-slate-600">{item.cashier}</TableCell>
+                                <TableCell className="text-right pr-6 text-muted-foreground">{item.cashier}</TableCell>
                             </TableRow>
                         );
                     }) : (
                         <TableRow>
-                            <TableCell colSpan={8} className="h-24 text-center text-slate-500 italic">
+                            <TableCell colSpan={8} className="h-24 text-center text-muted-foreground italic">
                                 No transactions match your filters.
                             </TableCell>
                         </TableRow>
@@ -545,7 +545,7 @@ export default function DailySalesSummaryPage() {
             </Table>
 
             {/* Pagination */}
-            <div className="px-6 py-4 flex items-center justify-end gap-2 border-t border-slate-100">
+            <div className="px-6 py-4 flex items-center justify-end gap-2 border-t border-border/30">
                 <Button variant="outline" size="sm" disabled><ChevronLeft className="h-4 w-4 mr-1"/> Previous</Button>
                 <Button variant="outline" size="sm">Next <ChevronRight className="h-4 w-4 ml-1"/></Button>
             </div>

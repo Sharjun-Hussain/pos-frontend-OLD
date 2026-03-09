@@ -12,7 +12,7 @@ import { DataTable } from "@/components/general/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { LoaderIcon, PlusCircle, Download, Search, X } from "lucide-react";
+import { LoaderIcon, PlusCircle, Download, Search, X, LayoutGrid } from "lucide-react";
 
 const ResourceTableToolbar = ({
   table,
@@ -29,15 +29,15 @@ const ResourceTableToolbar = ({
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
       <div className="flex flex-1 items-center space-x-2 w-full">
         <div className="relative w-full max-w-sm group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-          <Input
-            placeholder={searchPlaceholder || "Search..."}
-            value={table.getColumn(searchColumn)?.getFilterValue() ?? ""}
-            onChange={(event) =>
-              table.getColumn(searchColumn)?.setFilterValue(event.target.value)
-            }
-            className="pl-10 bg-white/50 border-slate-200 focus:bg-white transition-all shadow-sm"
-          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-[#10b981] transition-colors" />
+            <Input
+              placeholder={searchPlaceholder || "Filter entries..."}
+              value={table.getColumn(searchColumn)?.getFilterValue() ?? ""}
+              onChange={(event) =>
+                table.getColumn(searchColumn)?.setFilterValue(event.target.value)
+              }
+              className="h-11 pl-10 bg-background border-border/60 focus:bg-background transition-all shadow-sm rounded-xl font-bold tracking-tight text-[13px] focus:ring-emerald-500/20"
+            />
         </div>
         {filterComponents && filterComponents(table)}
 
@@ -129,41 +129,32 @@ export const ResourceManagementLayout = ({
     : null;
 
   return (
-    <>
-      {/* --- UI/UX Scientist Layer: Global Backgrounds --- */}
-      <div className="fixed inset-0 -z-10 h-full w-full bg-slate-50 bg-size-[16px_16px] bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] mask-[radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-400/10 blur-[100px] rounded-full mix-blend-multiply"></div>
+    <div className="min-h-screen bg-background p-4 md:px-8 md:pt-4 md:pb-12">
+      <div className="fixed inset-0 -z-10 h-full w-full bg-background">
+        <div className="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.05),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.1),rgba(0,0,0,0))]"></div>
       </div>
 
-      <div className="relative flex flex-col space-y-4 p-0">
+      <div className="relative flex flex-col gap-6 max-w-[1400px] mx-auto transition-all duration-500">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-              {headerTitle}
-            </h1>
-            <p className="text-sm text-slate-500 max-w-2xl font-medium">
-              {headerDescription}
-            </p>
-          </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          {headerTitle}
           <div className="flex items-center space-x-3">
             {extraActions}
             {onExportClick && (
               <Button
                 variant="outline"
-                className="gap-2 bg-white hover:bg-slate-50 border-slate-200 shadow-sm"
+                className=" px-6 rounded-xl border-border/60 bg-muted/20 hover:bg-muted/40 font-bold uppercase text-[10px] tracking-widest transition-all gap-2"
                 onClick={onExportClick}
               >
-                <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Export</span>
+                <Download className="h-4 w-4 opacity-60" />
+                <span className="hidden sm:inline">Export CSV</span>
               </Button>
             )}
             {onAddClick && (
               <Button
                 onClick={onAddClick}
                 disabled={isAdding}
-                className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all"
+                className=" px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95 border-none gap-2"
               >
                 {isAdding ? (
                   <LoaderIcon className="h-4 w-4 animate-spin" />
@@ -183,22 +174,26 @@ export const ResourceManagementLayout = ({
           </div>
         )}
 
-        {/* Main Content Card - Glassmorphism applied here */}
-        <Card className=" bg-white/80  overflow-hidden">
-          <CardContent className="p-4">
-            <ResourceTableToolbar
-              table={table}
-              searchColumn={searchColumn}
-              searchPlaceholder={searchPlaceholder}
-              bulkActionsComponent={renderedBulkActions}
-              filterComponents={filterComponents}
-            />
+        {/* Main Content Card */}
+        <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+          <CardContent className="p-0">
+            <div className="p-5 border-b border-border/40">
+              <ResourceTableToolbar
+                table={table}
+                searchColumn={searchColumn}
+                searchPlaceholder={searchPlaceholder}
+                bulkActionsComponent={renderedBulkActions}
+                filterComponents={filterComponents}
+              />
+            </div>
 
-            <DataTable table={table} columns={columns} />
+            <div className="px-1 pb-1">
+              <DataTable table={table} columns={columns} />
+            </div>
           </CardContent>
         </Card>
         {children}
       </div>
-    </>
+    </div>
   );
 };

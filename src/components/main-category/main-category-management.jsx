@@ -12,12 +12,31 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import ProductSkeleton from "@/app/skeletons/products/product-listing-skeleton";
 import { ResourceManagementLayout } from "../general/resource-management-layout";
 import { getMainCategoryColumns } from "./main-category-column";
 import { MainCategoryDialog } from "./main-category-dialog";
 import { usePermission } from "@/hooks/use-permission";
-import { CheckCircle2, XCircle, Trash2, ChevronDown } from "lucide-react"; // Added icons for better UI
+import { CheckCircle2, XCircle, Trash2, ChevronDown, Folder } from "lucide-react"; // Added icons for better UI
+import { PERMISSIONS } from "@/lib/permissions";
+import { cn } from "@/lib/utils";
+
+// --- HELPERS ---
+const HeaderContent = () => (
+  <div className="flex items-center gap-4">
+    <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+      <Folder className="w-4.5 h-4.5 text-[#10b981]" />
+    </div>
+    <div className="flex flex-col">
+      <h1 className="text-xl font-semibold text-foreground tracking-tight">
+        Primary Taxonomies
+      </h1>
+      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+        High-Level Catalog Hierarchy
+      </p>
+    </div>
+  </div>
+);
 
 // --- Component Definition ---
 const MainCategoryBulkActions = ({
@@ -299,14 +318,17 @@ export default function MainCategoryPage() {
     [handleDelete, handleBulkDeactivate, handleBulkActivate]
   );
 
+  const stats = useMemo(() => {
+    const total = MainCategories.length;
+    const active = MainCategories.filter(b => b.is_active).length;
+    const inactive = total - active;
+    return { total, active, inactive };
+  }, [MainCategories]);
+
   return (
-    <div className="relative min-h-screen w-full bg-gray-50">
-      {/* --- Ambient Background --- */}
-      <div className="fixed inset-0 -z-10 h-full w-full bg-white">
-        <div className="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
-        <div className="absolute bottom-0 left-0 z-[-2] h-[500px] w-[500px] rounded-full bg-purple-100/50 blur-[100px]"></div>
-        <div className="absolute bottom-0 right-0 z-[-2] h-[500px] w-[500px] rounded-full bg-blue-100/50 blur-[100px]"></div>
-      </div>
+    <div className="flex flex-col gap-6">
+      {/* Stats Cards */}
+      
 
       <ResourceManagementLayout
         data={MainCategories}
@@ -315,40 +337,14 @@ export default function MainCategoryPage() {
         isError={!!error}
         errorMessage={error}
         onRetry={fetchMainCategories}
-        headerTitle={
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary-100">
-              <svg
-                className="w-6 h-6 text-primary-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Main Category Management
-              </h1>
-              <p className="text-gray-600 text-sm font-medium">
-                Manage your Main categories
-              </p>
-            </div>
-          </div>
-        }
-        addButtonLabel="Add Main Category"
+        headerTitle={<HeaderContent />}
+        addButtonLabel="New Category"
         onAddClick={canCreate ? handleAddClick : null}
         isAdding={isNavigating}
         bulkActionsComponent={bulkActionsComponent}
         searchColumn="name"
-        searchPlaceholder="Filter main category by name..."
-        loadingSkeleton={<OrganizationPageSkeleton />}
+        searchPlaceholder="Filter categories by name..."
+        loadingSkeleton={<ProductSkeleton />}
       />
       <MainCategoryDialog
         open={isDialogOpen}

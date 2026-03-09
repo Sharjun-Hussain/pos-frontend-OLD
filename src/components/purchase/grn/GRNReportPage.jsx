@@ -15,11 +15,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Download, Eye, Loader2, Calendar as CalendarIcon, Filter } from "lucide-react";
+import { Search, Download, Eye, Loader2, Filter, ClipboardList, TrendingUp, Users, ReceiptText, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import Link from "next/link";
+
+
 
 export default function GRNReportPage() {
   const { data: session } = useSession();
@@ -132,54 +134,92 @@ export default function GRNReportPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50/50 min-h-screen">
+    <div className="flex-1 space-y-6 p-6 bg-background min-h-screen">
+      {/* ── Premium Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">GRN History & Reports</h1>
-          <p className="text-sm text-slate-500">Analyze received goods and purchase trends.</p>
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+            <ClipboardList className="w-4.5 h-4.5 text-[#10b981]" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground tracking-tight">GRN History &amp; Reports</h1>
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+              Goods Received · Trends · Analysis
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-           <Button variant="outline" className="bg-white" onClick={exportToCSV}>
-             <Download className="w-4 h-4 mr-2" /> Export CSV
-           </Button>
-           <Button className="bg-blue-600 hover:bg-blue-700 shadow-md" asChild>
-             <Link href="/purchase/purchase-orders">New GRN</Link>
-           </Button>
+          <Button variant="outline" size="sm" className="gap-2 rounded-xl border-border/60" onClick={exportToCSV}>
+            <Download className="w-4 h-4" /> Export CSV
+          </Button>
+          <Button size="sm" className="gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/20" asChild>
+            <Link href="/purchase/purchase-orders">New GRN</Link>
+          </Button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="pb-2">
-             <CardDescription className="text-xs uppercase font-bold tracking-wider">Total Received (This Month)</CardDescription>
-             <CardTitle className="text-2xl font-bold text-slate-800">
-               LKR {grns.reduce((acc, g) => acc + parseFloat(g.total_amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-             </CardTitle>
-          </CardHeader>
+      {/* ── Summary Stats ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border border-border/50 shadow-sm bg-card">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 shrink-0">
+              <TrendingUp className="w-5 h-5 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Total Received</p>
+              <p className="text-xl font-bold text-foreground">
+                LKR {grns.reduce((acc, g) => acc + parseFloat(g.total_amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+          </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="pb-2">
-             <CardDescription className="text-xs uppercase font-bold tracking-wider">Active Suppliers</CardDescription>
-             <CardTitle className="text-2xl font-bold text-slate-800">{new Set(grns.map(g => g.supplier_id)).size}</CardTitle>
-          </CardHeader>
+        <Card className="border border-border/50 shadow-sm bg-card">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 shrink-0">
+              <Users className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Active Suppliers</p>
+              <p className="text-xl font-bold text-foreground">{new Set(grns.map(g => g.supplier_id)).size}</p>
+            </div>
+          </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white">
-          <CardHeader className="pb-2">
-             <CardDescription className="text-xs uppercase font-bold tracking-wider">Total Transactions</CardDescription>
-             <CardTitle className="text-2xl font-bold text-slate-800">{pagination.total}</CardTitle>
-          </CardHeader>
+        <Card className="border border-border/50 shadow-sm bg-card">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-500/20 shrink-0">
+              <ReceiptText className="w-5 h-5 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Total Transactions</p>
+              <p className="text-xl font-bold text-foreground">{pagination.total}</p>
+            </div>
+          </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card className="border-none shadow-sm">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Filter by Supplier</label>
+      {/* ── Filters ── */}
+      <Card className="border border-border/50 shadow-sm bg-card">
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row gap-3 items-end">
+            {/* Search */}
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Search</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50" />
+                <Input
+                  placeholder="GRN #, supplier..."
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                  className="pl-8 h-9 bg-background border-border/60"
+                />
+              </div>
+            </div>
+
+            {/* Supplier */}
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Supplier</label>
               <Select value={filters.supplier_id} onValueChange={(v) => handleFilterChange("supplier_id", v)}>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="h-9 bg-background border-border/60">
                   <SelectValue placeholder="All Suppliers" />
                 </SelectTrigger>
                 <SelectContent>
@@ -190,85 +230,114 @@ export default function GRNReportPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Start Date</label>
-              <Input type="date" value={filters.start_date} onChange={(e) => handleFilterChange("start_date", e.target.value)} className="bg-white" />
+
+            {/* Start Date */}
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">From</label>
+              <Input
+                type="date"
+                value={filters.start_date}
+                onChange={(e) => handleFilterChange("start_date", e.target.value)}
+                className="h-9 bg-background border-border/60"
+              />
             </div>
-            <div className="space-y-2">
-               <label className="text-sm font-medium text-slate-700">End Date</label>
-               <Input type="date" value={filters.end_date} onChange={(e) => handleFilterChange("end_date", e.target.value)} className="bg-white" />
+
+            {/* End Date */}
+            <div className="flex-1 space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">To</label>
+              <Input
+                type="date"
+                value={filters.end_date}
+                onChange={(e) => handleFilterChange("end_date", e.target.value)}
+                className="h-9 bg-background border-border/60"
+              />
             </div>
-            <div className="flex gap-2">
-               <Button variant="secondary" className="flex-1" onClick={() => { setFilters({ supplier_id: "all", start_date: "", end_date: "", search: "" }); }}>
-                 Reset
-               </Button>
+
+            {/* Reset */}
+            <div className="shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 h-9 rounded-xl border-border/60"
+                onClick={() => setFilters({ supplier_id: "all", start_date: "", end_date: "", search: "" })}
+              >
+                <X className="h-3.5 w-3.5" /> Reset
+              </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* GRN Table */}
-      <Card className="border-none shadow-md overflow-hidden">
+      {/* ── GRN Table ── */}
+      <Card className="border border-border/50 shadow-sm overflow-hidden">
         <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow>
-                <TableHead>GRN #</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Supplier</TableHead>
-                <TableHead>Branch</TableHead>
-                <TableHead className="text-right">Amount (LKR)</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+          <Table className="[<Table>_th:first-child]:pl-5 [<Table>_td:first-child]:pl-5 [<Table>_th:last-child]:pr-5 [<Table>_td:last-child]:pr-5">
+            <TableHeader>
+              <TableRow className="bg-muted/30 hover:bg-muted/30 border-b border-border/50">
+                <TableHead className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 w-[140px]">GRN #</TableHead>
+                <TableHead className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 w-[110px]">Date</TableHead>
+                <TableHead className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Supplier</TableHead>
+                <TableHead className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 w-[130px]">Branch</TableHead>
+                <TableHead className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 text-right w-[140px]">Amount (LKR)</TableHead>
+                <TableHead className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 w-[100px]">Status</TableHead>
+                <TableHead className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 text-right w-[80px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-20 bg-white">
+                  <TableCell colSpan={7} className="text-center py-20">
                     <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                      <span className="text-slate-500 text-sm">Loading reports...</span>
+                      <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                      <span className="text-muted-foreground/70 text-sm">Loading reports...</span>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : grns.length > 0 ? (
                 grns.map((grn) => (
-                  <TableRow key={grn.id} className="hover:bg-slate-50/50">
-                    <TableCell className="font-bold text-slate-900">{grn.grn_number}</TableCell>
-                    <TableCell className="text-slate-600">{format(new Date(grn.received_date), "dd MMM yyyy")}</TableCell>
+                  <TableRow key={grn.id} className="hover:bg-muted/20 border-b border-border/30 last:border-0">
                     <TableCell>
-                      <div className="font-medium text-slate-800">{grn.supplier?.name}</div>
-                      <div className="text-xs text-slate-400">{grn.supplier?.email}</div>
+                      <span className="font-mono font-bold text-foreground text-sm">{grn.grn_number}</span>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {format(new Date(grn.received_date), "dd MMM yyyy")}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="bg-slate-100 text-slate-600 hover:bg-slate-100">
+                      <div className="font-medium text-foreground text-sm">{grn.supplier?.name}</div>
+                      <div className="text-xs text-muted-foreground/60">{grn.supplier?.email}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="bg-muted/40 text-muted-foreground border border-border/40 font-medium">
                         {grn.branch?.name}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right font-bold text-slate-900">
-                      {parseFloat(grn.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    <TableCell className="text-right">
+                      <span className="font-bold text-foreground text-sm">
+                        {parseFloat(grn.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge className={cn(
-                        "capitalize",
-                        grn.status === 'completed' ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
+                        "capitalize text-xs font-semibold border",
+                        grn.status === "completed"
+                          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10"
+                          : "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/10"
                       )}>
                         {grn.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                       <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/purchase/grn/view/${grn.id}`}>
-                            <Eye className="w-4 h-4 text-slate-400 hover:text-blue-600" />
-                          </Link>
-                       </Button>
+                      <Button variant="ghost" size="icon" asChild className="h-8 w-8 rounded-lg hover:bg-emerald-500/10">
+                        <Link href={`/purchase/grn/view/${grn.id}`}>
+                          <Eye className="w-4 h-4 text-muted-foreground/50 group-hover:text-emerald-500" />
+                        </Link>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-20 bg-white text-slate-500">
+                  <TableCell colSpan={7} className="text-center py-20 text-muted-foreground/60 text-sm">
                     No GRN records found matching your criteria.
                   </TableCell>
                 </TableRow>
@@ -276,27 +345,81 @@ export default function GRNReportPage() {
             </TableBody>
           </Table>
         </CardContent>
-        {pagination.pages > 1 && (
-           <div className="p-4 bg-white border-t flex justify-end gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                disabled={pagination.page <= 1}
-                onClick={() => setPagination(prev => ({...prev, page: prev.page - 1}))}
-              >
-                Previous
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                disabled={pagination.page >= pagination.pages}
-                onClick={() => setPagination(prev => ({...prev, page: prev.page + 1}))}
-              >
-                Next
-              </Button>
-           </div>
-        )}
+
+        {/* ── Pagination ── */}
+        <div className="p-4 bg-card border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+          {/* Left: rows per page */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground/60 shrink-0">Rows per page</span>
+            <Select
+              value={String(pagination.limit)}
+              onValueChange={(v) => setPagination(prev => ({ ...prev, limit: Number(v), page: 1 }))}
+            >
+              <SelectTrigger className="h-8 w-[70px] text-xs rounded-lg border-border/60">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Center: record count */}
+          <span className="text-xs text-muted-foreground/60">
+            {pagination.total === 0
+              ? "No records"
+              : `${((pagination.page - 1) * pagination.limit) + 1}–${Math.min(pagination.page * pagination.limit, pagination.total)} of ${pagination.total} records`}
+          </span>
+
+          {/* Right: prev / page numbers / next */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 rounded-lg border-border/60 text-xs"
+              disabled={pagination.page <= 1}
+              onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+            >
+              ‹ Prev
+            </Button>
+
+            {/* Page number pills */}
+            {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+              const start = Math.max(1, pagination.page - 2);
+              const page = start + i;
+              if (page > pagination.pages) return null;
+              return (
+                <Button
+                  key={page}
+                  variant={page === pagination.page ? "default" : "outline"}
+                  size="sm"
+                  className={cn(
+                    "h-8 w-8 p-0 rounded-lg text-xs border-border/60",
+                    page === pagination.page && "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600"
+                  )}
+                  onClick={() => setPagination(prev => ({ ...prev, page }))}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 rounded-lg border-border/60 text-xs"
+              disabled={pagination.page >= pagination.pages}
+              onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+            >
+              Next ›
+            </Button>
+          </div>
+        </div>
+
       </Card>
     </div>
   );
 }
+

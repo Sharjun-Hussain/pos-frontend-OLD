@@ -17,6 +17,15 @@ import {
   ChevronsUpDown,
   Plus,
   Trash2,
+  Zap,
+  History,
+  Palette,
+  QrCode,
+  Camera,
+  Upload,
+  ArrowLeft,
+  CircleDot,
+  Search,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -70,10 +79,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ProductFormSkeleton } from "@/app/skeletons/product-form-skeleton";
+import { generateProductSKU } from "@/utils/sku-utils";
+import { ProductFormSkeleton } from "@/app/skeletons/products/product-form-skeleton";
+import { fetchUploadImage } from "@/utils/frontend-api-functions";
 import { toast } from "sonner";
 import { useFormRestore } from "@/hooks/use-form-restore";
 
@@ -94,6 +106,52 @@ const formSchema = z.object({
   suppliers: z.array(z.string()).optional(),
 });
 
+const SettingsCard = ({
+  label,
+  description,
+  isActive,
+  onToggle,
+  icon: Icon,
+}) => (
+  <div
+    className={cn(
+      "flex items-center justify-between rounded-2xl border p-5 transition-all duration-300",
+      isActive
+        ? "border-emerald-500/20 bg-emerald-500/3 shadow-sm shadow-emerald-500/5 ring-1 ring-emerald-500/10"
+        : "border-border/60 bg-muted/20 hover:bg-muted/40"
+    )}
+  >
+    <div className="flex items-center gap-4">
+      <div
+        className={cn(
+          "size-10 rounded-xl flex items-center justify-center border transition-all duration-300",
+          isActive
+            ? "bg-emerald-500/10 border-emerald-500/20 shadow-sm shadow-emerald-500/10"
+            : "bg-muted/50 border-border/40"
+        )}
+      >
+        <Icon
+          className={cn(
+            "size-4.5 transition-colors duration-300",
+            isActive ? "text-emerald-600" : "text-muted-foreground/40"
+          )}
+        />
+      </div>
+      <div className="space-y-1">
+        <Label className="text-[13px] font-bold tracking-tight cursor-pointer text-foreground leading-tight">{label}</Label>
+        <p className="text-[11px] text-muted-foreground/60 font-medium">{description}</p>
+      </div>
+    </div>
+    <Switch
+      checked={isActive}
+      onCheckedChange={onToggle}
+      className={cn(
+        isActive && "ring-4 ring-emerald-500/10 shadow-lg shadow-emerald-500/10"
+      )}
+    />
+  </div>
+);
+
 // --- REUSABLE SEARCHABLE SELECT ---
 const SearchableSelect = ({
   form,
@@ -102,6 +160,7 @@ const SearchableSelect = ({
   options,
   placeholder = "Select...",
   disabled = false,
+  icon: Icon = CircleDot,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -110,9 +169,9 @@ const SearchableSelect = ({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex flex-col">
-          <FormLabel>
-            {label} <span className="text-red-500">*</span>
+        <FormItem className="space-y-2.5">
+          <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">
+            {label}
           </FormLabel>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -121,46 +180,51 @@ const SearchableSelect = ({
                   variant="outline"
                   role="combobox"
                   disabled={disabled}
-                  aria-expanded={open}
                   className={cn(
-                    "w-full justify-between bg-background hover:bg-accent hover:text-accent-foreground",
-                    !field.value && "text-muted-foreground"
+                    "h-12 w-full justify-between bg-background border-border/60 rounded-xl px-4 font-bold tracking-tight text-[13px] shadow-sm transition-all focus:ring-emerald-500/20",
+                    !field.value && "text-muted-foreground/40 font-medium"
                   )}
                 >
-                  {field.value
-                    ? options.find((item) => item.id === field.value)?.name
-                    : placeholder}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <div className="flex items-center gap-3">
+                    <Icon className={cn("size-4 opacity-40", field.value && "text-emerald-600 opacity-100")} />
+                    {field.value
+                      ? options.find((item) => item.id === field.value)?.name
+                      : placeholder}
+                  </div>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-20" />
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-[250px] p-0" align="start">
-              <Command>
+            <PopoverContent className="w-[300px] p-0 rounded-2xl border-border/60 shadow-2xl overflow-hidden" align="start">
+              <Command className="bg-popover/90 backdrop-blur-xl">
                 <CommandInput
                   placeholder={`Search ${label.toLowerCase()}...`}
+                  className="h-12 border-none focus:ring-0 font-bold"
                 />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
+                <CommandList className="max-h-[300px] scrollbar-thin">
+                  <CommandEmpty className="py-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">No results found.</CommandEmpty>
                   <CommandGroup>
                     {options.map((item) => (
                       <CommandItem
                         value={item.name}
                         key={item.id}
+                        className="py-3 px-4 flex items-center justify-between cursor-pointer aria-selected:bg-emerald-500/10 aria-selected:text-emerald-600 transition-colors"
                         onSelect={() => {
                           form.setValue(name, item.id);
                           form.clearErrors(name);
                           setOpen(false);
                         }}
                       >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            item.id === field.value
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {item.name}
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "size-2 rounded-full transition-all",
+                            item.id === field.value ? "bg-emerald-500 scale-110 shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-muted-foreground/20"
+                          )} />
+                          <span className="font-bold tracking-tight">{item.name}</span>
+                        </div>
+                        {item.id === field.value && (
+                          <Check className="size-4 text-emerald-600 animate-in zoom-in-50 duration-300" />
+                        )}
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -168,7 +232,7 @@ const SearchableSelect = ({
               </Command>
             </PopoverContent>
           </Popover>
-          <FormMessage />
+          <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
         </FormItem>
       )}
     />
@@ -493,72 +557,104 @@ export function ProductForm({ initialData = null }) {
   }
 
   return (
-    <div className="min-h-screen bg-muted/40 p-4 md:p-4">
+    <div className="min-h-screen bg-background p-4 md:px-8 md:pt-4 md:pb-12">
+      <div className="fixed inset-0 -z-10 h-full w-full bg-background">
+        <div className="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.05),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.1),rgba(0,0,0,0))]"></div>
+      </div>
       <Form {...form}>
-        <form className="max-w-7xl mx-auto space-y-8">
+        <form className="max-w-[1400px] mx-auto">
           {/* Header Section */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">
-                {isEditing ? "Edit Product" : "Create Product"}
-              </h2>
-              <p className="text-muted-foreground mt-1">
-                {isEditing
-                  ? `Update details for ${initialData?.name || "this product"}.`
-                  : "Add a new item to your inventory system."}
-              </p>
-            </div>
-            {!isEditing && (
-              <div className="hidden md:flex gap-3">
+          <div className="mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="size-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm shadow-emerald-500/10">
+                  <PlusCircle className="size-7 text-emerald-600" />
+                </div>
+                <div className="flex flex-col">
+                  <h1 className="text-2xl font-black tracking-tight text-foreground leading-none capitalize">
+                    {isEditing ? "Edit Product" : "Add New Product"}
+                  </h1>
+                  <p className="text-muted-foreground/60 text-[11px] font-bold uppercase tracking-widest mt-2">
+                    {isEditing
+                      ? "Update Details"
+                      : "Create Product"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                {!isEditing && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    disabled={submitting}
+                    onClick={form.handleSubmit((d) =>
+                      handleServerSubmit(d, true)
+                    )}
+                    className="h-12 px-6 rounded-xl border-border/60 bg-muted/20 hover:bg-muted/40 font-bold uppercase text-[10px] tracking-widest transition-all"
+                  >
+                    {submitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-3 opacity-60" />
+                    ) : (
+                      <PlusCircle className="w-4 h-4 mr-3 opacity-60" />
+                    )}
+                    Save & Continue
+                  </Button>
+                )}
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    form.reset();
-                  }}
-                  className="bg-background"
+                  type="submit"
+                  size="lg"
+                  disabled={submitting}
+                  onClick={form.handleSubmit((d) =>
+                    handleServerSubmit(d, false)
+                  )}
+                  className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
                 >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Reset
+                  {submitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-3 opacity-60" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-3 opacity-60" />
+                  )}
+                  {isEditing ? "Finalize Changes" : "Save Product"}
                 </Button>
               </div>
-            )}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* --- LEFT COLUMN (Primary Info) --- */}
-            <div className="lg:col-span-8 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Main Form */}
+            <div className="lg:col-span-2 space-y-4">
               {/* Card 1: Identity */}
-              <Card className="border-t-4 border-t-blue-500 shadow-sm py-5">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Box className="h-5 w-5 text-blue-500" />
-                    <CardTitle className="text-lg">Product Identity</CardTitle>
+              <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Box className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Main Details</CardTitle>
+                      <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Product Identification</p>
+                    </div>
                   </div>
-                  <CardDescription>
-                    Core details used to identify the product.
-                  </CardDescription>
                 </CardHeader>
-                <Separator />
-                <CardContent className="pt-6 grid gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CardContent className="p-5 grid gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <FormField
                       name="code"
                       control={form.control}
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Product Code <span className="text-red-500">*</span>
+                        <FormItem className="space-y-2.5">
+                          <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">
+                            Product Code
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="PROD-001"
-                              className="bg-background"
+                              className="h-12 bg-background border-border/60 rounded-xl px-4 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20"
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                         </FormItem>
                       )}
                     />
@@ -566,18 +662,18 @@ export function ProductForm({ initialData = null }) {
                       name="name"
                       control={form.control}
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Product Name <span className="text-red-500">*</span>
+                        <FormItem className="space-y-2.5">
+                          <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">
+                            Product Name
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="e.g. Wireless Headphones"
-                              className="bg-background"
+                              className="h-12 bg-background border-border/60 rounded-xl px-4 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20"
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                         </FormItem>
                       )}
                     />
@@ -586,16 +682,16 @@ export function ProductForm({ initialData = null }) {
                     name="description"
                     control={form.control}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
+                      <FormItem className="space-y-2.5">
+                        <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Description</FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Detailed product features and specifications..."
-                            className="min-h-[80px] bg-background resize-y"
+                            className="min-h-[100px] bg-background border-border/60 rounded-2xl px-4 py-3 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20 resize-none"
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                       </FormItem>
                     )}
                   />
@@ -603,43 +699,45 @@ export function ProductForm({ initialData = null }) {
               </Card>
 
               {/* Card 2: Classification & Specs */}
-              <Card className="border-t-4 border-t-purple-500 shadow-sm py-5">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <LayoutGrid className="h-5 w-5 text-purple-500" />
-                    <CardTitle className="text-lg">
-                      Classification & Specifications
-                    </CardTitle>
+              <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <LayoutGrid className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Classification</CardTitle>
+                      <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Categorization & Measurements</p>
+                    </div>
                   </div>
-                  <CardDescription>
-                    Categorization and physical attributes.
-                  </CardDescription>
                 </CardHeader>
-                <Separator />
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CardContent className="p-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <SearchableSelect
                       form={form}
                       name="brand_id"
                       label="Brand"
                       options={options.brands}
                       placeholder="Select Brand"
+                      icon={Palette}
                     />
                      <SearchableSelect
                       form={form}
                       name="supplier_id"
-                      label="Default Supplier"
+                      label="Main Supplier"
                       options={options.suppliers}
                       placeholder="Select Supplier"
+                      icon={History}
                     />
                      <FormField
                       control={form.control}
                       name="suppliers"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>All Available Suppliers</FormLabel>
+                        <FormItem className="md:col-span-2 space-y-2.5">
+                          <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Supplier Network</FormLabel>
                           <FormControl>
                             <MultiSelect
+                              className="rounded-xl border-border/60 bg-background shadow-sm"
                               selected={field.value?.map(id => {
                                  const s = options.suppliers.find(op => op.id === id);
                                  return s ? { label: s.name, value: s.id } : null;
@@ -648,13 +746,10 @@ export function ProductForm({ initialData = null }) {
                               onChange={(newItems) => {
                                  field.onChange(newItems.map(item => item.value));
                               }}
-                              placeholder="Select suppliers..."
+                              placeholder="Connect multiple suppliers..."
                             />
                           </FormControl>
-                          <FormMessage />
-                          <FormDescription>
-                             Select all suppliers who can provide this product.
-                          </FormDescription>
+                          <FormMessage className="text-[10px] font-bold text-red-500/80 ml-1 uppercase tracking-widest" />
                         </FormItem>
                       )}
                     />
@@ -664,6 +759,7 @@ export function ProductForm({ initialData = null }) {
                       label="Main Category"
                       options={options.mainCategories}
                       placeholder="Select Category"
+                      icon={LayoutGrid}
                     />
                     <SearchableSelect
                       form={form}
@@ -675,8 +771,8 @@ export function ProductForm({ initialData = null }) {
                           ? "Select Sub Category"
                           : "Select Main Category First"
                       }
-                      // In edit mode, if main category is set, enable this
                       disabled={!selectedMainCategory}
+                      icon={CircleDot}
                     />
                     <SearchableSelect
                       form={form}
@@ -684,6 +780,7 @@ export function ProductForm({ initialData = null }) {
                       label="Base Unit"
                       options={options.units}
                       placeholder="e.g. Piece"
+                      icon={QrCode}
                     />
                     <SearchableSelect
                       form={form}
@@ -691,6 +788,7 @@ export function ProductForm({ initialData = null }) {
                       label="Measurement"
                       options={options.measurements}
                       placeholder="e.g. Kg"
+                      icon={Palette}
                     />
                     <SearchableSelect
                       form={form}
@@ -698,6 +796,7 @@ export function ProductForm({ initialData = null }) {
                       label="Container Type"
                       options={options.containers}
                       placeholder="e.g. Box"
+                      icon={Box}
                     />
                   </div>
                 </CardContent>
@@ -705,39 +804,40 @@ export function ProductForm({ initialData = null }) {
 
               {/* Card 3: Attribute Configuration */}
               {hasVariants && (
-                <Card className="border-t-4 border-t-amber-500 shadow-sm py-5">
-                  <CardHeader>
+                <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                  <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Settings2 className="h-5 w-5 text-amber-500" />
-                        <CardTitle className="text-lg">
-                          Attribute Configuration
-                        </CardTitle>
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                          <Settings2 className="size-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-[15px] font-black tracking-tight">Attributes</CardTitle>
+                          <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Product Variations</p>
+                        </div>
                       </div>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-8 gap-1.5"
+                        className="h-8 rounded-lg border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-600 font-bold uppercase text-[9px] tracking-widest transition-all"
                         onClick={() => setShowAttrDialog(true)}
                       >
-                        <Plus className="h-4 w-4" />
-                        New Attribute
+                        <Plus className="h-3 w-3 mr-1.5" />
+                        Add New
                       </Button>
                     </div>
-                    <CardDescription>
-                      Select which attributes are applicable to this product.
-                    </CardDescription>
                   </CardHeader>
-                  <Separator />
-                  <CardContent className="pt-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <CardContent className="p-5">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {options.attributes.map((attr) => (
                         <div
                           key={attr.id}
                           className={cn(
-                            "flex items-center space-x-2 border p-3 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors",
-                            form.watch("product_attributes")?.includes(attr.id) ? "bg-amber-50 border-amber-200" : "bg-white"
+                            "group flex items-center justify-between border rounded-xl p-3 cursor-pointer transition-all duration-300",
+                            form.watch("product_attributes")?.includes(attr.id) 
+                              ? "bg-emerald-500/10 border-emerald-500/20 shadow-sm shadow-emerald-500/10" 
+                              : "bg-background border-border/60 hover:bg-muted/20"
                           )}
                           onClick={() => {
                             const current = form.getValues("product_attributes") || [];
@@ -747,19 +847,26 @@ export function ProductForm({ initialData = null }) {
                             form.setValue("product_attributes", updated);
                           }}
                         >
+                          <span className={cn(
+                            "text-[12px] font-bold tracking-tight transition-colors",
+                            form.watch("product_attributes")?.includes(attr.id) ? "text-emerald-700" : "text-muted-foreground/60 group-hover:text-foreground"
+                          )}>{attr.name}</span>
                           <div className={cn(
-                            "w-4 h-4 rounded border flex items-center justify-center",
-                            form.watch("product_attributes")?.includes(attr.id) ? "bg-amber-600 border-amber-600 text-white" : "bg-white border-slate-300"
+                            "size-5 rounded-lg border flex items-center justify-center transition-all",
+                            form.watch("product_attributes")?.includes(attr.id) ? "bg-emerald-500 border-emerald-500/20 text-white scale-110 shadow-lg shadow-emerald-500/20" : "bg-muted/50 border-border/40"
                           )}>
-                            {form.watch("product_attributes")?.includes(attr.id) && <Check className="w-3 h-3" />}
+                            {form.watch("product_attributes")?.includes(attr.id) && <Check className="size-3" />}
                           </div>
-                          <span className="text-sm font-medium">{attr.name}</span>
                         </div>
                       ))}
                     </div>
                     {options.attributes.length === 0 && (
-                      <div className="text-center py-6 text-muted-foreground border-2 border-dashed rounded-lg">
-                        No attributes defined. Click "New Attribute" to create one.
+                      <div className="text-center py-10 rounded-2xl border-2 border-dashed border-border/40 bg-muted/10">
+                        <div className="size-12 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4 border border-border/40">
+                          <Settings2 className="size-6 text-muted-foreground/30" />
+                        </div>
+                        <p className="text-[13px] font-bold text-foreground">No attributes available</p>
+                        <p className="text-[11px] text-muted-foreground/60 mt-1">Add attributes to enable product variants</p>
                       </div>
                     )}
                   </CardContent>
@@ -768,168 +875,215 @@ export function ProductForm({ initialData = null }) {
 
               {/* Attribute Creation Dialog */}
               <Dialog open={showAttrDialog} onOpenChange={setShowAttrDialog}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-md rounded-3xl border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl">
                   <DialogHeader>
-                    <DialogTitle>Create New Attribute</DialogTitle>
-                    <DialogDescription>
-                      Add a new attribute type like "Color", "Size", or "Material".
+                    <div className="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-4 shadow-sm shadow-emerald-500/10">
+                      <Settings2 className="size-6 text-emerald-600" />
+                    </div>
+                    <DialogTitle className="text-xl font-black tracking-tight">New Attribute</DialogTitle>
+                    <DialogDescription className="text-[12px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                      Add a new characteristic for variant management
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                       <FormLabel>Attribute Name</FormLabel>
-                       <Input 
-                        placeholder="e.g. Storage Capacity" 
-                        value={newAttrName}
-                        onChange={(e) => setNewAttrName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleCreateAttribute();
-                          }
-                        }}
-                       />
-                    </div>
+                  <div className="space-y-4 py-6">
+                    <FormItem className="space-y-2.5">
+                       <FormLabel className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Attribute Name</FormLabel>
+                       <FormControl>
+                          <Input 
+                            placeholder="e.g. Storage Capacity" 
+                            className="h-12 bg-background border-border/60 rounded-xl px-4 font-bold tracking-tight text-[13px] shadow-sm focus:ring-emerald-500/20"
+                            value={newAttrName}
+                            onChange={(e) => setNewAttrName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleCreateAttribute();
+                              }
+                            }}
+                          />
+                       </FormControl>
+                    </FormItem>
                   </div>
-                  <DialogFooter>
+                  <DialogFooter className="gap-3">
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="ghost"
+                      className="h-12 px-6 rounded-xl font-black uppercase text-[10px] tracking-widest text-muted-foreground/60 hover:text-foreground hover:bg-muted/40 transition-all"
                       onClick={() => setShowAttrDialog(false)}
                     >
-                      Cancel
+                      Dismiss
                     </Button>
                     <Button 
                       type="button"
-                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                      className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
                       onClick={handleCreateAttribute}
                       disabled={creatingAttr || !newAttrName.trim()}
                     >
-                      {creatingAttr ? "Creating..." : "Create Attribute"}
+                      {creatingAttr ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-3" />
+                      ) : (
+                        <Check className="w-4 h-4 mr-3" />
+                      )}
+                      Save Attribute
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-            </div>
 
-            {/* --- RIGHT COLUMN (Settings & Actions) --- */}
-            <div className="lg:col-span-4 space-y-8">
-              <Card className="border-t-4 border-t-green-500 shadow-sm py-5">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Settings2 className="h-5 w-5 text-green-500" />
-                    <CardTitle className="text-lg">Configuration</CardTitle>
+              {/* Card 4: Product Images (Asset Hub) */}
+              <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Camera className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Product Images</CardTitle>
+                      <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Gallery Assets</p>
+                    </div>
                   </div>
                 </CardHeader>
-                <Separator />
-                <CardContent className="space-y-3 pt-6">
+                <CardContent className="p-5">
+                  <div className="flex flex-col items-center justify-center py-10 rounded-2xl border-2 border-dashed border-border/40 bg-muted/10">
+                    <div className="size-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4 border border-border/40">
+                      <Camera className="size-7 text-muted-foreground/30" />
+                    </div>
+                    <p className="text-[13px] font-bold text-foreground">Awaiting Media Integration</p>
+                    <p className="text-[11px] text-muted-foreground/60 mt-1 px-8 text-center leading-relaxed">
+                      Image upload functionality for main products is typically managed through variants. 
+                      However, you can upload primary gallery assets here once enabled.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-6 rounded-xl border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-600 font-bold uppercase text-[9px] tracking-widest transition-all"
+                      disabled
+                    >
+                      <Upload className="size-3 mr-2" />
+                      Add Primary Photo
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 pt-4 border-t border-border/40 mt-5">
+                    {[
+                      "Primary image will be the default view for all variants",
+                      "Supports high-fidelity formats: JPG, PNG, WebP",
+                      "Recommended minimum resolution: 1000x1000px"
+                    ].map((hint, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="size-1 rounded-full bg-emerald-500/30" />
+                        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">{hint}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Sidebar */}
+            <div className="space-y-4">
+              {/* Variant History - Placeholder for Consistency */}
+              <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-muted/30 border-b border-border/40 px-6 pt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <History className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Status & Protocol</CardTitle>
+                      <p className="text-[11px] text-muted-foreground/60 font-bold uppercase tracking-wider">Control Panel</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
                   <FormField
                     control={form.control}
                     name="is_active"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/10">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Active</FormLabel>
-                          <FormDescription className="text-xs">
-                            Available in POS
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
+                      <SettingsCard
+                        label="Active Status"
+                        description="Available in POS"
+                        icon={Zap}
+                        isActive={field.value}
+                        onToggle={field.onChange}
+                      />
                     )}
                   />
                   <FormField
                     control={form.control}
                     name="is_variant"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/10">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            Has Variants
-                          </FormLabel>
-                          <FormDescription className="text-xs">
-                            Size, Color, etc.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
+                      <SettingsCard
+                        label="Has Variants"
+                        description="Size, Color, etc."
+                        icon={Palette}
+                        isActive={field.value}
+                        onToggle={field.onChange}
+                      />
                     )}
                   />
                 </CardContent>
               </Card>
 
-              <div className="grid gap-3 sticky top-4">
-                {/* Only show "Save & Add Another" in Create Mode */}
-                {!isEditing && (
+              {/* Quick Actions */}
+              <Card className="border border-emerald-500/10 shadow-xl shadow-emerald-500/2 rounded-3xl overflow-hidden bg-emerald-500/2 backdrop-blur-sm p-0 gap-0">
+                <CardHeader className="pb-2.5 bg-emerald-500/3 border-b border-emerald-500/10 px-6 pt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Zap className="size-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[15px] font-black tracking-tight">Quick Actions</CardTitle>
+                      <p className="text-[11px] text-emerald-600/60 font-bold uppercase tracking-wider">Tools & Navigation</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
                   <Button
                     type="button"
-                    size="lg"
-                    className="w-full bg-slate-800 hover:bg-slate-700 text-white shadow-lg"
-                    disabled={submitting}
-                    onClick={form.handleSubmit((d) =>
-                      handleServerSubmit(d, true)
-                    )}
-                  >
-                    {submitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <PlusCircle className="w-4 h-4 mr-2" />
-                    )}
-                    Save & Add Another
-                  </Button>
-                )}
-
-                <Button
-                  type="button"
-                  size="lg"
-                  variant={isEditing ? "default" : "secondary"}
-                  className={cn(
-                    "w-full shadow-sm border",
-                    !isEditing
-                      ? "bg-white hover:bg-gray-100 text-slate-900"
-                      : ""
-                  )}
-                  disabled={submitting}
-                  onClick={form.handleSubmit((d) =>
-                    handleServerSubmit(d, false)
-                  )}
-                >
-                  {submitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Save className="w-4 h-4 mr-2" />
-                  )}
-                  {isEditing ? "Update Product" : "Save Product"}
-                </Button>
-
-                {isEditing && (
-                  <Button
-                    type="button"
-                    size="lg"
                     variant="outline"
-                    className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
-                    disabled={submitting || deleting}
-                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-full justify-start h-14 bg-background/50 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 rounded-2xl transition-all group px-5"
+                    onClick={() => form.reset()}
+                    disabled={submitting}
                   >
-                    {deleting ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <Trash2 className="w-4 h-4 mr-2" />
-                    )}
-                    Delete Product
+                    <div className="size-9 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform mr-4 shadow-sm">
+                      <RefreshCw className="size-4 text-emerald-600 group-hover:rotate-180 transition-transform duration-500" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-foreground leading-none">Reset Form</span>
+                      <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">Clear all inputs</span>
+                    </div>
                   </Button>
-                )}
-              </div>
+
+                  {isEditing && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-start h-14 bg-red-500/5 border-red-500/10 hover:bg-red-500/10 hover:border-red-500/20 rounded-2xl transition-all group px-5"
+                      onClick={() => setShowDeleteConfirm(true)}
+                      disabled={submitting || deleting}
+                    >
+                      <div className="size-9 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:scale-110 transition-transform mr-4 shadow-sm">
+                        <Trash2 className="size-4 text-red-600" />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-red-600 leading-none">Delete Product</span>
+                        <span className="text-[9px] font-bold text-red-600/60 uppercase tracking-widest mt-1">Permanent removal</span>
+                      </div>
+                    </Button>
+                  )}
+
+                  <Separator className="bg-emerald-500/10" />
+                  
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-center h-12 text-muted-foreground/60 hover:text-foreground hover:bg-muted/30 rounded-xl transition-all font-black uppercase text-[10px] tracking-widest"
+                    onClick={() => router.back()}
+                  >
+                    <ArrowLeft className="size-4 mr-3 opacity-40" />
+                    Revert to List
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </form>
@@ -937,22 +1091,30 @@ export function ProductForm({ initialData = null }) {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-3xl border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <div className="size-14 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-4 shadow-sm shadow-red-500/10 mx-auto">
+              <Trash2 className="size-7 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-xl font-black tracking-tight text-center">Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[13px] font-medium text-muted-foreground/60 text-center leading-relaxed">
               This action cannot be undone. This will permanently delete the 
               product and all its variants from the system.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="sm:justify-center gap-3 mt-6">
+            <AlertDialogCancel disabled={deleting} className="h-12 px-8 rounded-xl font-black uppercase text-[10px] tracking-widest border-border/60">Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeleteProduct}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="h-12 px-8 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-red-500/20 transition-all active:scale-95 border-none"
               disabled={deleting}
             >
-              {deleting ? "Deleting..." : "Delete Permanently"}
+              {deleting ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-3" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-3" />
+              )}
+              Delete Permanently
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

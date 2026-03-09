@@ -46,7 +46,7 @@ export const getExpenseCategoryColumns = ({ onEdit, onDelete }) => [
     accessorKey: "description",
     header: "Description",
     cell: ({ row }) => (
-      <div className="text-slate-500 max-w-[300px] truncate">
+      <div className="text-muted-foreground truncate max-w-[300px] md:max-w-[400px]">
         {row.getValue("description") || "-"}
       </div>
     ),
@@ -80,7 +80,7 @@ export const getExpenseCategoryColumns = ({ onEdit, onDelete }) => [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-red-600 focus:text-red-700 focus:bg-red-50"
+              className="text-destructive focus:text-destructive focus:bg-destructive/10"
               onClick={() => onDelete(category.id)}
             >
               <Trash2 className="mr-2 h-4 w-4" />

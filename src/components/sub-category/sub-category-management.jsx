@@ -12,12 +12,41 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import ProductSkeleton from "@/app/skeletons/products/product-listing-skeleton";
 import { ResourceManagementLayout } from "../general/resource-management-layout";
 import { getSubCategoryColumns } from "./sub-category-column";
 import { SubCategoryDialog } from "./sub-category-dialog";
 import { usePermission } from "@/hooks/use-permission";
-import { CheckCircle2, XCircle, Trash2, ChevronDown } from "lucide-react";
+import { 
+  Plus, 
+  Search, 
+  RotateCcw, 
+  FolderOpen, 
+  CheckCircle2, 
+  XCircle,
+  Hash,
+  Trash2, 
+  ChevronDown
+} from "lucide-react";
+import { PERMISSIONS } from "@/lib/permissions";
+import { cn } from "@/lib/utils";
+
+// --- HELPERS ---
+const HeaderContent = () => (
+  <div className="flex items-center gap-4">
+    <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+      <FolderOpen className="w-4.5 h-4.5 text-[#10b981]" />
+    </div>
+    <div className="flex flex-col">
+      <h1 className="text-xl font-semibold text-foreground tracking-tight">
+        Sub Categories
+      </h1>
+      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+        Granular Product Classification & Filtering Logic
+      </p>
+    </div>
+  </div>
+);
 
 // --- FIX 1: Component defined outside with safety check ---
 const SubCategoryBulkActions = ({
@@ -304,8 +333,17 @@ export default function SubCategoryPage() {
     [handleDelete, handleBulkDeactivate, handleBulkActivate]
   );
 
+  const stats = useMemo(() => {
+    const total = SubCategories.length;
+    const active = SubCategories.filter(b => b.is_active).length;
+    const inactive = total - active;
+    return { total, active, inactive };
+  }, [SubCategories]);
+
   return (
-    <>
+    <div className="flex flex-col gap-6">
+    
+
       <ResourceManagementLayout
         data={SubCategories}
         columns={columns}
@@ -313,41 +351,15 @@ export default function SubCategoryPage() {
         isError={!!error}
         errorMessage={error}
         onRetry={fetchSubCategories}
-        headerTitle={
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary-100">
-              <svg
-                className="w-6 h-6 text-primary-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Sub Category Management
-              </h1>
-              <p className="text-gray-600 text-sm font-medium">
-                Manage your sub categories
-              </p>
-            </div>
-          </div>
-        }
-        addButtonLabel="Add Sub Category"
+        headerTitle={<HeaderContent />}
+        addButtonLabel="New Sub Category"
         onAddClick={canCreate ? handleAddClick : null}
         isAdding={isNavigating}
         onExportClick={() => console.log("Export clicked")}
-        bulkActionsComponent={bulkActionsComponent} // Use the memoized component
+        bulkActionsComponent={bulkActionsComponent}
         searchColumn="name"
-        searchPlaceholder="Filter sub category by name..."
-        loadingSkeleton={<OrganizationPageSkeleton />}
+        searchPlaceholder="Filter sub categories by name..."
+        loadingSkeleton={<ProductSkeleton />}
       />
       <SubCategoryDialog
         open={isDialogOpen}
@@ -356,6 +368,6 @@ export default function SubCategoryPage() {
         session={session}
         initialData={editingCategory}
       />
-    </>
+    </div>
   );
 }

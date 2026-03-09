@@ -16,6 +16,7 @@ import {
   Plus,
   Trash2,
   Loader2,
+  RotateCcw,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -41,6 +42,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Command,
   CommandEmpty,
@@ -84,6 +93,7 @@ export default function CreateReturn() {
   const [grns, setGrns] = useState([]);
   const [products, setProducts] = useState([]);
   const [loadingInitial, setLoadingInitial] = useState(true);
+  const [openProductPopovers, setOpenProductPopovers] = useState({});
 
   // Form Setup
   const form = useForm({
@@ -264,6 +274,16 @@ export default function CreateReturn() {
 
   const onSubmit = async (data) => {
     try {
+        // Run a manual validation for variants
+        for (let i = 0; i < data.items.length; i++) {
+            const item = data.items[i];
+            const product = products.find(p => p.id === item.productId);
+            if (product?.variants?.length > 0 && !item.productVariantId) {
+                toast.error(`Please select a variant for "${product.name}" (Row ${i + 1})`);
+                return; // Stop submission
+            }
+        }
+
         setIsSubmitting(true);
         const payload = {
             return_date: data.returnDate,
@@ -326,23 +346,37 @@ export default function CreateReturn() {
   if(!session || loadingInitial) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div className="flex items-center space-x-2">
-            <Button variant="ghost" onClick={() => router.back()}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
-            <h2 className="text-3xl font-bold tracking-tight">Create Return</h2>
+    <div className="flex-1 space-y-6 p-6 bg-background min-h-screen">
+      {/* ── Premium Header ── */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-xl border border-border/50 bg-card h-10 w-10 shrink-0">
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <RotateCcw className="w-4.5 h-4.5 text-emerald-500" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground tracking-tight">Create Purchase Return</h1>
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+              Return goods to supplier
+            </p>
+          </div>
         </div>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Return Details</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-6 md:grid-cols-2">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left Column: Return Metadata */}
+            <div className="lg:col-span-4 space-y-6">
+              <Card className="border border-border/50 shadow-sm sticky top-6">
+                  <CardHeader className="border-b border-border/30 pb-4 bg-muted/10">
+                      <CardTitle className="text-base font-semibold">Return Details</CardTitle>
+                      <p className="text-xs text-muted-foreground mt-1">Select the supplier and relevant documents to load items.</p>
+                  </CardHeader>
+                  <CardContent className="grid gap-5 pt-6">
                     <FormField
                         control={form.control}
                         name="returnDate"
@@ -499,7 +533,7 @@ export default function CreateReturn() {
                                             <CommandList>
                                                 <CommandEmpty>No GRN found.</CommandEmpty>
                                                 <CommandGroup>
-                                                    {grns.map((grn) => (
+                                                {grns.map((grn) => (
                                                         <CommandItem key={grn.id} value={grn.invoice_number} onSelect={() => form.setValue("grnId", grn.id)}>
                                                             <Check className={cn("mr-2 h-4 w-4", grn.id === field.value ? "opacity-100" : "opacity-0")} />
                                                             {grn.invoice_number}
@@ -510,11 +544,13 @@ export default function CreateReturn() {
                                         </Command>
                                     </PopoverContent>
                                 </Popover>
+                                <p className="text-[10px] text-muted-foreground mt-1">Selecting a PO or GRN will auto-fill items.</p>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                     <div className="md:col-span-2">
+                    
+                    <div className="col-span-1 border-t border-border/30 pt-5 mt-2">
                         <FormField
                             control={form.control}
                             name="notes"
@@ -530,130 +566,177 @@ export default function CreateReturn() {
                         />
                     </div>
                 </CardContent>
-            </Card>
+              </Card>
+            </div>
 
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Items</CardTitle>
-                    <Button type="button" variant="secondary" size="sm" onClick={addItem}>
-                        <Plus className="mr-2 h-4 w-4" /> Add Item
-                    </Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            {/* Right Column: Return Items */}
+            <div className="lg:col-span-8 flex flex-col min-h-0">
+              <Card className="border border-border/50 shadow-sm flex-1 flex flex-col">
+                  <CardHeader className="flex flex-row items-center justify-between border-b border-border/30 pb-4 bg-muted/10">
+                      <div>
+                        <CardTitle className="text-base font-semibold">Return Items</CardTitle>
+                        <p className="text-xs text-muted-foreground mt-1">Add products to return and specify quantities and reasons.</p>
+                      </div>
+                      <Button type="button" size="sm" variant="outline" className="gap-1.5 rounded-xl border-border/60 bg-background" onClick={addItem}>
+                          <Plus className="mr-1 h-4 w-4" /> Add Item
+                      </Button>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-6 p-6">
+                    {isPoOrGrnSelected && fields.length > 0 && (
+                      <Alert className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 mb-6">
+                        <Check className="h-4 w-4 text-emerald-600!" />
+                        <AlertDescription className="text-xs font-medium">
+                          Items loaded from the selected document. Remove any items you do NOT wish to return.
+                        </AlertDescription>
+                      </Alert>
+                    )}
                     {fields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border p-4 rounded-md">
-                             {/* Product Select - Simplified for V1 */}
-                            <div className="md:col-span-4">
-                                <FormField
-                                    control={form.control}
-                                    name={`items.${index}.productId`}
-                                    render={({ field: itemField }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel className={index !== 0 && "sr-only"}>Product</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button variant="outline" role="combobox" className={cn("justify-between w-full", !itemField.value && "text-muted-foreground")}>
-                                                            {itemField.value ? products.find((p) => p.id === itemField.value)?.name || form.getValues(`items.${index}.name`) : "Select product"}
-                                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-[300px] p-0">
-                                                    <Command>
-                                                        <CommandInput placeholder="Search product..." />
-                                                        <CommandList>
-                                                            <CommandEmpty>No product found.</CommandEmpty>
-                                                            <CommandGroup>
-                                                                {products.map((product) => (
-                                                                    <CommandItem 
-                                                                        key={product.id} 
-                                                                        value={product.name} 
-                                                                        onSelect={() => {
-                                                                            form.setValue(`items.${index}.productId`, product.id);
-                                                                            form.setValue(`items.${index}.name`, product.name);
-                                                                            form.setValue(`items.${index}.unitCost`, product.cost_price || 0);
-                                                                        }}
-                                                                    >
-                                                                        <Check className={cn("mr-2 h-4 w-4", product.id === itemField.value ? "opacity-100" : "opacity-0")} />
-                                                                        {product.name}
-                                                                    </CommandItem>
+                        <div key={field.id} className="flex flex-col gap-5 border border-border/40 bg-muted/5 p-5 rounded-xl transition-colors hover:bg-muted/10 relative group">
+                            
+                            {/* Top Row: Product + Delete Button */}
+                            <div className="flex items-start gap-4">
+                                <div className="flex-1">
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${index}.productId`}
+                                        render={({ field: itemField }) => (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70">Select Product</FormLabel>
+                                                <Popover open={openProductPopovers[index]} onOpenChange={(isOpen) => setOpenProductPopovers(prev => ({ ...prev, [index]: isOpen }))}>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button variant="outline" role="combobox" aria-expanded={openProductPopovers[index]} className={cn("justify-between w-full h-10", !itemField.value && "text-muted-foreground")}>
+                                                                {itemField.value ? products.find((p) => p.id === itemField.value)?.name || form.getValues(`items.${index}.name`) : "Search for a product..."}
+                                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[300px] xl:w-[400px] p-0">
+                                                        <Command>
+                                                            <CommandInput placeholder="Search product..." />
+                                                            <CommandList>
+                                                                <CommandEmpty>No product found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {products.map((product) => (
+                                                                        <CommandItem 
+                                                                            key={product.id} 
+                                                                            value={product.name} 
+                                                                            onSelect={() => {
+                                                                                form.setValue(`items.${index}.productId`, product.id);
+                                                                                form.setValue(`items.${index}.name`, product.name);
+                                                                                form.setValue(`items.${index}.unitCost`, product.cost_price || 0);
+                                                                                form.setValue(`items.${index}.productVariantId`, null); // Reset variant on product change
+                                                                                setOpenProductPopovers(prev => ({ ...prev, [index]: false })); // Close popover
+                                                                            }}
+                                                                        >
+                                                                            <Check className={cn("mr-2 h-4 w-4", product.id === itemField.value ? "opacity-100" : "opacity-0")} />
+                                                                            {product.name}
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage className="text-[10px]" />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    
+                                    {/* Variant Selector (Conditionally Rendered) */}
+                                    {form.watch(`items.${index}.productId`) && products.find(p => p.id === form.watch(`items.${index}.productId`))?.variants?.length > 0 && (
+                                        <div className="mt-4">
+                                            <FormField
+                                                control={form.control}
+                                                name={`items.${index}.productVariantId`}
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <FormLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70">Select Variant <span className="text-destructive">*</span></FormLabel>
+                                                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                                                            <FormControl>
+                                                                <SelectTrigger className="h-10 bg-background/50">
+                                                                    <SelectValue placeholder="Choose a variant" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {products.find(p => p.id === form.watch(`items.${index}.productId`))?.variants?.map((variant) => (
+                                                                    <SelectItem key={variant.id} value={variant.id}>
+                                                                        {variant.name} (Stock: {variant.stock_quantity || 0})
+                                                                    </SelectItem>
                                                                 ))}
-                                                            </CommandGroup>
-                                                        </CommandList>
-                                                    </Command>
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage className="text-[10px]" />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                     )}
-                                />
+
+                                </div>
+                                <Button type="button" variant="ghost" size="icon" className="h-9 w-9 mt-6 rounded-lg text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 shadow-sm" onClick={() => remove(index)} title="Remove Item">
+                                    <Trash2 className="h-[18px] w-[18px]" />
+                                </Button>
                             </div>
 
-                            <div className="md:col-span-2">
+                            {/* Middle Row: Batch, Qty, Cost */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormField
                                     control={form.control}
                                     name={`items.${index}.batchNumber`}
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className={index !== 0 && "sr-only"}>Batch #</FormLabel>
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70">Batch #</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Optional" {...field} />
+                                                <Input placeholder="Optional" className="h-10" {...field} />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-[10px]" />
                                         </FormItem>
                                     )}
                                 />
-                            </div>
-
-                            <div className="md:col-span-2">
                                 <FormField
                                     control={form.control}
                                     name={`items.${index}.quantity`}
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className={index !== 0 && "sr-only"}>Qty</FormLabel>
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70">Return Qty</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.01" {...field} />
+                                                <Input type="number" step="0.01" className="h-10" {...field} />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-[10px]" />
                                         </FormItem>
                                     )}
                                 />
-                            </div>
-
-                            <div className="md:col-span-2">
                                 <FormField
                                     control={form.control}
                                     name={`items.${index}.unitCost`}
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className={index !== 0 && "sr-only"}>Cost</FormLabel>
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70">Unit Cost</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.01" {...field} />
+                                                <div className="relative">
+                                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-sm">Rs.</span>
+                                                  <Input type="number" step="0.01" className="h-10 pl-8" {...field} />
+                                                </div>
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-[10px]" />
                                         </FormItem>
                                     )}
                                 />
                             </div>
-
-                            <div className="md:col-span-1">
-                                <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
                             
-                            <div className="md:col-span-11 mt-2">
-                                  <FormField
+                            {/* Bottom Row: Reason */}
+                            <div>
+                                <FormField
                                     control={form.control}
                                     name={`items.${index}.reason`}
                                     render={({ field }) => (
-                                        <FormItem>
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70">Reason for Return</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Reason for return (Damaged, Expired, etc.)" {...field} />
+                                                <Input placeholder="E.g., Damaged on arrival, Expired, Wrong item" className="h-10 bg-background/50 focus-visible:bg-background" {...field} />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-[10px]" />
                                         </FormItem>
                                     )}
                                 />
@@ -662,16 +745,20 @@ export default function CreateReturn() {
                         </div>
                     ))}
                     {fields.length === 0 && (
-                        <div className="text-center p-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                        <div className="flex flex-col items-center justify-center p-12 text-muted-foreground border-2 border-dashed border-border/40 rounded-xl bg-muted/5">
+                            <RotateCcw className="h-8 w-8 mx-auto mb-2 text-emerald-500/30" />
                             No items added. Click "Add Item" to begin.
                         </div>
                     )}
-                </CardContent>
-            </Card>
+                  </CardContent>
+              </Card>
+            </div>
+          </div>
 
-            <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-                <Button type="submit" disabled={isSubmitting}>
+          {/* Sticky Footer Actions */}
+          <div className="flex justify-end items-center gap-3 sticky bottom-0 bg-background/80 backdrop-blur-md border-t border-border/50 p-4 -mx-6 -mb-6 z-10">
+                <Button type="button" variant="outline" className="rounded-xl" onClick={() => router.back()}>Cancel</Button>
+                <Button type="submit" disabled={isSubmitting} className="gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/20">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Create Return
                 </Button>

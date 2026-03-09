@@ -77,11 +77,11 @@ export default function NonStockSalesPage() {
   );
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8">
+    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Non-Stock Sales summary</h1>
-          <p className="text-sm text-slate-500">Sales tracking for items not managed in inventory (Services, Digital, etc.)</p>
+          <h1 className="text-2xl font-bold text-foreground">Non-Stock Sales summary</h1>
+          <p className="text-sm text-muted-foreground">Sales tracking for items not managed in inventory (Services, Digital, etc.)</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleExportCSV} variant="outline" className="gap-2">
@@ -90,7 +90,7 @@ export default function NonStockSalesPage() {
           <Button onClick={handleExportExcel} variant="outline" className="gap-2">
             <FileText className="h-4 w-4" /> Excel
           </Button>
-          <Button className="gap-2 bg-slate-900 text-white hover:bg-slate-800">
+          <Button className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700">
             <Printer className="h-4 w-4" /> Print
           </Button>
         </div>
@@ -98,10 +98,10 @@ export default function NonStockSalesPage() {
 
       <Card className="border-none shadow-sm"><CardContent className="p-6 flex gap-4 items-end">
         <div className="flex-1 space-y-2">
-            <label className="text-xs font-bold text-slate-400">Date Range</label>
+            <label className="text-xs font-bold text-muted-foreground/60">Date Range</label>
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start h-10 border-slate-200">
+                    <Button variant="outline" className="w-full justify-start h-10 border-border/50">
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {date?.from ? (date.to ? <>{format(date.from, "LLL dd")} - {format(date.to, "LLL dd")}</> : format(date.from, "LLL dd")) : <span>Pick dates</span>}
                     </Button>
@@ -110,17 +110,17 @@ export default function NonStockSalesPage() {
             </Popover>
         </div>
         <div className="w-96 space-y-2">
-            <label className="text-xs font-bold text-slate-400">Search Item</label>
+            <label className="text-xs font-bold text-muted-foreground/60">Search Item</label>
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40" />
                 <Input placeholder="Service or Item name..." className="pl-10 h-10" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)}/>
             </div>
         </div>
       </CardContent></Card>
 
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-card overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-muted/30">
             <TableRow>
               <TableHead className="pl-6">Service/Item Name</TableHead>
               <TableHead>Code</TableHead>
@@ -130,12 +130,12 @@ export default function NonStockSalesPage() {
           </TableHeader>
           <TableBody>
             {filteredData.map((item, idx) => (
-              <TableRow key={idx} className="hover:bg-slate-50">
-                <TableCell className="pl-6 py-4 font-medium text-slate-900 flex items-center gap-3">
-                    <PackageOpen className="h-4 w-4 text-slate-400" />
+              <TableRow key={idx} className="hover:bg-muted/30">
+                <TableCell className="pl-6 py-4 font-medium text-foreground flex items-center gap-3">
+                    <PackageOpen className="h-4 w-4 text-muted-foreground/60" />
                     {item.product?.name}
                 </TableCell>
-                <TableCell className="text-slate-500 text-xs font-mono">{item.product?.code}</TableCell>
+                <TableCell className="text-muted-foreground text-xs font-mono">{item.product?.code}</TableCell>
                 <TableCell className="text-center">{parseFloat(item.quantity).toFixed(0)}</TableCell>
                 <TableCell className="text-right pr-6 font-bold">{formatCurrency(item.total_amount)}</TableCell>
               </TableRow>

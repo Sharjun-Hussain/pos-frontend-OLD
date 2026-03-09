@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProductVariantForm } from "@/components/variants/new/variant-form";
-import { ProductFormSkeleton } from "@/app/skeletons/product-form-skeleton";
+import { ProductFormSkeleton } from "@/app/skeletons/products/product-form-skeleton";
 import { toast } from "sonner";
 
 export default function EditVariantPage() {

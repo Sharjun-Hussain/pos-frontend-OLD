@@ -312,15 +312,15 @@ export function AppSidebar({ ...props }) {
   const filteredSystem = filterNavItems(data.system);
 
   return (
-    <Sidebar {...props} className="border-r border-zinc-200 shadow-sm">
-      <SidebarHeader className="p-6 bg-white border-b border-zinc-100">
+    <Sidebar {...props} className="border-none shadow-none">
+      <SidebarHeader className="p-4 bg-transparent border-none flex items-center justify-center">
         <div className="flex items-center gap-4">
-          <div className="flex aspect-square size-10 items-center justify-center rounded-2xl bg-zinc-900 shadow-xl relative overflow-hidden group">
+          <div className="flex aspect-square size-10 items-center justify-center relative overflow-hidden group">
             {logoUrl ? (
-              <img src={logoUrl} className="w-full h-full object-contain p-2" alt="Logo" />
+              <img src={logoUrl} className="w-full h-full object-contain p-1" alt="Logo" />
             ) : (
               <div className="flex flex-col items-center justify-center">
-                 <Sparkles className="size-5 text-white" />
+                 <Sparkles className="size-8 text-[#10b981]" />
               </div>
             )}
             <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -339,9 +339,9 @@ export function AppSidebar({ ...props }) {
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="bg-white overflow-hidden">
+      <SidebarContent className="bg-transparent overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="flex flex-col gap-6 py-8 px-2">
+          <div className="flex flex-col gap-6 py-6 px-0 items-center">
             {filteredPrimary.length > 0 && (
               <NavProjects projects={filteredPrimary} label="Executive Overview" />
             )}
@@ -357,11 +357,11 @@ export function AppSidebar({ ...props }) {
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 bg-zinc-50/50 border-t border-zinc-200/60">
+      <SidebarFooter className="p-4 bg-transparent border-none flex justify-center items-center pb-6">
         <NavUser user={data.user} />
       </SidebarFooter>
       
-      <SidebarRail className="hover:after:bg-zinc-200" />
+      <SidebarRail className="hidden" />
     </Sidebar>
   );
 }

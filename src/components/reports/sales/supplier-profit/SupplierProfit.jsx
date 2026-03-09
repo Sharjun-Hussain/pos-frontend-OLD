@@ -74,11 +74,11 @@ export default function SupplierProfitPage() {
   const filteredData = data.filter(item => item.supplier_name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8">
+    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Supplier Profitability</h1>
-          <p className="text-sm text-slate-500">Analysis of profit generated per supplier source.</p>
+          <h1 className="text-2xl font-bold text-foreground">Supplier Profitability</h1>
+          <p className="text-sm text-muted-foreground">Analysis of profit generated per supplier source.</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleExportCSV} variant="outline" className="gap-2">
@@ -87,7 +87,7 @@ export default function SupplierProfitPage() {
           <Button onClick={handleExportExcel} variant="outline" className="gap-2">
             <FileText className="h-4 w-4" /> Excel
           </Button>
-          <Button className="gap-2 bg-slate-900 text-white hover:bg-slate-800">
+          <Button className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700">
             <Printer className="h-4 w-4" /> Print
           </Button>
         </div>
@@ -95,10 +95,10 @@ export default function SupplierProfitPage() {
 
       <Card className="border-none shadow-sm"><CardContent className="p-6 flex gap-4 items-end">
         <div className="flex-1 space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase">Period</label>
+            <label className="text-xs font-bold text-muted-foreground/60 uppercase">Period</label>
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start h-10 border-slate-200">
+                    <Button variant="outline" className="w-full justify-start h-10 border-border/50">
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {date?.from ? (date.to ? <>{format(date.from, "LLL dd")} - {format(date.to, "LLL dd")}</> : format(date.from, "LLL dd")) : <span>Pick dates</span>}
                     </Button>
@@ -107,17 +107,17 @@ export default function SupplierProfitPage() {
             </Popover>
         </div>
         <div className="w-96 space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase">Search Supplier</label>
+            <label className="text-xs font-bold text-muted-foreground/60 uppercase">Search Supplier</label>
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40" />
                 <Input placeholder="Supplier name..." className="pl-10 h-10" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)}/>
             </div>
         </div>
       </CardContent></Card>
 
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-card overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-muted/30">
             <TableRow>
               <TableHead className="pl-6">Supplier Name</TableHead>
               <TableHead className="text-right">Revenue</TableHead>
@@ -128,12 +128,12 @@ export default function SupplierProfitPage() {
           </TableHeader>
           <TableBody>
             {filteredData.map((item, idx) => (
-              <TableRow key={idx} className="hover:bg-slate-50">
-                <TableCell className="pl-6 py-4 font-bold text-slate-900 border-l-4 border-l-transparent hover:border-l-blue-500">
+              <TableRow key={idx} className="hover:bg-muted/30">
+                <TableCell className="pl-6 py-4 font-bold text-foreground border-l-4 border-l-transparent hover:border-l-emerald-500">
                     {item.supplier_name}
                 </TableCell>
                 <TableCell className="text-right">{formatCurrency(item.revenue)}</TableCell>
-                <TableCell className="text-right text-slate-500">{formatCurrency(item.cost)}</TableCell>
+                <TableCell className="text-right text-muted-foreground">{formatCurrency(item.cost)}</TableCell>
                 <TableCell className="text-right font-black text-emerald-600">{formatCurrency(item.profit)}</TableCell>
                 <TableCell className="text-right pr-6">
                     <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded text-xs font-bold">{item.margin.toFixed(1)}%</span>

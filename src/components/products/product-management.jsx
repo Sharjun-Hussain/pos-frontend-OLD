@@ -44,9 +44,13 @@ import {
 // Custom Components & Hooks
 import { ResourceManagementLayout } from "@/components/general/resource-management-layout";
 import { usePermission } from "@/hooks/use-permission";
+import { TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getProductColumns } from "./product-column";
-import ProductSkeleton from "@/app/skeletons/product-listing-page-skeleton";
-import { OpeningStockDialog } from "./OpeningStockDialog";
+import ProductSkeleton from "@/app/skeletons/products/product-listing-skeleton";
+import { OpeningStockSheet } from "./OpeningStockSheet";
+import { PERMISSIONS } from "@/lib/permissions";
 
 // ----------------------------------------------------------------------
 // 2. Helper Components
@@ -56,15 +60,16 @@ import { OpeningStockDialog } from "./OpeningStockDialog";
  * Renders the Title and Icon for the page header.
  */
 const HeaderContent = () => (
-  <div className="flex items-center gap-3">
-    <div className="p-2 rounded-lg bg-primary-100">
-      {/* Product Icon */}
-      <Package className="w-6 h-6 text-primary-600" />
+  <div className="flex items-center gap-4">
+    <div className="p-2 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20">
+      <Package className="w-4.5 h-4.5 text-[#10b981]" />
     </div>
-    <div>
-      <h1 className="text-2xl font-bold text-gray-900">Product Inventory</h1>
-      <p className="text-gray-600 text-sm font-medium">
-        Manage your product catalog, prices, and stock.
+    <div className="flex flex-col">
+      <h1 className="text-xl font-semibold text-foreground tracking-tight">
+        Product inventory
+      </h1>
+      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-[0.05em] opacity-80">
+        Catalog Management & Stock Control
       </p>
     </div>
   </div>
@@ -344,14 +349,7 @@ export default function ProductsPage() {
 
   // --- Render ---
   return (
-    <div className="relative min-h-screen w-full bg-gray-50">
-      {/* Ambient Background */}
-      <div className="fixed inset-0 -z-10 h-full w-full bg-white">
-        <div className="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
-        <div className="absolute bottom-0 left-0 z-[-2] h-[500px] w-[500px] rounded-full bg-purple-100/50 blur-[100px]"></div>
-        <div className="absolute bottom-0 right-0 z-[-2] h-[500px] w-[500px] rounded-full bg-blue-100/50 blur-[100px]"></div>
-      </div>
-
+    <>
       <ResourceManagementLayout
         // Data & Status
         data={products}
@@ -370,11 +368,11 @@ export default function ProductsPage() {
         extraActions={
           <Button 
             variant="outline" 
-            className="gap-2 border-blue-200 bg-blue-50/50 text-blue-700 hover:bg-blue-100/50 hover:text-blue-800 transition-all border-dashed"
+            className=" px-8 gap-2 border-[#10b981]/30 bg-[#10b981]/5 text-[#10b981] hover:bg-[#10b981]/10 font-bold uppercase text-[10px] tracking-widest transition-all border-dashed rounded-xl"
             onClick={() => setOpeningStockOpen(true)}
           >
             <PackagePlus className="h-4 w-4" />
-            <span className="hidden md:inline">Opening Stock</span>
+            <span className="hidden md:inline">Opening stock</span>
           </Button>
         }
         // Table Config
@@ -382,7 +380,7 @@ export default function ProductsPage() {
         searchColumn="name"
         searchPlaceholder="Filter products by name..."
       >
-        <OpeningStockDialog 
+        <OpeningStockSheet 
           open={openingStockOpen} 
           onOpenChange={setOpeningStockOpen} 
           accessToken={session?.accessToken}
@@ -411,6 +409,6 @@ export default function ProductsPage() {
           </AlertDialogContent>
         </AlertDialog>
       </ResourceManagementLayout>
-    </div>
+    </>
   );
 }

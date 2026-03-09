@@ -1,28 +1,17 @@
 // app/layout.jsx
 "use client"
-// import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "./providers";
 import { useSettingsStore } from "@/store/useSettingsStore";
-
-import { Ubuntu } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { useEffect } from "react";
 import NextTopLoader from "nextjs-toploader";
 
-const ubuntu = Ubuntu({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
-  variable: '--font-ubuntu',
+  variable: '--font-inter',
 })
-
-// const inter = Inter({ subsets: ["latin"] });
-
-// export const metadata = {
-//   title: "POS Application",
-//   description: "Point of Sale Application",
-
-// };
 
 export default function RootLayout({ children }) {
   useEffect(() => {
@@ -38,11 +27,11 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={ubuntu.variable} style={{ zoom: zoomLevel }}>
-        <NextTopLoader showSpinner={false} color="#2563eb" />
+      <body className={`${inter.variable} font-sans`} style={{ zoom: zoomLevel }}>
+        <NextTopLoader showSpinner={false} color="#10b981" />
         <Providers>
           {children}
-          <Toaster position="top-right" richColors /> {/* Add the Toaster here */}
+          <Toaster position="top-right" richColors />
         </Providers>
       </body>
     </html>

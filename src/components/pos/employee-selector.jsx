@@ -28,10 +28,10 @@ export function EmployeeSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between h-auto py-2 bg-white"
+            className="w-full justify-between h-auto py-2 bg-card"
           >
             <div className="flex flex-col items-start gap-1 w-full overflow-hidden">
-               <div className="flex items-center gap-2 text-slate-500 text-xs uppercase font-bold tracking-wider">
+               <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase font-bold tracking-wider">
                   <Users className="h-3 w-3" />
                   Sold By
                </div>
@@ -48,7 +48,7 @@ export function EmployeeSelector({
                    })}
                  </div>
                ) : (
-                 <span className="text-sm text-slate-400 italic">Select employees...</span>
+                 <span className="text-sm text-muted-foreground/60 italic">Select employees...</span>
                )}
             </div>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

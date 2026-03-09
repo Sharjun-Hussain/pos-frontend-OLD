@@ -82,7 +82,7 @@ export const getColumns = ({ onDelete }) => [
     ),
     cell: ({ row }) => {
       return (
-        <span className="font-medium text-blue-600">
+        <span className="font-semibold text-emerald-500">
           {row.getValue("po_number")}
         </span>
       );

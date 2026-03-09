@@ -198,7 +198,7 @@ export default function SalesByProductPage() {
   };
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-6 font-sans text-slate-900">
+    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-6 font-sans text-foreground">
       
       {/* HIDDEN PRINT TEMPLATE */}
       <SalesByProductPrintTemplate 
@@ -215,39 +215,39 @@ export default function SalesByProductPage() {
       {/* --- HEADER --- */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Sales by Product</h1>
-          <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Sales by Product</h1>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
             <span>Reports</span>
-            <span className="text-slate-300">/</span>
+            <span className="text-muted-foreground/40">/</span>
             <span>Sales</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-900 font-medium">Sales by Product</span>
+            <span className="text-muted-foreground/40">/</span>
+            <span className="text-foreground font-medium">Sales by Product</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => handlePrint()} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 hover:bg-slate-50">
-            <FileText className="h-4 w-4 text-slate-600" /> Export PDF
+          <Button onClick={() => handlePrint()} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+            <FileText className="h-4 w-4 text-muted-foreground" /> Export PDF
           </Button>
-          <Button onClick={handleExportCSV} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 hover:bg-slate-50">
-            <Download className="h-4 w-4 text-slate-600" /> CSV
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+            <Download className="h-4 w-4 text-muted-foreground" /> CSV
           </Button>
-          <Button onClick={handleExportExcel} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 hover:bg-slate-50">
-            <FileText className="h-4 w-4 text-slate-600" /> Excel
+          <Button onClick={handleExportExcel} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+            <FileText className="h-4 w-4 text-muted-foreground" /> Excel
           </Button>
-          <Button onClick={() => handlePrint()} variant="outline" className="bg-white border-slate-200 shadow-sm gap-2 hover:bg-slate-50">
-            <Printer className="h-4 w-4 text-slate-600" /> Print
+          <Button onClick={() => handlePrint()} variant="outline" className="bg-card border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+            <Printer className="h-4 w-4 text-muted-foreground" /> Print
           </Button>
         </div>
       </div>
 
       {/* --- FILTERS SECTION --- */}
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-card">
         <CardHeader className="pb-2 pt-6 px-6 flex flex-row items-center justify-between">
           <CardTitle className="text-base font-semibold">Filters</CardTitle>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-blue-600 hover:text-blue-700 h-8 px-2"
+            className="text-emerald-500 hover:text-emerald-600 h-8 px-2"
             onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
           >
             {isFiltersCollapsed ? "Expand" : "Collapse"}
@@ -260,11 +260,11 @@ export default function SalesByProductPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
               {/* Date Range */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-500">Date Range</label>
+                <label className="text-xs font-semibold text-muted-foreground">Date Range</label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-10 border-slate-200", !date && "text-muted-foreground")}>
-                      <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-10 border-border/50", !date && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground/60" />
                       {date?.from ? format(date.from, "LLL dd, y") : "Pick date"}
                     </Button>
                   </PopoverTrigger>
@@ -276,12 +276,12 @@ export default function SalesByProductPage() {
 
               {/* Product Search */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-500">Product</label>
+                <label className="text-xs font-semibold text-muted-foreground">Product</label>
                 <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground/60" />
                   <Input 
                     placeholder="Name or SKU" 
-                    className="pl-9 h-10 bg-white border-slate-200"
+                    className="pl-9 h-10 bg-card border-border/50"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -290,9 +290,9 @@ export default function SalesByProductPage() {
 
               {/* Category */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-500">Category</label>
+                <label className="text-xs font-semibold text-muted-foreground">Category</label>
                 <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="h-10 bg-white border-slate-200"><SelectValue placeholder="All" /></SelectTrigger>
+                  <SelectTrigger className="h-10 bg-card border-border/50"><SelectValue placeholder="All" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Categories</SelectItem>
                     {categories.map(cat => (
@@ -304,9 +304,9 @@ export default function SalesByProductPage() {
 
               {/* Brand */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-500">Brand</label>
+                <label className="text-xs font-semibold text-muted-foreground">Brand</label>
                 <Select value={brand} onValueChange={setBrand}>
-                  <SelectTrigger className="h-10 bg-white border-slate-200"><SelectValue placeholder="All" /></SelectTrigger>
+                  <SelectTrigger className="h-10 bg-card border-border/50"><SelectValue placeholder="All" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Brands</SelectItem>
                     {brands.map(b => (
@@ -318,9 +318,9 @@ export default function SalesByProductPage() {
 
               {/* Store */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-500">Store</label>
+                <label className="text-xs font-semibold text-muted-foreground">Store</label>
                 <Select value={store} onValueChange={setStore}>
-                  <SelectTrigger className="h-10 bg-white border-slate-200"><SelectValue placeholder="All Branches" /></SelectTrigger>
+                  <SelectTrigger className="h-10 bg-card border-border/50"><SelectValue placeholder="All Branches" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All Branches">All Branches</SelectItem>
                     {branches.map(b => (
@@ -332,7 +332,7 @@ export default function SalesByProductPage() {
             </div>
             
             <div className="mt-4">
-              <span className="text-sm text-blue-600 cursor-pointer hover:underline font-medium flex items-center w-fit">
+              <span className="text-sm text-emerald-500 cursor-pointer hover:underline font-medium flex items-center w-fit">
                 Advanced Filters <ChevronDown className="ml-1 h-3 w-3" />
               </span>
             </div>
@@ -342,36 +342,36 @@ export default function SalesByProductPage() {
 
       {/* --- SUMMARY CARDS --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-none shadow-sm bg-white">
+        <Card className="border-none shadow-sm bg-card">
           <CardContent className="p-6">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Products Sold</p>
-            <h3 className="text-3xl font-bold text-slate-900 mt-2">{stats.totalSold.toLocaleString()}</h3>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Products Sold</p>
+            <h3 className="text-3xl font-bold text-foreground mt-2">{stats.totalSold.toLocaleString()}</h3>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white">
+        <Card className="border-none shadow-sm bg-card">
           <CardContent className="p-6">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Top Selling Product</p>
-            <h3 className="text-xl font-bold text-slate-900 mt-2 truncate" title={stats.topSellingItem?.name}>{stats.topSellingItem?.name || "N/A"}</h3>
-            <p className="text-xs text-slate-400 mt-1">{stats.topSellingItem?.sold || 0} units sold</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Top Selling Product</p>
+            <h3 className="text-xl font-bold text-foreground mt-2 truncate" title={stats.topSellingItem?.name}>{stats.topSellingItem?.name || "N/A"}</h3>
+            <p className="text-xs text-muted-foreground/60 mt-1">{stats.topSellingItem?.sold || 0} units sold</p>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white">
+        <Card className="border-none shadow-sm bg-card">
           <CardContent className="p-6">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Highest Revenue Product</p>
-            <h3 className="text-xl font-bold text-slate-900 mt-2 truncate" title={stats.topRevenueItem?.name}>{stats.topRevenueItem?.name || "N/A"}</h3>
-            <p className="text-xs text-slate-400 mt-1">LKR {(stats.topRevenueItem?.sales || 0).toLocaleString()}</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Highest Revenue Product</p>
+            <h3 className="text-xl font-bold text-foreground mt-2 truncate" title={stats.topRevenueItem?.name}>{stats.topRevenueItem?.name || "N/A"}</h3>
+            <p className="text-xs text-muted-foreground/60 mt-1">LKR {(stats.topRevenueItem?.sales || 0).toLocaleString()}</p>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white">
+        <Card className="border-none shadow-sm bg-card">
           <CardContent className="p-6">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Profit</p>
-            <h3 className="text-3xl font-bold text-slate-900 mt-2">LKR {(stats.totalProfit || 0).toLocaleString()}</h3>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Profit</p>
+            <h3 className="text-3xl font-bold text-foreground mt-2">LKR {(stats.totalProfit || 0).toLocaleString()}</h3>
           </CardContent>
         </Card>
       </div>
 
       {/* --- CHART --- */}
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">Top 5 Selling Products (by Quantity)</CardTitle>
         </CardHeader>
@@ -394,18 +394,18 @@ export default function SalesByProductPage() {
       </Card>
 
       {/* --- TABLE --- */}
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-card">
         <CardContent className="p-0">
           <Table>
-            <TableHeader className="bg-slate-50 border-b border-slate-100">
+            <TableHeader className="bg-muted/30 border-b border-border/30">
               <TableRow>
-                <TableHead className="pl-6 py-4 font-semibold text-slate-600">Product Name</TableHead>
-                <TableHead className="font-semibold text-slate-600">SKU</TableHead>
-                <TableHead className="font-semibold text-slate-600">Category</TableHead>
-                <TableHead className="text-center font-semibold text-slate-600">Qty Sold</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600">Unit Price</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600">Total Sales</TableHead>
-                <TableHead className="text-right pr-6 font-semibold text-slate-600">Total Profit</TableHead>
+                <TableHead className="pl-6 py-4 font-semibold text-muted-foreground">Product Name</TableHead>
+                <TableHead className="font-semibold text-muted-foreground">SKU</TableHead>
+                <TableHead className="font-semibold text-muted-foreground">Category</TableHead>
+                <TableHead className="text-center font-semibold text-muted-foreground">Qty Sold</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Unit Price</TableHead>
+                <TableHead className="text-right font-semibold text-muted-foreground">Total Sales</TableHead>
+                <TableHead className="text-right pr-6 font-semibold text-muted-foreground">Total Profit</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -423,26 +423,26 @@ export default function SalesByProductPage() {
                 ))
               ) : filteredData.length > 0 ? (
                 filteredData.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-slate-50 transition-colors border-b border-slate-50">
-                    <TableCell className="pl-6 py-4 font-medium text-slate-900">{item.name}</TableCell>
-                    <TableCell className="text-slate-500 text-xs font-mono">{item.sku}</TableCell>
-                    <TableCell className="text-slate-600">Product</TableCell>
-                    <TableCell className="text-center text-slate-700">{item.sold || 0}</TableCell>
-                    <TableCell className="text-right text-slate-600">LKR {(item.price || 0).toFixed(2)}</TableCell>
-                    <TableCell className="text-right font-medium text-slate-900">LKR {(item.sales || 0).toLocaleString()}</TableCell>
+                  <TableRow key={item.id} className="hover:bg-muted/30 transition-colors border-b border-border/20">
+                    <TableCell className="pl-6 py-4 font-medium text-foreground">{item.name}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs font-mono">{item.sku}</TableCell>
+                    <TableCell className="text-muted-foreground">Product</TableCell>
+                    <TableCell className="text-center text-foreground">{item.sold || 0}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">LKR {(item.price || 0).toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-medium text-foreground">LKR {(item.sales || 0).toLocaleString()}</TableCell>
                     <TableCell className="text-right pr-6 font-bold text-green-600">LKR {(item.profit || 0).toLocaleString()}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center text-slate-500 italic">No products found matching filters.</TableCell>
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground italic">No products found matching filters.</TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
 
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-            <p className="text-sm text-slate-500">Showing {filteredData.length} results</p>
+          <div className="p-4 border-t border-border/30 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Showing {filteredData.length} results</p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled>Previous</Button>
               <Button variant="outline" size="sm" disabled>Next</Button>

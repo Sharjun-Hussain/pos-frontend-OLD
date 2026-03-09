@@ -32,22 +32,51 @@ import {
 import { Button } from "@/components/ui/button";
 import { getSupplierColumns } from "./supplier-column";
 import { ResourceManagementLayout } from "@/components/general/resource-management-layout";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import SupplierSkeleton from "@/app/skeletons/purchases/supplier-skeleton";
 import { usePermission } from "@/hooks/use-permission";
 import { MODULES } from "@/lib/permissions";
 
-// Simplified stats for suppliers
+const SupplierHeaderContent = () => (
+  <div className="flex items-center gap-6">
+    <div className="relative group">
+      <div className="absolute -inset-2 bg-emerald-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition duration-700" />
+      <div className="relative p-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-emerald-500/10 shadow-2xl transition-all group-hover:border-emerald-500/30 group-hover:rotate-3">
+        <Briefcase className="w-6 h-6 text-emerald-600" />
+      </div>
+    </div>
+    <div className="flex flex-col">
+      <h1 className="text-3xl font-black text-foreground tracking-tight leading-none mb-1.5 flex items-center gap-3">
+        Supplier Registry
+        <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest hidden sm:flex">
+          Strategic v2
+        </Badge>
+      </h1>
+      <div className="flex items-center gap-3">
+        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] bg-emerald-500/5 px-2.5 py-1 rounded-full border border-emerald-500/10">
+          Operational Core
+        </span>
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/20" />
+        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.15em] opacity-60">
+          Global Vendor Intelligence
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
 const calculateSupplierStats = (suppliers) => ({
-  totalSuppliers: suppliers?.length,
-  activeSuppliers: suppliers?.filter((sup) => sup.is_active).length,
-  inactiveSuppliers: suppliers?.filter((sup) => !sup.is_active).length,
+  total: suppliers?.length || 0,
+  active: suppliers?.filter((sup) => sup.is_active).length || 0,
+  suspended: suppliers?.filter((sup) => !sup.is_active).length || 0,
+  // Approximate exposure calculation if available
+  exposure: suppliers?.reduce((acc, sup) => acc + (Math.abs(sup.current_balance || 0)), 0) || 0,
 });
 
 // Simplified filters for suppliers
 const SupplierFilters = ({ table }) => {
+  if (!table) return null;
   return (
-    <>
-      {/* Filter by Status */}
+    <div className="flex items-center gap-3">
       <Select
         value={String(table.getColumn("is_active")?.getFilterValue() ?? "all")}
         onValueChange={(value) => {
@@ -56,16 +85,16 @@ const SupplierFilters = ({ table }) => {
             ?.setFilterValue(value === "all" ? undefined : value === "true");
         }}
       >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All Statuses" />
+        <SelectTrigger className="w-[200px] h-11 rounded-xl border-2 border-emerald-500/10 bg-white/50 dark:bg-slate-950/50 backdrop-blur-md focus:ring-emerald-500/10 focus:border-emerald-500/40 transition-all font-black text-[11px] uppercase tracking-widest text-emerald-800 dark:text-emerald-500">
+          <SelectValue placeholder="Protocol Status" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Statuses</SelectItem>
-          <SelectItem value="true">Active</SelectItem>
-          <SelectItem value="false">Inactive</SelectItem>
+        <SelectContent className="rounded-2xl border-2 border-emerald-500/10 shadow-2xl bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl">
+          <SelectItem value="all" className="py-3 font-black text-[10px] uppercase tracking-widest focus:bg-emerald-500/10 focus:text-emerald-700">All Protocols</SelectItem>
+          <SelectItem value="true" className="py-3 font-black text-[10px] uppercase tracking-widest focus:bg-emerald-500/10 focus:text-emerald-700">Active Only</SelectItem>
+          <SelectItem value="false" className="py-3 font-black text-[10px] uppercase tracking-widest focus:bg-emerald-500/10 focus:text-red-700">Suspended Only</SelectItem>
         </SelectContent>
       </Select>
-    </>
+    </div>
   );
 };
 
@@ -91,35 +120,35 @@ const SupplierBulkActions = ({ table, onDelete, onBulkActivation }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="ml-auto">
-          Actions ({numSelected}) <ChevronDown className="ml-2 h-4 w-4" />
+        <Button variant="outline" className="h-11 rounded-xl border-2 border-emerald-500/20 bg-emerald-500/5 text-emerald-800 dark:text-emerald-500 hover:bg-emerald-500/10 transition-all font-black text-[11px] uppercase tracking-widest gap-3 shadow-sm">
+          Batch Execution ({numSelected}) <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-64 p-3 rounded-2xl shadow-2xl border-2 border-emerald-500/10 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl">
         <DropdownMenuItem
-          className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+          className="rounded-xl py-3 text-[11px] font-black uppercase tracking-widest text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer transition-all"
           onClick={handleActivate}
         >
-          <CheckCircle2 className="mr-2 h-4 w-4" />
-          Activate Selected
+          <CheckCircle2 className="mr-3 h-4 w-4" />
+          Activate Units
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 cursor-pointer"
+          className="rounded-xl py-3 text-[11px] font-black uppercase tracking-widest text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer transition-all"
           onClick={handleDeactivate}
         >
-          <XCircle className="mr-2 h-4 w-4" />
-          Deactivate Selected
+          <XCircle className="mr-3 h-4 w-4" />
+          Suspend Units
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="my-3 bg-emerald-500/10" />
 
         <DropdownMenuItem
-          className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+          className="rounded-xl py-3 text-[11px] font-black uppercase tracking-widest text-red-600 focus:text-red-700 focus:bg-red-500/10 cursor-pointer transition-all"
           onClick={handleDelete}
         >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete Selected
+          <Trash2 className="mr-3 h-4 w-4" />
+          Purge Selection
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -285,26 +314,65 @@ export default function SupplierPage() {
   });
 
   // Updated stats calculation
-  const supplierStats = calculateSupplierStats(suppliers);
+  const stats = calculateSupplierStats(suppliers);
   const statCards = (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Suppliers
-              </p>
-              <p className="text-2xl font-bold">
-                {supplierStats?.totalSuppliers}
-              </p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {[
+        { 
+          label: "Strategic Portfolio", 
+          val: stats.total, 
+          icon: Briefcase, 
+          color: "text-emerald-600",
+          bg: "bg-emerald-500/10",
+          desc: "Total Registered Entities"
+        },
+        { 
+          label: "Active Protocols", 
+          val: stats.active, 
+          icon: UserCheck, 
+          color: "text-emerald-500",
+          bg: "bg-emerald-500/5",
+          desc: "Operational Pipelines"
+        },
+        { 
+          label: "Suspended Units", 
+          val: stats.suspended, 
+          icon: UserX, 
+          color: "text-amber-500",
+          bg: "bg-amber-500/5",
+          desc: "Risk Management Halt"
+        },
+        { 
+          label: "Market Exposure", 
+          val: `LKR ${(stats.exposure / 1000000).toFixed(1)}M`, 
+          icon: Activity, 
+          color: "text-blue-500",
+          bg: "bg-blue-500/5",
+          desc: "Cumulative Liability"
+        },
+      ].map((card, i) => (
+        <Card key={i} className="group relative overflow-hidden border-2 border-emerald-500/5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md shadow-xl shadow-emerald-500/2 hover:shadow-emerald-500/10 transition-all duration-500 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-colors" />
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+                  {card.label}
+                </p>
+                <h3 className="text-2xl font-black text-foreground tracking-tight">
+                  {card.val}
+                </h3>
+                <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+                  {card.desc}
+                </p>
+              </div>
+              <div className={cn("p-3 rounded-2xl border-2 border-white dark:border-slate-800 shadow-lg", card.bg)}>
+                <card.icon className={cn("h-6 w-6", card.color)} />
+              </div>
             </div>
-            {/* Updated Icon */}
-            <Briefcase className="h-8 w-8 text-blue-500" />
-          </div>
-        </CardContent>
-      </Card>
-      {/* You can add more stat cards here for active/inactive suppliers */}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 
@@ -316,13 +384,12 @@ export default function SupplierPage() {
       isError={!!error}
       errorMessage={error}
       onRetry={fetchSuppliers} // Updated retry function
-      headerTitle="Supplier Management" // Updated title
-      headerDescription="Manage your suppliers, contacts, and settings." // Updated description
-      addButtonLabel="Add Supplier" // Updated button label
+      headerTitle={<SupplierHeaderContent />}
+      addButtonLabel="Initialize New Partner" // Updated button label
       onAddClick={canCreate(SUPPLIER) ? handleAddClick : null}
       isAdding={isNavigating}
       onExportClick={() => console.log("Export clicked")}
-      // statCardsComponent={statCards} // Kept commented as in original
+      statCardsComponent={statCards} 
       bulkActionsComponent={
         canDelete(SUPPLIER) ? (
           <SupplierBulkActions // Renamed component
@@ -334,7 +401,7 @@ export default function SupplierPage() {
       }
       searchColumn="name"
       searchPlaceholder="Filter suppliers by name..." // Updated placeholder
-      loadingSkeleton={<OrganizationPageSkeleton />} // Updated skeleton
+      loadingSkeleton={<SupplierSkeleton />}
       filterComponents={(table) => <SupplierFilters table={table} />} // Renamed component
     >
       <SupplierLedgerSheet
