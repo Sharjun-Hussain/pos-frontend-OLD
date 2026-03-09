@@ -83,9 +83,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { generateProductSKU } from "@/utils/sku-utils";
+
 import { ProductFormSkeleton } from "@/app/skeletons/products/product-form-skeleton";
-import { fetchUploadImage } from "@/utils/frontend-api-functions";
+
 import { toast } from "sonner";
 import { useFormRestore } from "@/hooks/use-form-restore";
 

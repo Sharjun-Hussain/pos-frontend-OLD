@@ -57,12 +57,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  fetchTaxes,
-} from "@/utils/frontend-api-functions";
 import { useRouter } from "next/navigation";
 import { ProductFormSkeleton } from "@/app/skeletons/products/product-form-skeleton";
-import FileUpload from "@/components/common/file-upload";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,

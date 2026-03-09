@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 // Reusable Header Component
 const DataTableColumnHeader = ({ column, title }) => {

@@ -110,12 +110,12 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-md flex flex-col h-full bg-card/50 backdrop-blur-xl p-0 overflow-hidden border-l border-border/60 shadow-2xl">
-        <SheetHeader className="p-6 border-b border-border/50 bg-muted/30">
-          <SheetTitle className="text-2xl font-black text-foreground">
+      <SheetContent className="sm:max-w-md flex flex-col h-full bg-white dark:bg-card p-0 overflow-hidden border-l border-slate-100 dark:border-border/60 shadow-2xl">
+        <SheetHeader className="p-6 border-b border-slate-100 dark:border-border/50 bg-slate-50/50 dark:bg-muted/30">
+          <SheetTitle className="text-xl font-bold text-slate-900 dark:text-foreground">
             {isEditing ? "Edit Measurement Unit" : "Create Measurement Unit"}
           </SheetTitle>
-          <SheetDescription className="text-muted-foreground font-medium">
+          <SheetDescription className="text-sm font-medium text-slate-500 dark:text-muted-foreground mt-1.5">
             {isEditing
               ? "Make changes to the measurement unit details here."
               : "Add a new measurement unit to your inventory."}
@@ -123,17 +123,17 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
         </SheetHeader>
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Name</FormLabel>
+                    <FormLabel className="text-[10px] uppercase font-bold text-slate-500 dark:text-muted-foreground tracking-widest pl-1 mb-1.5 block">Name</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Unit Name (e.g. Liter)" 
-                        className="h-11 bg-background border-border/50 focus-visible:ring-emerald-500 font-bold"
+                        className="h-11 bg-white dark:bg-background border-slate-200 dark:border-border/50 focus-visible:ring-[#00b076] focus-visible:ring-offset-0 focus-visible:border-[#00b076] font-semibold text-slate-900 dark:text-foreground placeholder:font-medium placeholder:text-slate-400 rounded-xl"
                         {...field} 
                       />
                     </FormControl>
@@ -146,11 +146,11 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
                 name="short_code"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Short Code</FormLabel>
+                    <FormLabel className="text-[10px] uppercase font-bold text-slate-500 dark:text-muted-foreground tracking-widest pl-1 mb-1.5 block">Short Code</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="e.g. L" 
-                        className="h-11 bg-background border-border/50 focus-visible:ring-emerald-500 font-mono"
+                        className="h-11 bg-white dark:bg-background border-slate-200 dark:border-border/50 focus-visible:ring-[#00b076] focus-visible:ring-offset-0 focus-visible:border-[#00b076] font-mono font-semibold text-slate-900 dark:text-foreground placeholder:font-medium placeholder:text-slate-400 rounded-xl"
                         {...field} 
                       />
                     </FormControl>
@@ -163,11 +163,11 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Type</FormLabel>
+                    <FormLabel className="text-[10px] uppercase font-bold text-slate-500 dark:text-muted-foreground tracking-widest pl-1 mb-1.5 block">Type</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="e.g. Volume" 
-                        className="h-11 bg-background border-border/50 focus-visible:ring-emerald-500 font-bold"
+                        className="h-11 bg-white dark:bg-background border-slate-200 dark:border-border/50 focus-visible:ring-[#00b076] focus-visible:ring-offset-0 focus-visible:border-[#00b076] font-semibold text-slate-900 dark:text-foreground placeholder:font-medium placeholder:text-slate-400 rounded-xl"
                         {...field} 
                       />
                     </FormControl>
@@ -180,11 +180,11 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Description (Optional)</FormLabel>
+                    <FormLabel className="text-[10px] uppercase font-bold text-slate-500 dark:text-muted-foreground tracking-widest pl-1 mb-1.5 block">Description (Optional)</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Description..."
-                        className="resize-none min-h-[100px] border-border/50 bg-background/50 focus-visible:ring-emerald-500"
+                        className="resize-none min-h-[100px] bg-white dark:bg-background border-slate-200 dark:border-border/50 focus-visible:ring-[#00b076] focus-visible:ring-offset-0 focus-visible:border-[#00b076] font-medium text-slate-900 dark:text-foreground placeholder:text-slate-400 rounded-xl p-3"
                         {...field}
                       />
                     </FormControl>
@@ -196,13 +196,13 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
           </Form>
         </div>
 
-        <SheetFooter className="p-6 border-t border-border/50 bg-muted/20 flex-none">
+        <SheetFooter className="p-6 border-t border-slate-100 dark:border-border/50 bg-slate-50/50 dark:bg-muted/20 flex-none">
           <div className="flex w-full items-center justify-end gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className=" px-6 font-bold text-muted-foreground hover:bg-muted transition-colors rounded-xl border-border/50"
+              className="h-10 px-6 font-bold text-slate-600 dark:text-muted-foreground bg-white hover:bg-slate-50 dark:bg-transparent dark:hover:bg-muted transition-colors rounded-full border-slate-200 dark:border-border/50 shadow-sm"
             >
               Cancel
             </Button>
@@ -210,16 +210,16 @@ export function MeasurementUnitDialog({ open, onOpenChange, onSuccess, session, 
               type="submit" 
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSubmitting}
-              className="px-8 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+              className="h-10 px-8 bg-[#00b076] hover:bg-[#00b076]/90 text-white rounded-full font-bold uppercase tracking-wider text-[11px] shadow-md shadow-[#00b076]/20 transition-all active:scale-95 border-none flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   {isEditing ? "Updating..." : "Creating..."}
                 </>
               ) : (
                 <>
-                  {isEditing ? <Save className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+                  {isEditing ? <Save className="h-[18px] w-[18px]" /> : <Plus className="h-[18px] w-[18px]" />}
                   {isEditing ? "Save Changes" : "Create Unit"}
                 </>
               )}

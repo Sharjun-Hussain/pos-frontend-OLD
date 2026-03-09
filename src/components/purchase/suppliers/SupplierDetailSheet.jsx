@@ -26,7 +26,9 @@ import {
   Zap,
   Building2,
   CheckCircle2,
-  X
+  X,
+  Briefcase,
+  Activity
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

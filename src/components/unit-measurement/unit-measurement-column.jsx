@@ -1,7 +1,7 @@
 // app/unit-measurement/columns.tsx
 "use client";
 
-import { ArrowUpDown, MoreHorizontal, Scale } from "lucide-react"; // Changed icons
+import { ArrowUpDown, CheckCircle2, MoreHorizontal, Scale, Trash2, XCircle } from "lucide-react"; // Changed icons
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,17 +14,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { cn } from "@/lib/utils";
 
-// Reusable Header Component
 const DataTableColumnHeader = ({ column, title }) => {
   return (
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      className="hover:bg-muted text-muted-foreground hover:text-foreground font-black text-[10px] uppercase tracking-wider"
+      className="hover:bg-slate-100 text-slate-400 hover:text-slate-600 font-bold text-[10px] uppercase tracking-widest px-0"
     >
       {title}
-      <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-60" />
+      <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40" />
     </Button>
   );
 };
@@ -63,19 +63,19 @@ export const getMeasurementUnitColumns = ({
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Unit Name" />
+      <DataTableColumnHeader column={column} title="CATEGORY NAME" />
     ),
     cell: ({ row }) => {
       const unit = row.original;
 
       return (
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/50 border border-border/50 transition-colors group-hover:bg-background">
-            <Scale className="h-5 w-5 text-muted-foreground" />
+        <div className="flex items-center gap-3 py-1">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e6f7f0] dark:bg-emerald-500/10 text-[#00b076] dark:text-emerald-500 border border-transparent">
+            <Scale className="h-5 w-5" />
           </div>
           <div>
-            <div className="font-bold text-sm text-foreground leading-tight">{unit.name}</div>
-            <div className="text-[10px] text-muted-foreground font-mono italic mt-0.5">{unit.slug}</div>
+            <div className="font-semibold text-[13px] text-slate-900 dark:text-foreground leading-tight">{unit.name}</div>
+            <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">CODE: {unit.short_name || "NO IDENTIFIER"}</div>
           </div>
         </div>
       );
@@ -96,7 +96,7 @@ export const getMeasurementUnitColumns = ({
   {
     accessorKey: "type",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Type" />
+      <DataTableColumnHeader column={column} title="TYPE" />
     ),
     cell: ({ row }) => {
       // Displaying the type as a badge
@@ -107,13 +107,13 @@ export const getMeasurementUnitColumns = ({
   {
     accessorKey: "description",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Description" />
+      <DataTableColumnHeader column={column} title="DESCRIPTION" />
     ),
     cell: ({ row }) => {
       const description = row.getValue("description");
       return (
-        <div className="max-w-[300px] truncate">
-          {description || "No description"}
+        <div className="max-w-[300px] truncate text-[13px] italic text-slate-400 font-medium py-2">
+          {description || "No description provided..."}
         </div>
       );
     },
@@ -123,7 +123,12 @@ export const getMeasurementUnitColumns = ({
     header: "Status",
     cell: ({ row }) => {
       const isActive = row.getValue("is_active");
-      return <StatusBadge value={isActive} />;
+      return (
+        <Badge variant="outline" className={`border-transparent font-bold tracking-wider text-[11px] uppercase transition-colors px-2.5 py-0.5 rounded-full ${isActive ? "bg-[#e6f7f0] text-[#00b076] dark:bg-emerald-500/10 dark:text-emerald-500" : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-500"}`}>
+          <div className={`mr-1.5 h-1.5 w-1.5 rounded-full ${isActive ? "bg-[#00b076] dark:bg-emerald-500" : "bg-red-600 dark:bg-red-500"}`}></div>
+          {isActive ? "ACTIVE" : "INACTIVE"}
+        </Badge>
+      );
     },
   },
   {

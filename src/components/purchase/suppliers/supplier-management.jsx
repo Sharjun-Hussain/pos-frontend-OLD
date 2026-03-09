@@ -21,7 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 // Swapped Building for Briefcase as it's more supplier-oriented
-import { Users, UserCheck, UserX, Briefcase, Building, CheckCircle2, XCircle, Trash2, ChevronDown } from "lucide-react";
+import { Users, UserCheck, UserX, Briefcase, Building, CheckCircle2, XCircle, Trash2, ChevronDown, Activity } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +35,8 @@ import { ResourceManagementLayout } from "@/components/general/resource-manageme
 import SupplierSkeleton from "@/app/skeletons/purchases/supplier-skeleton";
 import { usePermission } from "@/hooks/use-permission";
 import { MODULES } from "@/lib/permissions";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const SupplierHeaderContent = () => (
   <div className="flex items-center gap-6">

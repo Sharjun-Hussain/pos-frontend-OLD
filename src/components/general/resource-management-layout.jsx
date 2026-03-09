@@ -36,7 +36,7 @@ const ResourceTableToolbar = ({
               onChange={(event) =>
                 table.getColumn(searchColumn)?.setFilterValue(event.target.value)
               }
-              className="h-11 pl-10 bg-background border-border/60 focus:bg-background transition-all shadow-sm rounded-xl font-bold tracking-tight text-[13px] focus:ring-emerald-500/20"
+              className="h-11 pl-10 bg-white dark:bg-card border-slate-200 dark:border-border focus:bg-white dark:focus:bg-card transition-all shadow-sm rounded-xl font-semibold tracking-tight text-[13px] focus:ring-[#00b076]/20 text-slate-700 dark:text-foreground placeholder:font-medium placeholder:text-slate-400"
             />
         </div>
         {filterComponents && filterComponents(table)}
@@ -143,7 +143,7 @@ export const ResourceManagementLayout = ({
             {onExportClick && (
               <Button
                 variant="outline"
-                className=" px-6 rounded-xl border-border/60 bg-muted/20 hover:bg-muted/40 font-bold uppercase text-[10px] tracking-widest transition-all gap-2"
+                className=" px-6 rounded-full border-border/60 bg-white hover:bg-slate-50 font-bold uppercase text-[11px] tracking-widest transition-all gap-2 text-slate-700 shadow-sm h-10"
                 onClick={onExportClick}
               >
                 <Download className="h-4 w-4 opacity-60" />
@@ -154,12 +154,12 @@ export const ResourceManagementLayout = ({
               <Button
                 onClick={onAddClick}
                 disabled={isAdding}
-                className=" px-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95 border-none gap-2"
+                className=" px-5 rounded-full bg-[#00b076] hover:bg-[#00b076]/90 text-white font-bold uppercase text-[11px] tracking-wider shadow-md shadow-[#00b076]/20 transition-all active:scale-95 border-none gap-2 h-10"
               >
                 {isAdding ? (
                   <LoaderIcon className="h-4 w-4 animate-spin" />
                 ) : (
-                  <PlusCircle className="h-4 w-4" />
+                  <PlusCircle className="h-[18px] w-[18px]" />
                 )}
                 {addButtonLabel}
               </Button>
@@ -175,9 +175,9 @@ export const ResourceManagementLayout = ({
         )}
 
         {/* Main Content Card */}
-        <Card className="border border-border/60 shadow-xl shadow-foreground/2 rounded-3xl overflow-hidden bg-card/50 backdrop-blur-sm p-0 gap-0">
+        <Card className="border border-slate-100 dark:border-border/60 shadow-sm rounded-2xl overflow-hidden bg-white dark:bg-card p-0 gap-0">
           <CardContent className="p-0">
-            <div className="p-5 border-b border-border/40">
+            <div className="p-4 border-b border-slate-100 dark:border-border/40">
               <ResourceTableToolbar
                 table={table}
                 searchColumn={searchColumn}

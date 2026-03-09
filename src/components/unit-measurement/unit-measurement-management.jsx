@@ -296,15 +296,15 @@ export default function MeasurementUnitPage() {
         onRetry={fetchMeasurementUnits}
         headerTitle={
             <div className="flex items-center gap-4">
-                <div className="hidden sm:flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-sm">
-                    <Scale className="h-7 w-7" />
+                <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#e6f7f0] dark:bg-emerald-500/10 text-[#00b076] dark:text-emerald-500">
+                    <Scale className="h-6 w-6" />
                 </div>
                 <div className="flex flex-col">
-                    <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground tracking-tight">
                         Unit Measurement
                     </h1>
-                    <p className="text-sm font-bold text-muted-foreground mt-1">
-                        Manage your measurement units (e.g., kg, L, cm).
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mt-0.5">
+                        MEASUREMENT UNITS HIERARCHY
                     </p>
                 </div>
             </div>
