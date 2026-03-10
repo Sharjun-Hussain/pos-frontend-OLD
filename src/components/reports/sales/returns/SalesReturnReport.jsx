@@ -359,21 +359,21 @@ export default function SalesReturnReport() {
             value: formatCurrency(apiStats?.totalReturnAmount || 0), 
             icon: TrendingUp, 
             color: "text-emerald-500",
-            bg: "bg-emerald-500/10"
+            bg: "bg-emerald-50 dark:bg-emerald-500/100/10"
           },
           { 
             label: "Refunded Amount", 
             value: formatCurrency(apiStats?.totalRefundAmount || 0), 
             icon: ArrowUpRight, 
-            color: "text-emerald-600",
-            bg: "bg-emerald-50"
+            color: "text-emerald-600 dark:text-emerald-500",
+            bg: "bg-emerald-50 dark:bg-emerald-500/10"
           },
           { 
             label: "Unique Customers", 
             value: apiStats?.uniqueCustomers || 0, 
             icon: Users, 
             color: "text-purple-600",
-            bg: "bg-purple-50"
+            bg: "bg-purple-50 dark:bg-purple-500/10"
           },
         ].map((stat, i) => (
           <Card key={i} className="border-none shadow-sm bg-card overflow-hidden">
@@ -436,7 +436,7 @@ export default function SalesReturnReport() {
                               </div>
                             </TableCell>
                             <TableCell className="text-right font-bold text-muted-foreground text-sm">{formatCurrency(item.total_amount)}</TableCell>
-                            <TableCell className="text-right font-black text-emerald-600 text-sm">{formatCurrency(item.refund_amount)}</TableCell>
+                            <TableCell className="text-right font-black text-emerald-600 dark:text-emerald-500 text-sm">{formatCurrency(item.refund_amount)}</TableCell>
                             <TableCell>
                                 <Badge variant="outline" className="bg-muted/30 text-muted-foreground border-border/50 text-[10px] font-black uppercase">
                                     {item.refund_method}

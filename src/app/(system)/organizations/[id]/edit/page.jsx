@@ -7,7 +7,9 @@ import { useParams, useRouter } from "next/navigation";
 // Third-party
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { LoaderIcon } from "lucide-react";
+import { LoaderIcon, Building, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 import { OrganizationForm } from "@/components/organizations/new/organization-form";
 import { useBreadcrumbStore } from "@/store/useBreadcrumbStore";
@@ -80,9 +82,14 @@ export default function EditOrganizationPage() {
   // Wait for both session authentication and data fetching
   if (isLoading || status === "loading") {
     return (
-      <div className="flex gap-3 h-[80vh] w-full items-center justify-center">
-        <LoaderIcon className="h-6 w-6 animate-spin text-muted-foreground" />{" "}
-        Loading Organization Details ...
+      <div className="flex flex-col gap-3 h-[80vh] w-full items-center justify-center animate-in fade-in duration-700">
+        <div className="relative">
+          <div className="h-16 w-16 rounded-full border-4 border-emerald-500/10 border-t-emerald-500 animate-spin" />
+          <Building className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-emerald-500 opacity-50" />
+        </div>
+        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-4">
+          Synchronizing Profile Data...
+        </p>
       </div>
     );
   }
@@ -97,18 +104,33 @@ export default function EditOrganizationPage() {
   }
 
   return (
-    <div className="px-6 pb-6 pt-3">
-      <div className="flex items-center justify-between space-y-2 mb-3">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            Edit Organization
-          </h2>
-          <p className="text-muted-foreground">
-            Fill in the details below to edit this organization.
-          </p>
+    <div className="flex flex-col gap-8 w-full animate-in fade-in duration-500 mx-auto px-4 md:px-8 py-8">
+      {/* Header section with back button and title */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-2.5 rounded-xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-sm shadow-emerald-500/5">
+            <Building className="w-6 h-6 text-[#10b981]" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Edit Business Profile
+            </h1>
+            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-[0.08em] opacity-80">
+              Registration • {OrganizationData?.name || "Corporate Entity"}
+            </p>
+          </div>
         </div>
+        
+        <Link href="/organizations">
+          <Button variant="ghost" className="rounded-xl font-bold text-[11px] uppercase tracking-wider text-slate-500 hover:bg-slate-100 h-10 px-4 group">
+            <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" /> Back to Profiles
+          </Button>
+        </Link>
       </div>
-      {OrganizationData && <OrganizationForm initialData={OrganizationData} />}
+
+      <div className="mt-2">
+        {OrganizationData && <OrganizationForm initialData={OrganizationData} />}
+      </div>
     </div>
   );
 }

@@ -40,6 +40,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 // --- MOCK DATA ---
 const REPORTS_DATA = [
@@ -230,19 +231,19 @@ const CATEGORIES = [
   { id: "Purchase", label: "Purchase", icon: ShoppingBag },
 ];
 
-export default function ReportsHubPage() {
+export default function ReportsHubPage({ isNested = false }) {
   return (
     <Suspense fallback={
-      <div className="h-screen w-full flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#10b981]" />
       </div>
     }>
-      <ReportsContent />
+      <ReportsContent isNested={isNested} />
     </Suspense>
   );
 }
 
-function ReportsContent() {
+function ReportsContent({ isNested }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -313,71 +314,80 @@ function ReportsContent() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="flex flex-col h-screen bg-slate-50 dark:bg-background font-sans text-slate-900 dark:text-white overflow-hidden">
       {/* Page Header */}
-      <header className="bg-white border-b border-slate-200 px-8 py-5 shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Reports Hub</h1>
-            <p className="text-slate-500 text-sm mt-1">
-              View, analyze, and export your business data.
-            </p>
+      {!isNested && (
+        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 py-5 shrink-0">
+          <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-2.5 rounded-xl bg-[#10b981]/10 dark:bg-[#10b981]/20 border border-[#10b981]/20 dark:border-[#10b981]/30 shadow-sm shadow-emerald-500/5">
+                <BarChart3 className="w-5 h-5 text-[#10b981]" />
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  Reports Hub
+                </h1>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.08em] opacity-80">
+                  Business Intelligence • Data Analysis & Exports
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="text-slate-500 dark:text-slate-400 rounded-xl h-9 font-semibold gap-2 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900">
+                <FileText className="h-4 w-4" />
+                Documentation
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" className="text-slate-500">
-              <FileText className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+        </header>
+      )}
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden max-w-[1600px] mx-auto w-full px-4 md:px-8 py-6 gap-6">
         {/* --- LEFT SIDEBAR --- */}
-        <aside className="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
+        <aside className="w-64 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-200/60 dark:border-slate-800/60 flex flex-col shrink-0 rounded-2xl overflow-hidden shadow-sm">
           <ScrollArea className="flex-1">
-          <div className="p-6">
+          <div className="p-5">
             <div className="mb-6">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
-                View Mode
-              </h3>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 px-2">View Filters</p>
               
               <div className="space-y-1">
                 <button
                   onClick={() => handleCategoryChange("All")}
-                  className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  className={cn(
+                    "flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 group",
                     activeCategory === "All"
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
+                      ? "bg-[#10b981] text-white shadow-md shadow-emerald-500/10"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm"
+                  )}
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className={cn("h-4 w-4 transition-colors", activeCategory === "All" ? "text-white" : "text-slate-400 group-hover:text-[#10b981]")} />
                   All Reports
                 </button>
 
                 <button
                   onClick={() => handleCategoryChange("Favorites")}
-                  className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  className={cn(
+                    "flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 group",
                     activeCategory === "Favorites"
-                      ? "bg-amber-500 text-white shadow-lg shadow-amber-100"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
+                      ? "bg-[#10b981] text-white shadow-md shadow-emerald-500/10"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm"
+                  )}
                 >
                   <Star
-                    className={`h-4 w-4 ${
-                      activeCategory === "Favorites" ? "fill-white" : ""
-                    }`}
+                    className={cn(
+                      "h-4 w-4 transition-colors",
+                      activeCategory === "Favorites" ? "fill-white text-white" : "text-slate-400 group-hover:text-amber-500"
+                    )}
                   />
                   My Favorites
                 </button>
               </div>
             </div>
 
-            <Separator className="my-6 bg-slate-100" />
+            <Separator className="my-6 bg-slate-100 dark:bg-slate-800" />
 
             <div className="mb-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
-                Categories
-              </h3>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 px-2">Library Categories</p>
 
               <div className="space-y-1">
                 {CATEGORIES.map((cat) => {
@@ -388,23 +398,25 @@ function ReportsContent() {
                     <button
                       key={cat.id}
                       onClick={() => handleCategoryChange(cat.id)}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                      className={cn(
+                        "flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 group",
                         isActive
-                          ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                      }`}
+                          ? "bg-[#10b981] text-white shadow-md shadow-emerald-500/10"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm"
+                      )}
                     >
                       <div className="flex items-center gap-3">
-                        <cat.icon className={`h-4 w-4 ${isActive ? "text-white" : "text-slate-400"}`} />
+                        <cat.icon className={cn("h-4 w-4 transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-[#10b981]")} />
                         {cat.label}
                       </div>
                       <Badge 
                         variant="secondary" 
-                        className={`text-[11px] px-2 py-0.5 rounded-full font-black ${
+                        className={cn(
+                          "text-[10px] px-2 py-0.5 rounded-full font-bold",
                           isActive 
-                            ? "bg-white/20 text-white" 
-                            : "bg-linear-to-br transition-all duration-300"
-                        }`}
+                            ? "bg-white/20 text-white border-none" 
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-none group-hover:bg-[#10b981]/10 group-hover:text-[#10b981]"
+                        )}
                       >
                         {originalCount}
                       </Badge>
@@ -416,30 +428,30 @@ function ReportsContent() {
           </div>
           </ScrollArea>
           
-          <div className="p-4 border-t border-slate-200 bg-slate-50">
-            <p className="text-xs text-slate-500 text-center font-medium">
-              {filteredReports.length} {filteredReports.length === 1 ? 'result' : 'results'} matching
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center font-bold uppercase tracking-wider">
+              {filteredReports.length} {filteredReports.length === 1 ? 'Report' : 'Reports'} available
             </p>
           </div>
         </aside>
 
         {/* --- MAIN CONTENT --- */}
-        <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-slate-50/50">
+        <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-slate-50/50 dark:bg-slate-900/10">
           {/* Toolbar */}
-          <div className="px-8 py-6 flex justify-between items-center gap-4">
-            <div className="relative flex-1 max-w-lg">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <div className="px-8 py-5 flex justify-between items-center gap-4 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md rounded-2xl border border-white/50 dark:border-slate-800/50 mb-6 shadow-sm">
+            <div className="relative flex-1 max-w-lg group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#10b981] transition-colors" />
               <Input
-                placeholder="Search reports..."
-                className="pl-10 bg-white border-slate-200 h-10 shadow-sm"
+                placeholder="Search report library..."
+                className="h-11 pl-11 bg-white/80 dark:bg-slate-900/80 border-slate-200/60 dark:border-slate-800/60 focus:bg-white dark:focus:bg-slate-900 shadow-sm rounded-xl font-semibold text-[13px] transition-all focus:ring-[#10b981]/20 placeholder:text-slate-400 placeholder:font-medium"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-3">
               <Select defaultValue="most-used">
-                <SelectTrigger className="w-[140px] h-10 bg-white border-slate-200 shadow-sm">
-                  <Filter className="h-3.5 w-3.5 mr-2 text-slate-500" />
+                <SelectTrigger className="w-[140px] h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                  <Filter className="h-3.5 w-3.5 mr-2 text-slate-500 dark:text-slate-400" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -461,15 +473,17 @@ function ReportsContent() {
                   if (items.length === 0 && !searchQuery) return null; // Don't show empty categories
                   
                   return (
-                    <section key={cat.id} className="space-y-4">
-                      <div className="flex items-center gap-2 px-1">
-                        <cat.icon className="h-4 w-4 text-blue-600" />
-                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">
+                    <section key={cat.id} className="space-y-6">
+                      <div className="flex items-center gap-3 px-1">
+                        <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-[#10b981]">
+                          <cat.icon className="h-3.5 w-3.5" />
+                        </div>
+                        <h2 className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest">
                           {cat.label} Reports
-                          <span className="ml-2 text-[10px] text-slate-400 font-bold">({items.length})</span>
+                          <span className="ml-2 text-[10px] text-slate-400 font-bold opacity-60">({items.length})</span>
                         </h2>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {items.map((report) => (
                           <ReportCard key={report.id} report={report} toggleFavorite={toggleFavorite} />
                         ))}
@@ -478,10 +492,12 @@ function ReportsContent() {
                   );
                 })
               ) : activeCategory === "Favorites" ? (
-                 <section className="space-y-4">
-                    <div className="flex items-center gap-2 px-1">
-                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                      <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Starred Reports</h2>
+                 <section className="space-y-6">
+                    <div className="flex items-center gap-3 px-1">
+                      <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-500">
+                        <Star className="h-3.5 w-3.5 fill-current" />
+                      </div>
+                      <h2 className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest">Starred Reports</h2>
                     </div>
                     {filteredReports.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -495,18 +511,20 @@ function ReportsContent() {
                  </section>
               ) : (
                 // Single Category View
-                <section className="space-y-4">
-                  <div className="flex items-center gap-2 px-1">
-                    {(() => {
-                      const Icon = CATEGORIES.find(c => c.id === activeCategory)?.icon || LayoutGrid;
-                      return <Icon className="h-4 w-4 text-blue-600" />;
-                    })()}
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">
+                <section className="space-y-6">
+                  <div className="flex items-center gap-3 px-1">
+                    <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-[#10b981]">
+                      {(() => {
+                        const Icon = CATEGORIES.find(c => c.id === activeCategory)?.icon || LayoutGrid;
+                        return <Icon className="h-4 w-4" />;
+                      })()}
+                    </div>
+                    <h2 className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest">
                       {activeCategory} Reports
                     </h2>
                   </div>
                   {filteredReports.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                       {filteredReports.map((report) => (
                         <ReportCard key={report.id} report={report} toggleFavorite={toggleFavorite} />
                       ))}
@@ -529,118 +547,73 @@ function ReportsContent() {
 // --- SUB-COMPONENTS ---
 
 function ReportCard({ report, toggleFavorite }) {
-  // Determine styles based on category
-  const getStyle = (category) => {
-    switch (category) {
-      case 'Sales':
-        return {
-          gradient: "from-blue-500 to-indigo-400",
-          shadow: "shadow-blue-100",
-          text: "text-blue-600",
-          bgInfo: "bg-blue-50"
-        };
-      case 'Stocks':
-        return {
-            gradient: "from-emerald-500 to-teal-400",
-            shadow: "shadow-emerald-100",
-            text: "text-emerald-600",
-            bgInfo: "bg-emerald-50"
-        };
-      case 'Finance':
-        return {
-            gradient: "from-violet-500 to-purple-400",
-            shadow: "shadow-violet-100",
-            text: "text-violet-600",
-            bgInfo: "bg-violet-50"
-        };
-      case 'Customer':
-         return {
-            gradient: "from-pink-500 to-rose-400",
-            shadow: "shadow-pink-100",
-            text: "text-pink-600",
-            bgInfo: "bg-pink-50"
-         };
-      case 'Purchase':
-          return {
-            gradient: "from-orange-500 to-amber-400",
-            shadow: "shadow-orange-100",
-            text: "text-orange-600",
-            bgInfo: "bg-orange-50"
-          };
-      default:
-        return {
-            gradient: "from-slate-500 to-slate-400",
-            shadow: "shadow-slate-100",
-            text: "text-slate-600",
-            bgInfo: "bg-slate-50"
-        };
-    }
+  const getCategoryIcon = (category) => {
+    const cat = CATEGORIES.find(c => c.id === category);
+    if (!cat) return <FileText className="h-5 w-5" />;
+    const Icon = cat.icon;
+    return <Icon className="h-5 w-5" />;
   };
 
-  const style = getStyle(report.category);
-
   return (
-    <Card className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden">
-        {/* Subtle Background Decoration */}
-        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${style.gradient} opacity-[0.03] rounded-bl-full group-hover:scale-150 transition-transform duration-500`} />
-
-        <div className="flex justify-between items-start mb-4 relative z-10">
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${style.gradient} text-white shadow-lg ${style.shadow}`}>
-            {report.category === 'Sales' ? <BarChart3 className="h-5 w-5" /> :
-             report.category === 'Stocks' ? <Package className="h-5 w-5" /> :
-             report.category === 'Finance' ? <CreditCard className="h-5 w-5" /> :
-             report.category === 'Customer' ? <Users className="h-5 w-5" /> :
-             report.category === 'Purchase' ? <ShoppingBag className="h-5 w-5" /> :
-             <FileText className="h-5 w-5" />}
+    <Card className="group relative bg-white dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/60 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500 hover:-translate-y-1 h-full flex flex-col">
+      <CardContent className="p-7 flex-1 flex flex-col">
+        <div className="flex justify-between items-start mb-6">
+          <div className="p-3 bg-slate-50 dark:bg-slate-800 flex items-center justify-center rounded-xl border border-slate-100 dark:border-slate-700/50 group-hover:bg-[#10b981]/10 group-hover:border-[#10b981]/20 group-hover:text-[#10b981] transition-all duration-500 shadow-sm">
+            {getCategoryIcon(report.category)}
           </div>
-          
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full text-slate-300 hover:text-amber-500 hover:bg-amber-50"
             onClick={(e) => {
               e.preventDefault();
               toggleFavorite(report.id);
             }}
+            className={cn(
+              "h-9 w-9 rounded-xl transition-all duration-300",
+              report.isFavorite 
+                ? "text-amber-500 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 shadow-sm" 
+                : "text-slate-300 dark:text-slate-600 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+            )}
           >
-            <Star className={`h-5 w-5 ${report.isFavorite ? "fill-amber-500 text-amber-500" : ""}`} />
+            <Star className={cn("h-4.5 w-4.5", report.isFavorite && "fill-current")} />
           </Button>
         </div>
-
-        <div className="relative z-10 space-y-2 mb-4">
-          <h3 className="text-lg font-bold text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors">
+        
+        <div className="flex-1">
+          <h3 className="text-[15px] font-bold text-slate-900 dark:text-white mb-2.5 group-hover:text-[#10b981] transition-colors leading-tight tracking-tight">
             {report.name}
           </h3>
-          <p className="text-sm text-slate-500 line-clamp-2 min-h-[40px]">
+          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium opacity-80">
             {report.description}
           </p>
         </div>
 
-        <div className="relative z-10 pt-4 border-t border-slate-50 flex items-center justify-between">
-          <Badge variant="secondary" className={`${style.bgInfo} ${style.text} text-[10px] font-bold uppercase tracking-wider px-2`}>
-            {report.category}
-          </Badge>
-          
-          <Link
-            href={report.href}
-            className={`flex items-center gap-1.5 text-xs font-black ${style.text} uppercase tracking-widest hover:gap-3 transition-all`}
+        <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between group/footer">
+          <Link 
+            href={report.href} 
+            className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-[#10b981] dark:hover:text-[#10b981] transition-colors flex items-center gap-2 group-hover/footer:translate-x-1"
           >
-            Open Report <ArrowUpRight className="h-3.5 w-3.5" />
+            Generate Report
+            <ArrowUpRight className="h-3 w-3 opacity-0 group-hover/footer:opacity-100 transition-all" />
           </Link>
+          <div className="size-8 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover:bg-[#10b981] group-hover:text-white dark:group-hover:bg-[#10b981] dark:group-hover:text-white transition-all duration-500 shadow-sm">
+            <ArrowUpRight className="h-4 w-4" />
+          </div>
         </div>
+      </CardContent>
     </Card>
   );
 }
 
 function EmptyState({ message }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="h-14 w-14 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-        <Search className="h-6 w-6 text-slate-300" />
+    <div className="flex flex-col items-center justify-center py-20 text-center bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm rounded-3xl border border-white/50 dark:border-slate-800/50 border-dashed">
+      <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-5 shadow-inner">
+        <Search className="h-7 w-7 text-slate-300 dark:text-slate-600" />
       </div>
-      <h3 className="text-sm font-bold text-slate-900">No Reports Found</h3>
-      <p className="text-xs text-slate-500 max-w-[200px] mt-1">
-        {message || "Try adjusting your search or filters to find what you're looking for."}
+      <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">No Reports Found</h3>
+      <p className="text-xs text-slate-500 dark:text-slate-400 max-w-[240px] mt-2 font-medium opacity-80 leading-relaxed">
+        {message || "Try adjusting your search or category filters to find the data you need."}
       </p>
     </div>
   );

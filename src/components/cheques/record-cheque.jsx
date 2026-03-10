@@ -126,50 +126,34 @@ export default function RecordCheque() {
 
       <div className="relative flex flex-col gap-8 max-w-[1400px] mx-auto transition-all duration-500">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
-          <div className="flex items-center gap-6">
-            <div className="relative group">
-              <div className="absolute -inset-2 bg-emerald-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition duration-700" />
-              <div className="relative p-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-emerald-500/10 shadow-2xl transition-all group-hover:border-emerald-500/30 group-hover:rotate-3">
-                <Landmark className="w-6 h-6 text-emerald-600" />
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500">
+              <Landmark className="h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-3xl font-black text-foreground tracking-tight leading-none mb-1.5 flex items-center gap-3">
-                Record <span className="text-emerald-600">New Cheque</span>
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20 text-[10px] font-black px-2 py-0.5 rounded-md tracking-widest hidden sm:flex">
-                  Protocol v2.0
-                </Badge>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground tracking-tight">
+                Record New Cheque
               </h1>
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-black text-emerald-600 tracking-[0.2em] bg-emerald-500/5 px-2.5 py-1 rounded-full border border-emerald-500/10">
-                  Asset Initialization
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/20" />
-                <p className="text-[10px] text-muted-foreground font-black tracking-[0.15em] opacity-60">
-                  Secure instrument capture & validation
-                </p>
-              </div>
+              <p className="text-[11px] font-semibold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mt-0.5">
+                ENTER CHEQUE DETAILS
+              </p>
             </div>
           </div>
-          <Button variant="outline" className="rounded-xl font-black text-[10px] tracking-widest gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 h-11" asChild>
+          <Button variant="outline" className="rounded-xl font-bold text-[10px] tracking-widest gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 h-10 px-4" asChild>
             <Link href="/cheques">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
+              <ArrowLeft className="h-3.5 w-3.5" />
+              BACK TO LIST
             </Link>
           </Button>
         </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Card className="border border-emerald-500/10 shadow-2xl rounded-[2.5rem] overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-3xl">
-              <CardHeader className="p-10 bg-emerald-500/5 border-b border-emerald-500/10 flex flex-row items-center justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-2xl font-black tracking-tight text-emerald-950 dark:text-emerald-50">Instrument Specification</CardTitle>
-                    <CardDescription className="text-xs font-bold text-emerald-600/70 tracking-widest">Initialization Protocol</CardDescription>
-                  </div>
-                  <div className="hidden md:flex flex-col items-end">
-                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Status Check</span>
-                    <Badge className="bg-emerald-500 text-white border-none shadow-lg shadow-emerald-500/20 font-black text-[9px] px-3 py-1">Ready for Entry</Badge>
+            <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
+              <CardHeader className="p-8 bg-emerald-50/30 dark:bg-emerald-500/5 border-b border-emerald-100 dark:border-emerald-500/10">
+                  <div className="space-y-0.5">
+                    <CardTitle className="text-xl font-bold tracking-tight text-slate-900 dark:text-foreground">Cheque Information</CardTitle>
+                    <p className="text-[11px] font-bold text-emerald-600/70 dark:text-emerald-500/70 tracking-widest uppercase">Basic Details</p>
                   </div>
               </CardHeader>
               <CardContent className="p-10 grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -355,11 +339,11 @@ export default function RecordCheque() {
                 name="note"
                 render={({ field }) => (
                   <FormItem className="md:col-span-3">
-                    <FormLabel className="text-[10px] font-black tracking-widest text-emerald-600/70 ml-1">Note</FormLabel>
+                    <FormLabel className="text-[10px] font-black tracking-widest text-emerald-600/70 dark:text-emerald-500/70 ml-1">Note</FormLabel>
                     <FormControl>
                       <Textarea 
                         placeholder="Additional details about this instrument..." 
-                        className="resize-none rounded-2xl bg-emerald-500/5 border-2 border-emerald-500/10 focus:border-emerald-500/40 focus:ring-emerald-500/5 transition-all p-5 font-bold text-sm min-h-[120px]"
+                        className="resize-none rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 focus:border-emerald-500/40 focus:ring-emerald-500/5 transition-all p-5 font-medium text-sm min-h-[120px] dark:text-slate-200"
                         {...field} 
                       />
                     </FormControl>
@@ -370,30 +354,27 @@ export default function RecordCheque() {
             </CardContent>
           </Card>
 
-          <div className="flex justify-end gap-6 pb-24">
+          <div className="flex justify-end gap-4">
             <Button
               variant="ghost"
               type="button"
-              className="h-16 rounded-3xl font-black text-[10px] tracking-widest px-10 text-muted-foreground hover:text-red-500 hover:bg-red-500/5 transition-all"
+              className="h-12 rounded-2xl font-bold text-[11px] tracking-widest px-8 text-slate-500 hover:text-red-600 transition-all uppercase"
               onClick={() => router.back()}
               disabled={isSubmitting}
             >
-              Abort Protocol
+              Cancel
             </Button>
             <Button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="h-16 rounded-3xl font-black text-[11px] tracking-widest px-16 bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xl shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all group overflow-hidden relative"
+                className="h-12 rounded-2xl font-bold text-[11px] tracking-widest px-10 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 transition-all uppercase flex items-center gap-2"
             >
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-              <div className="relative z-10 flex items-center gap-3">
-                {isSubmitting ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Save className="h-5 w-5" />
-                )}
-                Finalize Registry Entry
-              </div>
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              Save Cheque
             </Button>
           </div>
         </form>

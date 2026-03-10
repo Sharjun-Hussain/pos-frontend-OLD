@@ -41,7 +41,7 @@ export const getExpenseColumns = ({ onEdit, onDelete, onView }) => [
     accessorKey: "date",
     header: "Date",
     cell: ({ row }) => {
-      const date = row.getValue("date");
+      const date = row.getValue("date") || row.original.expense_date;
       return <div>{date ? format(new Date(date), "PPP") : "-"}</div>;
     },
   },
@@ -50,7 +50,7 @@ export const getExpenseColumns = ({ onEdit, onDelete, onView }) => [
     header: "Category",
     cell: ({ row }) => (
       <Badge variant="outline" className="bg-slate-50">
-        {row.getValue("category_name") || "Uncategorized"}
+        {row.getValue("category_name") || row.original.category?.name || "Uncategorized"}
       </Badge>
     ),
   },

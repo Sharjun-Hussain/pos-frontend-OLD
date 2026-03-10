@@ -296,12 +296,12 @@ export default function SalesBySupplierPage() {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
-                <YAxis dataKey="name" type="category" width={150} stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
+                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
+                <YAxis dataKey="name" type="category" width={150} stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip 
                   cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
                   formatter={(value) => [formatCurrency(value), "Sales"]}
                 />
                 <Bar dataKey="sales" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={24} />
@@ -344,11 +344,11 @@ export default function SalesBySupplierPage() {
                     <TableCell className="text-right text-muted-foreground font-medium">{formatCurrency(item.totalSales)}</TableCell>
                     <TableCell className="text-right text-red-600">({formatCurrency(item.discount)})</TableCell>
                     <TableCell className="text-right font-bold text-foreground">{formatCurrency(item.netSales)}</TableCell>
-                    <TableCell className="text-right font-bold text-emerald-600">{formatCurrency(item.profit)}</TableCell>
+                    <TableCell className="text-right font-bold text-emerald-600 dark:text-emerald-500">{formatCurrency(item.profit)}</TableCell>
                     <TableCell className="text-right pr-6">
                         <span className={cn(
                           "px-2 py-1 rounded text-xs font-bold",
-                          item.margin >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
+                          item.margin >= 0 ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400"
                         )}>
                           {item.margin.toFixed(1)}%
                         </span>

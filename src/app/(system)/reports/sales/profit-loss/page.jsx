@@ -122,7 +122,7 @@ export default function ProfitLossReportPage() {
   }, [session?.accessToken, startDate, endDate, branchId]);
 
   const MetricItem = ({ label, value, color, tooltip, icon: Icon }) => (
-    <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+    <div className="flex items-center justify-between py-3 border-b dark:border-slate-800 border-slate-100 dark:border-slate-800 last:border-0">
       <div className="flex items-center gap-2">
         <div className={`p-2 rounded-lg ${color} bg-opacity-10`}>
           <Icon className={`h-4 w-4 ${color.replace('bg-', 'text-')}`} />
@@ -137,20 +137,20 @@ export default function ProfitLossReportPage() {
           </TooltipProvider>
         </div>
       </div>
-      <span className={`text-base font-bold text-slate-900 group-hover:scale-105 transition-transform`}>
+      <span className={`text-base font-bold text-slate-900 dark:text-slate-200 group-hover:scale-105 transition-transform`}>
         LKR {value?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
       </span>
     </div>
   );
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50 min-h-screen max-w-5xl mx-auto">
+    <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-800/50 min-h-screen max-w-5xl mx-auto">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Profit & Loss Statement</h1>
-          <p className="text-slate-500">Overview of revenues, costs, and net profit for the selected period.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-200">Profit & Loss Statement</h1>
+          <p className="text-slate-500 dark:text-slate-400">Overview of revenues, costs, and net profit for the selected period.</p>
         </div>
-        <div className="flex items-center gap-2 bg-white p-1 rounded-lg border shadow-sm">
+        <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-lg border shadow-sm">
             <Input 
                 type="date" 
                 value={startDate} 
@@ -166,7 +166,7 @@ export default function ProfitLossReportPage() {
             />
         </div>
 
-        <div className="flex items-center gap-2 bg-white p-1 rounded-lg border shadow-sm px-3">
+        <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-lg border shadow-sm px-3">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Store:</span>
           <select 
             value={branchId}
@@ -192,10 +192,10 @@ export default function ProfitLossReportPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Net Profit Card */}
-        <Card className="md:col-span-1 border-none shadow-lg bg-white overflow-hidden relative group">
-          <div className={`absolute top-0 left-0 w-full h-1 ${data?.netProfit >= 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+        <Card className="md:col-span-1 border-none shadow-lg bg-white dark:bg-slate-900 overflow-hidden relative group">
+          <div className={`absolute top-0 left-0 w-full h-1 ${data?.netProfit >= 0 ? 'bg-green-500' : 'bg-red-50 dark:bg-red-500/100'}`} />
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-slate-500 uppercase">Net Profit</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase">Net Profit</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {isLoading ? <Skeleton className="h-10 w-40" /> : (
@@ -206,7 +206,7 @@ export default function ProfitLossReportPage() {
             )}
             <div className="space-y-2">
                 <div className="flex justify-between text-xs font-medium">
-                    <span className="text-slate-500">Net Margin</span>
+                    <span className="text-slate-500 dark:text-slate-400">Net Margin</span>
                     <span className="text-blue-600 font-bold">{(data?.margin || 0).toFixed(1)}%</span>
                 </div>
                 <Progress value={data?.margin || 0} className="h-2" />
@@ -215,7 +215,7 @@ export default function ProfitLossReportPage() {
         </Card>
 
         {/* Breakdown Card */}
-        <Card className="md:col-span-2 border-none shadow-sm bg-white">
+        <Card className="md:col-span-2 border-none shadow-sm bg-white dark:bg-slate-900">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-bold">Income & Expenditure Summary</CardTitle>
             <CardDescription>Estimated totals based on completed sales and recorded expenses.</CardDescription>
@@ -232,25 +232,25 @@ export default function ProfitLossReportPage() {
                     <MetricItem 
                         label="Total Revenue" 
                         value={data?.revenue} 
-                        color="bg-emerald-500" 
+                        color="bg-emerald-50 dark:bg-emerald-500/100" 
                         icon={ArrowUpRight}
                         tooltip="Total income from all completed sales transactions."
                     />
                     <MetricItem 
                         label="Cost of Goods Sold (COGS)" 
                         value={data?.cogs} 
-                        color="bg-amber-500" 
+                        color="bg-amber-50 dark:bg-amber-500/100" 
                         icon={TrendingDown}
                         tooltip="Total acquisition cost of products that were sold."
                     />
-                    <div className="flex items-center justify-between py-3 border-b border-slate-100 bg-slate-50/50 px-3 rounded-md my-2">
-                        <span className="text-sm font-bold text-slate-900 uppercase">Gross Profit</span>
-                        <span className="text-base font-black text-slate-900">LKR {data?.grossProfit?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                    <div className="flex items-center justify-between py-3 border-b dark:border-slate-800 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50/50 px-3 rounded-md my-2">
+                        <span className="text-sm font-bold text-slate-900 dark:text-slate-200 uppercase">Gross Profit</span>
+                        <span className="text-base font-black text-slate-900 dark:text-slate-200">LKR {data?.grossProfit?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                     </div>
                     <MetricItem 
                         label="Total Operating Expenses" 
                         value={data?.expenses} 
-                        color="bg-red-500" 
+                        color="bg-red-50 dark:bg-red-500/100" 
                         icon={ArrowDownRight}
                         tooltip="Total sum of all expenses recorded (Rent, Electricity, etc.)"
                     />
@@ -261,7 +261,7 @@ export default function ProfitLossReportPage() {
       </div>
 
       {/* Advisory Note */}
-      <Card className="bg-blue-50 border-blue-100 shadow-none">
+      <Card className="bg-blue-50 dark:bg-blue-500/10 border-b dark:border-slate-800lue-100 shadow-none">
           <CardContent className="p-4 flex gap-3">
               <Info className="h-6 w-6 text-blue-500 shrink-0 mt-0.5" />
               <div>

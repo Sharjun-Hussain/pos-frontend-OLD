@@ -265,14 +265,14 @@ export default function DailySalesSummaryPage() {
     return (
       <div className="w-full">
         <div className="h-4 w-full flex rounded-full overflow-hidden mb-2">
-          {cashPct > 0 && <div style={{ width: `${cashPct}%` }} className="bg-emerald-500 h-full" title={`Cash: ${cashPct}%`} />}
-          {cardPct > 0 && <div style={{ width: `${cardPct}%` }} className="bg-emerald-500 h-full" title={`Card: ${cardPct}%`} />}
-          {creditPct > 0 && <div style={{ width: `${creditPct}%` }} className="bg-amber-500 h-full" title={`Credit: ${creditPct}%`} />}
+          {cashPct > 0 && <div style={{ width: `${cashPct}%` }} className="bg-emerald-50 dark:bg-emerald-500/100 h-full" title={`Cash: ${cashPct}%`} />}
+          {cardPct > 0 && <div style={{ width: `${cardPct}%` }} className="bg-emerald-50 dark:bg-emerald-500/100 h-full" title={`Card: ${cardPct}%`} />}
+          {creditPct > 0 && <div style={{ width: `${creditPct}%` }} className="bg-amber-50 dark:bg-amber-500/100 h-full" title={`Credit: ${creditPct}%`} />}
         </div>
         <div className="flex justify-between text-[10px] text-muted-foreground font-medium">
-          {cashPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div>Cash {cashPct}%</div>}
-          {cardPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div>Card {cardPct}%</div>}
-          {creditPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></div>Credit {creditPct}%</div>}
+          {cashPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/100 shrink-0"></div>Cash {cashPct}%</div>}
+          {cardPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/100 shrink-0"></div>Card {cardPct}%</div>}
+          {creditPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-amber-50 dark:bg-amber-500/100 shrink-0"></div>Credit {creditPct}%</div>}
         </div>
       </div>
     );
@@ -497,7 +497,7 @@ export default function DailySalesSummaryPage() {
                         const unpaidAmount = item.total - (item.paid_amount || 0);
                         
                         return (
-                            <TableRow key={item.id} className={`hover:bg-muted/30 transition-colors border-b border-border/20 ${isCredit ? 'bg-amber-50/30' : ''}`}>
+                            <TableRow key={item.id} className={`hover:bg-muted/30 transition-colors border-b border-border/20 ${isCredit ? 'bg-amber-50/30 dark:bg-amber-500/10' : ''}`}>
                                 <TableCell className="pl-6 py-3 text-muted-foreground">{formatDateTime(item.date)}</TableCell>
                                 <TableCell className="font-medium text-foreground">{item.id}</TableCell>
                                 <TableCell className="text-muted-foreground">{item.customer}</TableCell>
@@ -507,7 +507,7 @@ export default function DailySalesSummaryPage() {
                                   <div className="flex flex-col gap-1">
                                     <span>{formatCurrency(item.total || 0)}</span>
                                     {isCredit && (
-                                      <span className="text-xs text-amber-600 font-normal">
+                                      <span className="text-xs text-amber-600 dark:text-amber-500 font-normal">
                                         Paid: {formatCurrency(item.paid_amount || 0)} | Due: {formatCurrency(unpaidAmount)}
                                       </span>
                                     )}
@@ -516,10 +516,10 @@ export default function DailySalesSummaryPage() {
                                 <TableCell>
                                     <div className="flex flex-col gap-1">
                                       <Badge variant="outline" className={
-                                          isCredit ? "bg-amber-50 text-amber-700 border-amber-200" :
-                                          item.type?.toLowerCase() === 'card' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" :
-                                          item.type?.toLowerCase() === 'cash' ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
-                                          item.type?.toLowerCase() === 'cheque' ? "bg-purple-50 text-purple-700 border-purple-100" :
+                                          isCredit ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20" :
+                                          item.type?.toLowerCase() === 'card' ? "bg-emerald-50 dark:bg-emerald-500/100/10 text-emerald-600 dark:text-emerald-500 border-emerald-500/20" :
+                                          item.type?.toLowerCase() === 'cash' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20" :
+                                          item.type?.toLowerCase() === 'cheque' ? "bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-100 dark:border-purple-500/20" :
                                           "bg-muted/30 text-foreground border-border/30"
                                       }>
                                           {isCredit ? "Credit" : item.type}

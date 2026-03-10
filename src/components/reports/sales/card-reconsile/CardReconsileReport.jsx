@@ -177,7 +177,7 @@ export default function CardReconciliationPage() {
         <Card className="border-none shadow-sm bg-card border-l-4 border-l-emerald-500">
           <CardContent className="p-5">
             <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Net Settlement</p>
-            <h3 className="text-2xl font-bold text-emerald-700">{formatLKR(stats.netAmount)}</h3>
+            <h3 className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatLKR(stats.netAmount)}</h3>
           </CardContent>
         </Card>
       </div>
@@ -267,9 +267,9 @@ export default function CardReconciliationPage() {
                                         <TableCell className="text-center">
                                             <Badge variant="outline" className={cn(
                                                 "border-0 capitalize",
-                                                item.status === 'Matched' ? "bg-emerald-100 text-emerald-700" : 
-                                                item.status === 'Pending' ? "bg-amber-100 text-amber-700" : 
-                                                item.status === 'Failed' ? "bg-red-100 text-red-700" : "bg-background text-foreground"
+                                                item.status === 'Matched' ? "bg-emerald-100 text-emerald-700 dark:text-emerald-400" : 
+                                                item.status === 'Pending' ? "bg-amber-100 text-amber-700 dark:text-amber-400" : 
+                                                item.status === 'Failed' ? "bg-red-100 text-red-700 dark:text-red-400" : "bg-background text-foreground"
                                             )}>
                                                 {item.status}
                                             </Badge>
@@ -289,7 +289,7 @@ export default function CardReconciliationPage() {
         <div className="space-y-6">
             
             {/* Reconciliation Status Card */}
-            <Card className={cn("border-none shadow-sm", stats.discrepancyCount > 0 ? "bg-amber-50" : "bg-emerald-50")}>
+            <Card className={cn("border-none shadow-sm", stats.discrepancyCount > 0 ? "bg-amber-50 dark:bg-amber-500/10" : "bg-emerald-50 dark:bg-emerald-500/10")}>
                 <CardHeader className="pb-2">
                     <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                         <Wallet className="h-5 w-5 opacity-70"/> Settlement Status
@@ -298,7 +298,7 @@ export default function CardReconciliationPage() {
                 <CardContent>
                     {stats.discrepancyCount > 0 ? (
                         <div>
-                            <div className="flex items-center gap-2 text-amber-700 mb-2">
+                            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 mb-2">
                                 <AlertTriangle className="h-6 w-6"/>
                                 <span className="text-lg font-bold">Attention Needed</span>
                             </div>
@@ -309,7 +309,7 @@ export default function CardReconciliationPage() {
                         </div>
                     ) : (
                         <div>
-                            <div className="flex items-center gap-2 text-emerald-700 mb-2">
+                            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 mb-2">
                                 <CheckCircle2 className="h-6 w-6"/>
                                 <span className="text-lg font-bold">Fully Balanced</span>
                             </div>
@@ -344,7 +344,7 @@ export default function CardReconciliationPage() {
                             </Pie>
                             <Tooltip 
                                 formatter={(value) => formatLKR(value)} 
-                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                             />
                             <Legend verticalAlign="bottom" height={36}/>
                         </PieChart>

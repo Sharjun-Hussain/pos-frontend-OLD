@@ -102,11 +102,11 @@ export default function CustomerHistoryPage() {
   );
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50 min-h-screen">
+    <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-800/50 min-h-screen">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Customer Purchase History</h1>
-          <p className="text-slate-500">Summary of customer interactions, total spending, and visit frequency.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-200">Customer Purchase History</h1>
+          <p className="text-slate-500 dark:text-slate-400">Summary of customer interactions, total spending, and visit frequency.</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleExportCSV} variant="outline" className="gap-2">
@@ -119,20 +119,20 @@ export default function CustomerHistoryPage() {
       </div>
 
       <Card className="border-none shadow-sm overflow-hidden">
-        <div className="p-4 border-b bg-white flex justify-between items-center">
+        <div className="p-4 border-b dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center">
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input 
               placeholder="Search by name or phone..." 
-              className="pl-10 h-10 shadow-none border-slate-200"
+              className="pl-10 h-10 shadow-none border-slate-200 dark:border-slate-800"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
-        <CardContent className="p-0 bg-white">
+        <CardContent className="p-0 bg-white dark:bg-slate-900">
           <Table>
-            <TableHeader className="bg-slate-50">
+            <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
               <TableRow>
                 <TableHead>Customer</TableHead>
                 <TableHead>Contact Info</TableHead>
@@ -156,22 +156,22 @@ export default function CustomerHistoryPage() {
                 ))
               ) : filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center text-slate-500">
+                  <TableCell colSpan={6} className="h-32 text-center text-slate-500 dark:text-slate-400">
                     No customers found records.
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredData.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-slate-50 transition-colors">
+                  <TableRow key={item.id} className="hover:bg-slate-50 dark:bg-slate-800/50 transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 border border-slate-100">
-                          <AvatarFallback className="bg-blue-50 text-blue-600 font-bold uppercase">
+                        <Avatar className="h-10 w-10 border border-slate-100 dark:border-slate-800">
+                          <AvatarFallback className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 font-bold uppercase">
                             {item.name.substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900">{item.name}</span>
+                            <span className="font-semibold text-slate-900 dark:text-slate-200">{item.name}</span>
                             <span className="text-xs text-slate-400">ID: {item.id.substring(0,8)}</span>
                         </div>
                       </div>
@@ -182,7 +182,7 @@ export default function CustomerHistoryPage() {
                             <span className="text-xs text-slate-400">{item.email || '-'}</span>
                         </div>
                     </TableCell>
-                    <TableCell className="text-right font-medium text-slate-900">
+                    <TableCell className="text-right font-medium text-slate-900 dark:text-slate-200">
                         {item.totalSales}
                     </TableCell>
                     <TableCell className="text-right font-bold text-blue-600">

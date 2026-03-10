@@ -235,7 +235,7 @@ export default function CategorySalesReportPage({ type = "main" }) {
                         </span>
                         <div className="w-24 h-1.5 bg-background rounded-full overflow-hidden">
                             <div 
-                                className="h-full bg-emerald-500" 
+                                className="h-full bg-emerald-50 dark:bg-emerald-500/100" 
                                 style={{ width: `${(parseFloat(item.total_revenue) / (totalRevenue || 1)) * 100}%` }}
                             />
                         </div>

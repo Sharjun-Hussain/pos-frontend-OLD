@@ -134,9 +134,9 @@ export default function SupplierProfitPage() {
                 </TableCell>
                 <TableCell className="text-right">{formatCurrency(item.revenue)}</TableCell>
                 <TableCell className="text-right text-muted-foreground">{formatCurrency(item.cost)}</TableCell>
-                <TableCell className="text-right font-black text-emerald-600">{formatCurrency(item.profit)}</TableCell>
+                <TableCell className="text-right font-black text-emerald-600 dark:text-emerald-500">{formatCurrency(item.profit)}</TableCell>
                 <TableCell className="text-right pr-6">
-                    <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded text-xs font-bold">{item.margin.toFixed(1)}%</span>
+                    <span className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded text-xs font-bold">{item.margin.toFixed(1)}%</span>
                 </TableCell>
               </TableRow>
             ))}

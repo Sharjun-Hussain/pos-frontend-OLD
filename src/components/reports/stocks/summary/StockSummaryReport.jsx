@@ -124,7 +124,7 @@ export default function StockSummaryReportPage() {
   );
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8">
+    <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-800/50 min-h-screen space-y-8">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
@@ -148,7 +148,7 @@ export default function StockSummaryReportPage() {
         </div>
       </div>
 
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-white dark:bg-slate-900">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4 items-end">
              <div className="w-full lg:w-64 space-y-2">
@@ -193,9 +193,9 @@ export default function StockSummaryReportPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
             <TableRow>
               <TableHead className="pl-6">Product & Variant</TableHead>
               <TableHead>Category</TableHead>
@@ -209,12 +209,12 @@ export default function StockSummaryReportPage() {
               filteredData.map((item) => {
                 const isLow = parseFloat(item.quantity) <= parseFloat(item.product?.reorder_level || 0);
                 return (
-                    <TableRow key={item.id} className="hover:bg-slate-50 transition-colors py-4">
+                    <TableRow key={item.id} className="hover:bg-slate-50 dark:bg-slate-800/50 transition-colors py-4">
                     <TableCell className="pl-6 py-4">
                         <div className="flex items-center gap-3">
                             <div className={cn(
                                 "p-2 rounded-lg",
-                                isLow ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"
+                                isLow ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500" : "bg-blue-50 dark:bg-blue-500/10 text-blue-600"
                             )}>
                                 <Package className="h-4 w-4" />
                             </div>
@@ -225,7 +225,7 @@ export default function StockSummaryReportPage() {
                         </div>
                     </TableCell>
                     <TableCell>
-                        <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-600 border-slate-100">
+                        <Badge variant="outline" className="text-[10px] bg-slate-50 dark:bg-slate-800/50 text-slate-600 border-slate-100">
                             {item.product?.main_category?.name || "Uncategorized"}
                         </Badge>
                     </TableCell>
@@ -239,10 +239,10 @@ export default function StockSummaryReportPage() {
                         <div className="flex flex-col items-end">
                             <span className={cn(
                                 "text-lg font-black",
-                                isLow ? "text-amber-600" : "text-slate-900"
+                                isLow ? "text-amber-600 dark:text-amber-500" : "text-slate-900"
                             )}>{parseFloat(item.quantity).toFixed(0)}</span>
                             {isLow && (
-                                <div className="flex items-center gap-1 text-[9px] text-amber-600 font-bold uppercase tracking-tight">
+                                <div className="flex items-center gap-1 text-[9px] text-amber-600 dark:text-amber-500 font-bold uppercase tracking-tight">
                                     <AlertTriangle className="h-2.5 w-2.5" /> Low Stock
                                 </div>
                             )}

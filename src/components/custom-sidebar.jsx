@@ -136,7 +136,7 @@ export function CustomSidebar() {
         icon: BarChart3,
         requiredPermission: PERMISSIONS.REPORT_VIEW,
         items: [
-          { title: "Overview", url: "/reports", requiredPermission: PERMISSIONS.REPORT_VIEW },
+          // { title: "Overview", url: "/reports", requiredPermission: PERMISSIONS.REPORT_VIEW },
           { title: "Inventory Insights", url: "/inventory-insights", requiredPermission: PERMISSIONS.PRODUCT_VIEW },
           { title: "Intelligent Insights", url: "/reports", requiredPermission: PERMISSIONS.REPORT_VIEW },
         ]
@@ -148,7 +148,7 @@ export function CustomSidebar() {
         requiredPermission: PERMISSIONS.SETTINGS_MANAGE,
         items: [
           { title: "Global Settings", url: "/settings", requiredPermission: PERMISSIONS.SETTINGS_MANAGE },
-          { title: "Entity Management", url: "/organizations", requiredPermission: PERMISSIONS.ORG_VIEW },
+          { title: "Business Profiles", url: "/organizations", requiredPermission: PERMISSIONS.ORG_VIEW },
           { title: "Branch Hierarchy", url: "/branches", requiredPermission: PERMISSIONS.BRANCH_VIEW },
           { title: "Application Users", url: "/users", requiredPermission: [PERMISSIONS.USER_VIEW, PERMISSIONS.ROLE_VIEW] },
           { title: "Employees", url: "/employees", requiredPermission: PERMISSIONS.USER_VIEW },

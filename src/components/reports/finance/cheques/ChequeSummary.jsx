@@ -93,22 +93,22 @@ export default function ChequeSummaryPage() {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'cleared': return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">Cleared</Badge>;
-      case 'pending': return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>;
+      case 'cleared': return <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200">Cleared</Badge>;
+      case 'pending': return <Badge variant="outline" className="bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20">Pending</Badge>;
       case 'bounced': return <Badge variant="destructive">Bounced</Badge>;
       default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8">
+    <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-800/50 min-h-screen space-y-8">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Cheque Summary
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Cheque Summary Report
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Detailed list and status overview of all cheques.
+          <p className="text-[11px] font-semibold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mt-0.5">
+            DETAILED LIST OF ALL CHEQUES AND THEIR STATUS
           </p>
         </div>
 
@@ -126,65 +126,65 @@ export default function ChequeSummaryPage() {
       </div>
 
       <Tabs value={type} onValueChange={setType} className="w-full">
-        <TabsList className="grid w-[400px] grid-cols-2 bg-white border border-slate-200 p-1 rounded-xl">
-          <TabsTrigger value="receivable" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all">
-             Receivable (Customers)
+        <TabsList className="grid w-[400px] grid-cols-2 bg-white dark:bg-slate-900/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-200 dark:border-slate-800 p-1 rounded-xl">
+          <TabsTrigger value="receivable" className="rounded-lg data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all font-bold text-xs">
+             Customer Cheques
           </TabsTrigger>
-          <TabsTrigger value="payable" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all">
-             Payable (Suppliers)
+          <TabsTrigger value="payable" className="rounded-lg data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all font-bold text-xs">
+             Supplier Cheques
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4 flex flex-col justify-center bg-white border-none shadow-sm">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Cheque Amount</p>
-          <h3 className="text-xl font-bold text-slate-800">{formatCurrency(data.summary.total)}</h3>
+        <Card className="p-5 flex flex-col justify-center bg-white dark:bg-slate-900 border-none shadow-sm">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Total Value</p>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-foreground">{formatCurrency(data.summary.total)}</h3>
         </Card>
-        <Card className="p-4 flex flex-col justify-center bg-white border-none shadow-sm border-l-4 border-l-emerald-500">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cleared</p>
-          <h3 className="text-xl font-bold text-emerald-600">{formatCurrency(data.summary.cleared || 0)}</h3>
+        <Card className="p-5 flex flex-col justify-center bg-white dark:bg-slate-900 border-none shadow-sm border-l-4 border-l-emerald-500">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5 text-emerald-600 dark:text-emerald-500">Cleared</p>
+          <h3 className="text-xl font-bold text-emerald-600 dark:text-emerald-500">{formatCurrency(data.summary.cleared || 0)}</h3>
         </Card>
-        <Card className="p-4 flex flex-col justify-center bg-white border-none shadow-sm border-l-4 border-l-amber-500">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
-          <h3 className="text-xl font-bold text-amber-600">{formatCurrency(data.summary.pending || 0)}</h3>
+        <Card className="p-5 flex flex-col justify-center bg-white dark:bg-slate-900 border-none shadow-sm border-l-4 border-l-amber-500">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5 text-amber-600 dark:text-amber-500">Pending</p>
+          <h3 className="text-xl font-bold text-amber-600 dark:text-amber-500">{formatCurrency(data.summary.pending || 0)}</h3>
         </Card>
-        <Card className="p-4 flex flex-col justify-center bg-white border-none shadow-sm border-l-4 border-l-red-500">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Bounced</p>
+        <Card className="p-5 flex flex-col justify-center bg-white dark:bg-slate-900 border-none shadow-sm border-l-4 border-l-red-500">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5 text-red-600">Bounced</p>
           <h3 className="text-xl font-bold text-red-600">{formatCurrency(data.summary.bounced || 0)}</h3>
         </Card>
       </div>
 
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
             <TableRow>
-              <TableHead className="pl-6">Cheque #</TableHead>
-              <TableHead>Bank</TableHead>
-              <TableHead>Payee/Payor</TableHead>
-              <TableHead>Cheque Date</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-center">Status</TableHead>
-              <TableHead className="text-right pr-6">Branch</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4 pl-6">Cheque #</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4">Bank</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4">Payee/Payor</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4">Date</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4 text-right">Amount</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4 text-center">Status</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4 text-right pr-6">Branch</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.details.length > 0 ? (
               data.details.map((item) => (
-                <TableRow key={item.id} className="hover:bg-slate-50 transition-colors">
-                  <TableCell className="pl-6 font-mono text-xs font-bold text-blue-600">
+                <TableRow key={item.id} className="hover:bg-slate-50 dark:bg-slate-800/50 transition-colors">
+                  <TableCell className="pl-6 font-bold text-xs text-emerald-600 dark:text-emerald-500">
                     {item.cheque_number}
                   </TableCell>
-                  <TableCell className="text-slate-600 font-medium">
+                  <TableCell className="text-slate-600 dark:text-slate-400 font-medium text-xs">
                     {item.bank_name}
                   </TableCell>
-                  <TableCell className="font-semibold text-slate-900">
+                  <TableCell className="font-bold text-slate-900 dark:text-foreground text-sm">
                     {item.payee_payor_name || "N/A"}
                   </TableCell>
-                  <TableCell className="text-xs">
+                  <TableCell className="text-[11px] font-medium text-slate-500">
                     {formatDate(item.cheque_date)}
                   </TableCell>
-                  <TableCell className="text-right font-black text-slate-900">
+                  <TableCell className="text-right font-bold text-slate-900 dark:text-foreground">
                     {formatCurrency(item.amount)}
                   </TableCell>
                   <TableCell className="text-center">

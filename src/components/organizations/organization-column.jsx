@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 // Reusable Header Component (from your file)
@@ -23,9 +24,10 @@ const DataTableColumnHeader = ({ column, title }) => {
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      className="hover:bg-transparent px-0 font-bold text-[11px] uppercase tracking-widest text-slate-400"
     >
       {title}
-      <ArrowUpDown className="ml-2 h-4 w-4 text-gray-700 opacity-60" />
+      <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-50" />
     </Button>
   );
 };
@@ -66,18 +68,18 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
         : null;
 
       return (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
+        <div className="flex items-center gap-3 py-1">
+          <Avatar className="h-10 w-10 rounded-xl border border-slate-100 shadow-sm">
             <AvatarImage src={logoUrl} alt={organization.name} />
-            <AvatarFallback className="bg-primary/10 text-primary">
-              <Building className="h-4 w-4" />
+            <AvatarFallback className="bg-emerald-50 text-[#10b981] rounded-xl font-bold">
+              {organization.name.substring(0, 1).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-medium text-sm text-foreground">
+            <span className="font-bold text-[13px] text-slate-900 tracking-tight">
               {organization.name}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[11px] text-slate-400 font-medium">
               {organization.email || "No email"}
             </span>
           </div>
@@ -119,7 +121,7 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
     cell: ({ row }) => {
       const branchCount = row.original.branches?.length || 0;
       return (
-        <Badge variant="secondary" className="font-normal">
+        <Badge variant="secondary" className="bg-slate-50 text-slate-600 border-slate-100 font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg">
           {branchCount} {branchCount === 1 ? "Branch" : "Branches"}
         </Badge>
       );
@@ -144,11 +146,11 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
       
       return (
         <div className="flex flex-col gap-1">
-          <Badge variant="outline" className={`font-normal ${tierColors[tier] || ''}`}>
+          <Badge variant="outline" className={cn("font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-lg border-none", tierColors[tier] || 'bg-slate-100 text-slate-500')}>
             {tier}
           </Badge>
           {cycle && (
-            <span className="text-xs text-muted-foreground">{cycle}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{cycle}</span>
           )}
         </div>
       );
@@ -170,7 +172,7 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
       const config = statusConfig[status] || statusConfig.Trial;
       
       return (
-        <Badge variant={config.variant} className={`font-normal ${config.className}`}>
+        <Badge variant={config.variant} className={cn("font-bold text-[10px] uppercase tracking-wider px-2 py-1 rounded-lg border-none shadow-none", config.className)}>
           {status || "Trial"}
         </Badge>
       );

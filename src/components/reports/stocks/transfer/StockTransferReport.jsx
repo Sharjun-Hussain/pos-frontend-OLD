@@ -107,7 +107,7 @@ export default function StockTransferReportPage() {
   );
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8">
+    <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-800/50 min-h-screen space-y-8">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
@@ -131,7 +131,7 @@ export default function StockTransferReportPage() {
         </div>
       </div>
 
-      <Card className="border-none shadow-sm bg-white">
+      <Card className="border-none shadow-sm bg-white dark:bg-slate-900">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4 items-end">
             <div className="flex-1 space-y-2">
@@ -166,9 +166,9 @@ export default function StockTransferReportPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
             <TableRow>
               <TableHead className="pl-6">Transfer #</TableHead>
               <TableHead>Date</TableHead>
@@ -181,7 +181,7 @@ export default function StockTransferReportPage() {
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((item) => (
-                <TableRow key={item.id} className="hover:bg-slate-50 transition-colors">
+                <TableRow key={item.id} className="hover:bg-slate-50 dark:bg-slate-800/50 transition-colors">
                   <TableCell className="pl-6 font-mono text-xs font-bold text-slate-900">
                     {item.transfer_number}
                   </TableCell>
@@ -196,16 +196,16 @@ export default function StockTransferReportPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none px-2 h-5">
+                    <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 border-none px-2 h-5">
                         {item.items?.length || 0} Items
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="outline" className={cn(
                         "uppercase text-[10px] h-5",
-                        item.status === 'completed' ? "bg-green-50 text-green-700 border-green-100" :
-                        item.status === 'pending' ? "bg-amber-50 text-amber-700 border-amber-100" :
-                        "bg-red-50 text-red-700 border-red-100"
+                        item.status === 'completed' ? "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-100 dark:border-green-500/20" :
+                        item.status === 'pending' ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-500/20" :
+                        "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-100 dark:border-red-500/20"
                     )}>
                         {item.status}
                     </Badge>

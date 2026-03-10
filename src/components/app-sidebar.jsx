@@ -242,12 +242,12 @@ export function AppSidebar({ ...props }) {
       },
     ],
     primaryNav: [
-      {
-        name: "Dashboard Overview",
-        url: "/",
-        icon: LayoutDashboard,
-        requiredPermission: null,
-      },
+      // {
+      //   name: "Dashboard Overview",
+      //   url: "/",
+      //   icon: LayoutDashboard,
+      //   requiredPermission: null,
+      // },
       {
         name: "Inventory Insights",
         url: "/inventory-insights",
@@ -269,9 +269,9 @@ export function AppSidebar({ ...props }) {
         requiredPermission: PERMISSIONS.SETTINGS_MANAGE,
       },
       {
-        name: "Entity Management",
+        name: "Business Profiles",
         url: "/organizations",
-        icon: Origami,
+        icon: Building,
         requiredPermission: PERMISSIONS.ORG_VIEW,
       },
       {

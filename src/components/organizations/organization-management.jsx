@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import OrganizationPageSkeleton from "@/app/skeletons/organization-skeleton";
 import { ResourceManagementLayout } from "../general/resource-management-layout";
 import { getOrganizationColumns } from "./organization-column";
 import { usePermission } from "@/hooks/use-permission";
@@ -294,18 +294,74 @@ export default function OrganizationPage() {
   const organizationStats = calculateOrganizationStats(organizations);
   const statCards = (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card>
+      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                 Total Organizations
               </p>
-              <p className="text-2xl font-bold">
+              <p className="text-2xl font-bold text-slate-900">
                 {organizationStats?.totalOrganizations}
               </p>
             </div>
-            <Building className="h-8 w-8 text-blue-500" />
+            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm">
+              <Building className="h-5 w-5" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                Active Profiles
+              </p>
+              <p className="text-2xl font-bold text-slate-900">
+                {organizationStats?.activeOrganizations}
+              </p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                Multi-Branch
+              </p>
+              <p className="text-2xl font-bold text-slate-900">
+                {organizationStats?.multiBranchOrganizations}
+              </p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 shadow-sm">
+              <Briefcase className="h-5 w-5" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                Inactive
+              </p>
+              <p className="text-2xl font-bold text-slate-900">
+                {organizationStats?.inactiveOrganizations}
+              </p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-sm">
+              <XCircle className="h-5 w-5" />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -320,13 +376,26 @@ export default function OrganizationPage() {
       isError={!!error}
       errorMessage={error}
       onRetry={fetchOrganizations}
-      headerTitle="Organization Management"
-      headerDescription="Manage your organizations, branches, and settings."
-      addButtonLabel="Add Organization"
+      headerTitle={
+        <div className="flex items-center gap-4">
+          <div className="p-2.5 rounded-xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-sm shadow-emerald-500/5">
+            <Building className="w-5 h-5 text-[#10b981]" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              Business Profiles
+            </h1>
+            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-[0.08em] opacity-80">
+              Settings • Entity Management & Branch Hierarchy
+            </p>
+          </div>
+        </div>
+      }
+      addButtonLabel="Add Profile"
       onAddClick={canCreate(ORG) ? handleAddClick : null}
       isAdding={isNavigating}
       onExportClick={() => console.log("Export clicked")}
-      // statCardsComponent={statCards}
+      statCardsComponent={statCards}
       bulkActionsComponent={
         canDelete(ORG) ? (
           <OrganizationBulkActions
@@ -337,7 +406,7 @@ export default function OrganizationPage() {
         ) : null
       }
       searchColumn="name"
-      searchPlaceholder="Filter organizations by name..."
+      searchPlaceholder="Search business profiles..."
       loadingSkeleton={<OrganizationPageSkeleton />}
       filterComponents={(table) => <OrganizationFilters table={table} />}
     />

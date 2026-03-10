@@ -18,57 +18,61 @@ import { format } from "date-fns";
 export const getChequeColumns = ({ onUpdateStatus, onDelete, onView }) => [
   {
     accessorKey: "cheque_number",
-    header: "Instrument #",
-    cell: ({ row }) => <span className="font-black text-[11px] tracking-[0.1em] text-slate-900 dark:text-emerald-400">{row.getValue("cheque_number")}</span>,
+    header: "Cheque #",
+    cell: ({ row }) => <span className="font-bold text-[12px] tracking-tight text-slate-900 dark:text-emerald-400">{row.getValue("cheque_number")}</span>,
+  },
+  {
+    accessorKey: "bank_name",
+    header: "Bank Name",
+    cell: ({ row }) => <span className="font-bold text-xs text-slate-600 dark:text-slate-300 tracking-tight">{row.getValue("bank_name")}</span>,
+  },
+  {
+    accessorKey: "amount",
+    header: "Amount (LKR)",
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("amount"));
+      return (
+        <div className="font-bold text-slate-900 dark:text-foreground">
+          {amount.toLocaleString()}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "type",
-    header: "Designation",
+    header: "Type",
     cell: ({ row }) => {
       const type = row.getValue("type");
       return (
         <Badge 
           variant="outline" 
           className={cn(
-            "text-[9px] font-black tracking-widest px-2.5 py-0.5 border-none",
+            "text-[10px] font-bold tracking-tight px-2 py-0.5 border",
             type === "receivable" 
-              ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400" 
-              : "bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20" 
+              : "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20"
           )}
         >
-          {type === "receivable" ? "Inflow Asset" : "Outflow Debt"}
+          {type === "receivable" ? "Customer" : "Supplier"}
         </Badge>
       );
     },
   },
   {
-    accessorKey: "bank_name",
-    header: "Institution",
-    cell: ({ row }) => <span className="font-bold text-xs text-slate-600 dark:text-slate-300 tracking-tight">{row.getValue("bank_name")}</span>,
-  },
-  {
-    accessorKey: "amount",
-    header: "Magnitude (LKR)",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-      return <span className="font-black text-sm tracking-tight text-slate-900 dark:text-white">LKR {amount.toLocaleString()}</span>;
-    },
-  },
-  {
     accessorKey: "cheque_date",
-    header: "Maturity",
+    header: "Cheque Date",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-black text-[10px] text-slate-900 dark:text-white tracking-widest">
-            {format(new Date(row.getValue("cheque_date")), "dd MMM yyyy")}
+        <span className="font-bold text-[11px] text-slate-900 dark:text-white tracking-tight">
+            {format(new Date(row.getValue("cheque_date")), "PPP")}
         </span>
-        <span className="text-[9px] font-bold text-muted-foreground tracking-widest opacity-70">Scheduled Settlement</span>
+        <span className="text-[10px] font-medium text-slate-500 tracking-tight truncate">Scheduled</span>
       </div>
     ),
   },
   {
     accessorKey: "status",
-    header: "Protocol Status",
+    header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status");
       return <StatusBadge value={status} className="shadow-none rounded-md" />;
@@ -108,7 +112,7 @@ export const getChequeColumns = ({ onUpdateStatus, onDelete, onView }) => [
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={() => onDelete(cheque.id)}
-              className="text-red-600 focus:text-red-700 focus:bg-red-50"
+              className="text-red-600 focus:text-red-700 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-500/10"
               disabled={cheque.status === "cleared"}
             >
               <Trash className="mr-2 h-4 w-4" /> Delete

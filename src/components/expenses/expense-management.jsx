@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ResourceManagementLayout } from "@/components/general/resource-management-layout";
 import { getExpenseColumns } from "./expense-column";
-import OrganizationPageSkeleton from "@/app/skeletons/Organization-skeleton";
+import ExpenseSkeleton from "@/app/skeletons/expense-skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wallet, Receipt, TrendingDown, Calendar } from "lucide-react";
 import { usePermission } from "@/hooks/use-permission";
@@ -37,7 +37,13 @@ export default function ExpenseManagement() {
       if (!response.ok) throw new Error("Failed to fetch expenses");
       const data = await response.json();
       if (data.status === "success") {
-        setExpenses(data?.data?.data || data?.data || []);
+        const rawData = data?.data?.data || data?.data || [];
+        const transformedData = rawData.map(item => ({
+          ...item,
+          date: item.expense_date,
+          category_name: item.category?.name || "Uncategorized"
+        }));
+        setExpenses(transformedData);
       } else {
         throw new Error(data.message || "Failed to fetch expenses");
       }
@@ -146,13 +152,26 @@ export default function ExpenseManagement() {
       isError={!!error && expenses.length === 0}
       errorMessage={error}
       onRetry={fetchExpenses}
-      headerTitle="Expense Management"
-      headerDescription="Track and manage your business expenditures."
+      headerTitle={
+        <div className="flex items-center gap-4">
+            <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#e6f7f0] dark:bg-emerald-500/10 text-[#00b076] dark:text-emerald-500">
+                <Receipt className="h-6 w-6" />
+            </div>
+            <div className="flex flex-col">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground tracking-tight">
+                    Expense Management
+                </h1>
+                <p className="text-[11px] font-semibold text-slate-500 dark:text-muted-foreground uppercase tracking-wider mt-0.5">
+                    TRACK & MANAGE EXPENDITURES
+                </p>
+            </div>
+        </div>
+      }
       addButtonLabel="Add Expense"
       onAddClick={canCreate(EXPENSE) ? handleAddClick : null}
       searchColumn="reference_no"
       searchPlaceholder="Search by reference #..."
-      loadingSkeleton={<OrganizationPageSkeleton />}
+      loadingSkeleton={<ExpenseSkeleton />}
       statCardsComponent={statCards}
     />
   );

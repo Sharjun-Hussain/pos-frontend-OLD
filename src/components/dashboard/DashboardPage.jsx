@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import Header from "./Header"; // Assuming you have this
 import StatsGrid from "./StatsGrid";
 import QuickActions from "./QuickAction";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");

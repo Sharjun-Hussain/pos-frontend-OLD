@@ -95,7 +95,7 @@ export default function CapitalBalancePage() {
   }, [session?.accessToken]);
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 min-h-screen space-y-8">
+    <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-800/50 min-h-screen space-y-8">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
@@ -120,10 +120,10 @@ export default function CapitalBalancePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="shadow-sm border-none bg-white overflow-hidden">
+        <Card className="shadow-sm border-none bg-white dark:bg-slate-900 overflow-hidden">
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-2">
-                <div className="p-3 bg-blue-50 rounded-xl">
+                <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl">
                     <TrendingUp className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
@@ -135,10 +135,10 @@ export default function CapitalBalancePage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none bg-white overflow-hidden">
+        <Card className="shadow-sm border-none bg-white dark:bg-slate-900 overflow-hidden">
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-2">
-                <div className="p-3 bg-red-50 rounded-xl">
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 rounded-xl">
                     <TrendingDown className="h-6 w-6 text-red-600" />
                 </div>
                 <div>
@@ -169,14 +169,14 @@ export default function CapitalBalancePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* ASSETS TABLE */}
         <Card className="border-none shadow-sm">
-          <CardHeader className="bg-white border-b border-slate-50">
+          <CardHeader className="bg-white dark:bg-slate-900 border-b border-slate-50">
             <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+                <div className="w-1.5 h-6 bg-blue-50 dark:bg-blue-500/100 rounded-full" />
                 Assets
             </CardTitle>
           </CardHeader>
           <Table>
-            <TableHeader className="bg-slate-50/50">
+            <TableHeader className="bg-slate-50 dark:bg-slate-800/50/50">
               <TableRow>
                 <TableHead>Account Name</TableHead>
                 <TableHead>Code</TableHead>
@@ -188,14 +188,14 @@ export default function CapitalBalancePage() {
                 <TableRow key={acc.id}>
                   <TableCell className="font-medium">{acc.name}</TableCell>
                   <TableCell className="text-xs text-slate-500 font-mono">{acc.code}</TableCell>
-                  <TableCell className="text-right pr-6 font-bold text-blue-700">{formatCurrency(acc.balance)}</TableCell>
+                  <TableCell className="text-right pr-6 font-bold text-blue-700 dark:text-blue-400">{formatCurrency(acc.balance)}</TableCell>
                 </TableRow>
               )) : (
                 <TableRow><TableCell colSpan={3} className="text-center py-8 text-slate-400 italic">No asset accounts found</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
-          <div className="p-4 bg-slate-50 border-t flex justify-between items-center text-sm font-bold">
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t flex justify-between items-center text-sm font-bold">
               <span>TOTAL ASSETS</span>
               <span className="text-blue-600">{formatCurrency(data.summary.totalAssets)}</span>
           </div>
@@ -204,14 +204,14 @@ export default function CapitalBalancePage() {
         {/* LIABILITIES TABLE */}
         <div className="space-y-8">
             <Card className="border-none shadow-sm">
-            <CardHeader className="bg-white border-b border-slate-50">
+            <CardHeader className="bg-white dark:bg-slate-900 border-b border-slate-50">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-red-500 rounded-full" />
+                    <div className="w-1.5 h-6 bg-red-50 dark:bg-red-500/100 rounded-full" />
                     Liabilities
                 </CardTitle>
             </CardHeader>
             <Table>
-                <TableHeader className="bg-slate-50/50">
+                <TableHeader className="bg-slate-50 dark:bg-slate-800/50/50">
                 <TableRow>
                     <TableHead>Account Name</TableHead>
                     <TableHead>Code</TableHead>
@@ -223,24 +223,24 @@ export default function CapitalBalancePage() {
                     <TableRow key={acc.id}>
                     <TableCell className="font-medium">{acc.name}</TableCell>
                     <TableCell className="text-xs text-slate-500 font-mono">{acc.code}</TableCell>
-                    <TableCell className="text-right pr-6 font-bold text-red-700">{formatCurrency(acc.balance)}</TableCell>
+                    <TableCell className="text-right pr-6 font-bold text-red-700 dark:text-red-400">{formatCurrency(acc.balance)}</TableCell>
                     </TableRow>
                 )) : (
                     <TableRow><TableCell colSpan={3} className="text-center py-8 text-slate-400 italic">No liability accounts found</TableCell></TableRow>
                 )}
                 </TableBody>
             </Table>
-            <div className="p-4 bg-slate-50 border-t flex justify-between items-center text-sm font-bold">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t flex justify-between items-center text-sm font-bold">
                 <span>TOTAL LIABILITIES</span>
                 <span className="text-red-600">{formatCurrency(data.summary.totalLiabilities)}</span>
             </div>
             </Card>
 
-            <Card className="border-none shadow-sm bg-emerald-50">
+            <Card className="border-none shadow-sm bg-emerald-50 dark:bg-emerald-500/10">
                 <div className="p-6 flex justify-between items-center">
                     <div>
                         <h4 className="text-lg font-bold text-emerald-900">Total Capital</h4>
-                        <p className="text-xs text-emerald-700">Assets minus Liabilities</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">Assets minus Liabilities</p>
                     </div>
                     <div className="text-right">
                         <h2 className="text-3xl font-black text-emerald-900">{formatCurrency(data.summary.netWorth)}</h2>

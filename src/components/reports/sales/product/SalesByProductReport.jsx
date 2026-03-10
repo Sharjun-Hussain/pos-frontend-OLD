@@ -247,7 +247,7 @@ export default function SalesByProductPage() {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-emerald-500 hover:text-emerald-600 h-8 px-2"
+            className="text-emerald-500 hover:text-emerald-600 dark:text-emerald-500 h-8 px-2"
             onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
           >
             {isFiltersCollapsed ? "Expand" : "Collapse"}
@@ -379,12 +379,12 @@ export default function SalesByProductPage() {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis dataKey="name" type="category" width={150} stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
+                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis dataKey="name" type="category" width={150} stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
                   cursor={{ fill: '#f1f5f9' }}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Bar dataKey="sold" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={24} />
               </BarChart>
