@@ -3,7 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Building, LoaderIcon, Plus, Save, X, Globe, Phone, MapPin, Mail, User, Shield, Calendar, CreditCard, Camera, Trash2 } from "lucide-react";
+import { Building, LoaderIcon, Plus, Save, X, Globe, Phone, MapPin, Mail, User, Shield, Calendar, CreditCard, Camera, Trash2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react"; // --- CHANGED --- (useEffect not needed for this form)
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react"; // --- CHANGED ---
@@ -27,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
@@ -265,11 +266,58 @@ export function OrganizationForm({ initialData }) {
       setIsSubmitting(false);
     }
   }
-
   return (
-    <div className="space-y-6 w-full mx-auto pb-12">
+    <div className="flex flex-col gap-8 w-full animate-in fade-in duration-500 mx-auto px-4 md:px-10 py-10">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+          
+          {/* Header section with back button and title */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3.5 rounded-2xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-inner text-[#10b981]">
+                <Building className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                  Business Enrollment
+                </h1>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1 font-medium">
+                  <span>System Settings</span>
+                  <span className="text-muted-foreground/30">/</span>
+                  <span>Organizations</span>
+                  <span className="text-muted-foreground/30">/</span>
+                  <span className="text-[#10b981]">Enrollment</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Link href="/organizations">
+                <Button variant="outline" type="button" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30 h-10 px-5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95" disabled={isSubmitting}>
+                  <ArrowLeft className="h-4 w-4" /> Cancel
+                </Button>
+              </Link>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="rounded-xl h-10 px-6 bg-[#10b981] hover:bg-[#0da371] text-white font-bold transition-all shadow-lg shadow-[#10b981]/20 active:scale-[0.98] uppercase text-xs tracking-widest border-none gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <LoaderIcon className="h-4 w-4 animate-spin" />
+                  </>
+                ) : isEditMode ? (
+                  <>
+                    <Save className="h-4 w-4"/> Commit
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4"/> Register
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
           
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -277,31 +325,34 @@ export function OrganizationForm({ initialData }) {
             {/* Left Column: Form Sections */}
             <div className="lg:col-span-2 space-y-8">
               
-              {/* 1. Basic Information */}
-              <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
-                  <div className="p-1.5 rounded-lg bg-emerald-50 text-[#10b981]">
+              {/* 1. Business Details */}
+              <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border border-border/10">
+                <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center gap-3">
+                  <div className="p-2 rounded-lg bg-[#10b981]/10 text-[#10b981]">
                     <Building className="h-4 w-4" />
                   </div>
-                  <h3 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Profile Details</h3>
-                </div>
-                <CardContent className="p-6 space-y-6">
+                  <div>
+                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Business Details</CardTitle>
+                    <CardDescription className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-tight">Core business identity and contact information</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-bold text-[13px]">Business Name</FormLabel>
+                          <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Business Name</FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="e.g. Apex Global Corp" 
+                              placeholder="e.g. Apex Global" 
                               {...field} 
                               disabled={isSubmitting}
-                              className="h-11 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                              className="h-11 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                             />
                           </FormControl>
-                          <FormMessage className="text-[11px]" />
+                          <FormMessage className="text-[10px]" />
                         </FormItem>
                       )}
                     />
@@ -310,16 +361,16 @@ export function OrganizationForm({ initialData }) {
                       name="city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-bold text-[13px]">Registred City</FormLabel>
+                          <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">City</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="e.g. Colombo" 
                               {...field} 
                               disabled={isSubmitting}
-                              className="h-11 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                              className="h-11 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                             />
                           </FormControl>
-                          <FormMessage className="text-[11px]" />
+                          <FormMessage className="text-[10px]" />
                         </FormItem>
                       )}
                     />
@@ -330,19 +381,19 @@ export function OrganizationForm({ initialData }) {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-bold text-[13px]">HQ Address</FormLabel>
+                        <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Headquarters Address</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                            <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/50" />
                             <Input 
-                              placeholder="Full registered address..." 
+                              placeholder="Full physical address..." 
                               {...field} 
                               disabled={isSubmitting}
-                              className="h-11 pl-10 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                              className="h-11 pl-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                             />
                           </div>
                         </FormControl>
-                        <FormMessage className="text-[11px]" />
+                        <FormMessage className="text-[10px]" />
                       </FormItem>
                     )}
                   />
@@ -353,23 +404,23 @@ export function OrganizationForm({ initialData }) {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-bold text-[13px]">Business Email</FormLabel>
+                          <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Business Email</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                              <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/50" />
                               <Input 
                                 type="email" 
                                 placeholder="contact@business.com" 
                                 {...field} 
                                 disabled={isSubmitting || isEditMode}
-                                className="h-11 pl-10 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                                className="h-11 pl-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                               />
                             </div>
                           </FormControl>
-                          <FormDescription className="text-[10px] text-slate-400 font-medium italic mt-1.5">
-                            * Principal email used for system notifications
+                          <FormDescription className="text-[9px] text-muted-foreground/60 uppercase font-bold tracking-tight mt-1.5 opacity-60">
+                            * Principal email for system alerts
                           </FormDescription>
-                          <FormMessage className="text-[11px]" />
+                          <FormMessage className="text-[10px]" />
                         </FormItem>
                       )}
                     />
@@ -378,20 +429,20 @@ export function OrganizationForm({ initialData }) {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-bold text-[13px]">Primary Contact Phone</FormLabel>
+                          <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Contact Phone</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                              <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/50" />
                               <Input 
                                 type="tel" 
                                 placeholder="+94 7X XXX XXXX" 
                                 {...field} 
                                 disabled={isSubmitting}
-                                className="h-11 pl-10 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                                className="h-11 pl-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                               />
                             </div>
                           </FormControl>
-                          <FormMessage className="text-[11px]" />
+                          <FormMessage className="text-[10px]" />
                         </FormItem>
                       )}
                     />
@@ -402,54 +453,57 @@ export function OrganizationForm({ initialData }) {
                     name="website"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-bold text-[13px]">Corporate Website (Optional)</FormLabel>
+                        <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Website (Optional)</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                            <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/50" />
                             <Input 
                               placeholder="https://www.business.com" 
                               {...field} 
                               disabled={isSubmitting}
-                              className="h-11 pl-10 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                              className="h-11 pl-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                             />
                           </div>
                         </FormControl>
-                        <FormMessage className="text-[11px]" />
+                        <FormMessage className="text-[10px]" />
                       </FormItem>
                     )}
                   />
                 </CardContent>
               </Card>
 
-              {/* 2. Team & Access (Only for Create Mode) */}
+              {/* 2. Primary Administrator (Only for Create Mode) */}
               {!isEditMode && (
-                <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden">
-                  <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
-                    <div className="p-1.5 rounded-lg bg-blue-50 text-blue-500">
+                <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border border-border/10">
+                  <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
                       <Shield className="h-4 w-4" />
                     </div>
-                    <h3 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Ownership & Initial Access</h3>
-                  </div>
-                  <CardContent className="p-6 space-y-6">
+                    <div>
+                      <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Primary Administrator</CardTitle>
+                      <CardDescription className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-tight">Root account and default branch setup</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-8 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}
                         name="owner_name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 font-bold text-[13px]">Full Name</FormLabel>
+                            <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Manager Name</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/50" />
                                 <Input 
-                                  placeholder="Primary Administrator" 
+                                  placeholder="Primary login name" 
                                   {...field} 
                                   disabled={isSubmitting}
-                                  className="h-11 pl-10 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                                  className="h-11 pl-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                                 />
                               </div>
                             </FormControl>
-                            <FormMessage className="text-[11px]" />
+                            <FormMessage className="text-[10px]" />
                           </FormItem>
                         )}
                       />
@@ -458,17 +512,17 @@ export function OrganizationForm({ initialData }) {
                         name="owner_password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 font-bold text-[13px]">Security Password</FormLabel>
+                            <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Secure Password</FormLabel>
                             <FormControl>
                               <Input 
                                 type="password" 
                                 placeholder="••••••••" 
                                 {...field} 
                                 disabled={isSubmitting}
-                                className="h-11 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                                className="h-11 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                               />
                             </FormControl>
-                            <FormMessage className="text-[11px]" />
+                            <FormMessage className="text-[10px]" />
                           </FormItem>
                         )}
                       />
@@ -478,19 +532,19 @@ export function OrganizationForm({ initialData }) {
                       name="branch_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-bold text-[13px]">Default Branch Name</FormLabel>
+                          <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Main Branch Name</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="e.g. Main Hub" 
                               {...field} 
                               disabled={isSubmitting}
-                              className="h-11 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                              className="h-11 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                             />
                           </FormControl>
-                          <FormDescription className="text-[10px] text-slate-400 font-medium mt-1">
-                            The system will automatically initialize this as your primary branch.
+                          <FormDescription className="text-[9px] text-muted-foreground/60 uppercase font-bold tracking-tight mt-1 opacity-60">
+                            The system will auto-initialize this as your first location.
                           </FormDescription>
-                          <FormMessage className="text-[11px]" />
+                          <FormMessage className="text-[10px]" />
                         </FormItem>
                       )}
                     />
@@ -498,36 +552,39 @@ export function OrganizationForm({ initialData }) {
                 </Card>
               )}
 
-              {/* 3. Subscription Management (Edit Mode Only) */}
+              {/* 3. Subscription (Edit Mode Only) */}
               {isEditMode && (
-                <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden">
-                  <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
-                    <div className="p-1.5 rounded-lg bg-amber-50 text-amber-500">
+                <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border border-border/10">
+                  <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center gap-3">
+                    <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
                       <Calendar className="h-4 w-4" />
                     </div>
-                    <h3 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Subscription & Plans</h3>
-                  </div>
-                  <CardContent className="p-6 space-y-6">
+                    <div>
+                      <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Subscription Status</CardTitle>
+                      <CardDescription className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-tight">Plan management and billing cycles</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-8 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}
                         name="subscription_tier"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 font-bold text-[13px]">Tier Plan</FormLabel>
+                            <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Plan Tier</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
-                                <SelectTrigger className="h-11 rounded-xl border-slate-200 font-semibold text-[13px]">
+                                <SelectTrigger className="h-11 rounded-xl border-border/50 bg-background font-semibold text-sm focus:ring-[#10b981]/20 transition-all">
                                   <SelectValue placeholder="Identify plan" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                                <SelectItem value="Basic">Basic Edition</SelectItem>
-                                <SelectItem value="Pro">Professional</SelectItem>
-                                <SelectItem value="Enterprise">Enterprise Elite</SelectItem>
+                              <SelectContent className="rounded-xl border-border/50 p-1 shadow-xl">
+                                <SelectItem value="Basic" className="rounded-lg py-2 font-semibold text-xs">Basic Edition</SelectItem>
+                                <SelectItem value="Pro" className="rounded-lg py-2 font-semibold text-xs">Professional</SelectItem>
+                                <SelectItem value="Enterprise" className="rounded-lg py-2 font-semibold text-xs">Enterprise Elite</SelectItem>
                               </SelectContent>
                             </Select>
-                            <FormMessage className="text-[11px]" />
+                            <FormMessage className="text-[10px]" />
                           </FormItem>
                         )}
                       />
@@ -536,20 +593,20 @@ export function OrganizationForm({ initialData }) {
                         name="billing_cycle"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 font-bold text-[13px]">Billing Cycle</FormLabel>
+                            <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Billing Cycle</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
-                                <SelectTrigger className="h-11 rounded-xl border-slate-200 font-semibold text-[13px]">
+                                <SelectTrigger className="h-11 rounded-xl border-border/50 bg-background font-semibold text-sm focus:ring-[#10b981]/20 transition-all">
                                   <SelectValue placeholder="Select cycle" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                                <SelectItem value="Monthly">Monthly</SelectItem>
-                                <SelectItem value="Yearly">Yearly (Save 20%)</SelectItem>
-                                <SelectItem value="Lifetime">Lifetime License</SelectItem>
+                              <SelectContent className="rounded-xl border-border/50 p-1 shadow-xl">
+                                <SelectItem value="Monthly" className="rounded-lg py-2 font-semibold text-xs">Monthly</SelectItem>
+                                <SelectItem value="Yearly" className="rounded-lg py-2 font-semibold text-xs">Yearly (Save 20%)</SelectItem>
+                                <SelectItem value="Lifetime" className="rounded-lg py-2 font-semibold text-xs">Lifetime License</SelectItem>
                               </SelectContent>
                             </Select>
-                            <FormMessage className="text-[11px]" />
+                            <FormMessage className="text-[10px]" />
                           </FormItem>
                         )}
                       />
@@ -561,20 +618,20 @@ export function OrganizationForm({ initialData }) {
                         name="amount"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 font-bold text-[13px]">Payment Amount</FormLabel>
+                            <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Billing Amount</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <CreditCard className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                                <CreditCard className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/50" />
                                 <Input 
                                   type="number" 
                                   placeholder="0.00" 
                                   {...field} 
                                   disabled={isSubmitting}
-                                  className="h-11 pl-10 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                                  className="h-11 pl-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                                 />
                               </div>
                             </FormControl>
-                            <FormMessage className="text-[11px]" />
+                            <FormMessage className="text-[10px]" />
                           </FormItem>
                         )}
                       />
@@ -583,16 +640,16 @@ export function OrganizationForm({ initialData }) {
                         name="subscription_expiry_date"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 font-bold text-[13px]">Expiry Date</FormLabel>
+                            <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Expiry Date</FormLabel>
                             <FormControl>
                               <Input 
                                 type="date" 
                                 {...field} 
                                 disabled={isSubmitting}
-                                className="h-11 rounded-xl border-slate-200 focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-[13px]"
+                                className="h-11 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-semibold text-sm transition-all"
                               />
                             </FormControl>
-                            <FormMessage className="text-[11px]" />
+                            <FormMessage className="text-[10px]" />
                           </FormItem>
                         )}
                       />
@@ -603,16 +660,19 @@ export function OrganizationForm({ initialData }) {
             </div>
 
             {/* Right Column: Logo & Status */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Branding Sidebar */}
-              <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3">
-                  <div className="p-1.5 rounded-lg bg-emerald-50 text-[#10b981]">
+              <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border border-border/10">
+                <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center gap-3">
+                  <div className="p-2 rounded-lg bg-[#10b981]/10 text-[#10b981]">
                     <Camera className="h-3.5 w-3.5" />
                   </div>
-                  <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-widest">Brand Visuals</h3>
-                </div>
-                <CardContent className="p-6">
+                  <div>
+                    <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-foreground">Brand Identity</CardTitle>
+                    <CardDescription className="text-[8px] font-medium text-muted-foreground/60 uppercase tracking-tight">Logo and visual assets</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8">
                   <FormField
                     control={form.control}
                     name="logo"
@@ -620,24 +680,24 @@ export function OrganizationForm({ initialData }) {
                       <FormItem>
                         <div className="flex flex-col items-center gap-6">
                           <div className="relative group">
-                            <Avatar className="w-28 h-28 rounded-2xl border-2 border-slate-100 shadow-md">
-                              <AvatarImage src={previewUrl} alt="Logo" className="object-cover" />
-                              <AvatarFallback className="bg-slate-50 text-slate-400 rounded-2xl border-dashed border-2 border-slate-200">
+                            <Avatar className="w-32 h-32 rounded-3xl border-2 border-border/50 shadow-md ring-2 ring-transparent group-hover:ring-[#10b981]/20 transition-all overflow-hidden bg-muted/20">
+                              <AvatarImage src={previewUrl} alt="Logo" className="object-cover h-full w-full" />
+                              <AvatarFallback className="bg-muted/10 text-muted-foreground rounded-3xl border-dashed border-2 border-border/50">
                                 <Building className="w-10 h-10 opacity-30" />
                               </AvatarFallback>
                             </Avatar>
                             <label 
                               htmlFor="file-upload"
-                              className="absolute inset-0 bg-black/40 text-white flex flex-col items-center justify-center rounded-2xl opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]"
+                              className="absolute inset-0 bg-black/60 text-white flex flex-col items-center justify-center rounded-3xl opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]"
                             >
                               <Plus className="h-6 w-6 mb-1" />
-                              <span className="text-[10px] uppercase font-bold tracking-widest">Change</span>
+                              <span className="text-[10px] uppercase font-bold tracking-widest">Update</span>
                             </label>
                           </div>
                           
-                          <div className="text-center">
-                            <h4 className="text-[13px] font-bold text-slate-900 leading-tight">Business Identity</h4>
-                            <p className="text-[11px] text-slate-400 mt-1">Square ratio works best (512x512px)</p>
+                          <div className="text-center space-y-1">
+                            <h4 className="text-sm font-bold text-foreground">Company Logo</h4>
+                            <p className="text-[9px] text-muted-foreground/60 uppercase font-black tracking-widest leading-relaxed">Square PNG or WEBP<br/>(Max 5MB)</p>
                           </div>
 
                           <FormControl>
@@ -656,13 +716,13 @@ export function OrganizationForm({ initialData }) {
                             asChild 
                             variant="outline" 
                             size="sm"
-                            className="w-full rounded-xl border-slate-200 font-bold text-[11px] uppercase tracking-wider h-10 shadow-sm"
+                            className="w-full rounded-xl border-border/50 bg-background font-bold text-[10px] uppercase tracking-wider h-11 shadow-sm transition-all active:scale-95 hover:bg-[#10b981]/5 hover:border-[#10b981]/30 hover:text-[#10b981]"
                             disabled={isSubmitting}
                           >
-                            <label htmlFor="file-upload">Upload New Logo</label>
+                            <label htmlFor="file-upload">Upload Logo</label>
                           </Button>
                         </div>
-                        <FormMessage className="text-center mt-2 text-[11px]" />
+                        <FormMessage className="text-center mt-2 text-[10px]" />
                       </FormItem>
                     )}
                   />
@@ -670,29 +730,29 @@ export function OrganizationForm({ initialData }) {
               </Card>
 
               {/* Status Section */}
-              <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30">
-                  <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-widest">Visibility & Access</h3>
-                </div>
-                <CardContent className="p-6 space-y-6">
+              <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border border-border/10">
+                <CardHeader className="pb-4 border-b border-border/30 bg-muted/5">
+                  <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-foreground">Operational Status</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
                   <FormField
                     control={form.control}
                     name="status"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-bold text-[12px]">System Status</FormLabel>
+                        <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">System Access</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-11 rounded-xl border-slate-200 font-semibold text-[13px]">
+                            <SelectTrigger className="h-11 rounded-xl border-border/50 bg-background font-semibold text-sm focus:ring-[#10b981]/20 transition-all">
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                            <SelectItem value="active" className="text-emerald-600 font-semibold">Active Profile</SelectItem>
-                            <SelectItem value="suspended" className="text-red-500 font-semibold">Suspended</SelectItem>
+                          <SelectContent className="rounded-xl border-border/50 p-1 shadow-xl">
+                            <SelectItem value="active" className="rounded-lg py-2 font-semibold text-xs text-[#10b981]">Active Profile</SelectItem>
+                            <SelectItem value="suspended" className="rounded-lg py-2 font-semibold text-xs text-red-500">Suspended</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage className="text-[11px]" />
+                        <FormMessage className="text-[10px]" />
                       </FormItem>
                     )}
                   />
@@ -703,21 +763,21 @@ export function OrganizationForm({ initialData }) {
                       name="subscription_status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-bold text-[12px]">Payment Status</FormLabel>
+                          <FormLabel className="text-foreground font-bold text-xs uppercase tracking-widest">Payment Status</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className="h-11 rounded-xl border-slate-200 font-semibold text-[13px]">
+                              <SelectTrigger className="h-11 rounded-xl border-border/50 bg-background font-semibold text-sm focus:ring-[#10b981]/20 transition-all">
                                 <SelectValue placeholder="Status" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                              <SelectItem value="Active" className="text-emerald-600 font-semibold">Current</SelectItem>
-                              <SelectItem value="Trial" className="text-blue-600 font-semibold">Trial Period</SelectItem>
-                              <SelectItem value="Expired" className="text-red-600 font-semibold">Payment Due</SelectItem>
-                              <SelectItem value="Suspended" className="text-slate-500 font-semibold">Paused</SelectItem>
+                            <SelectContent className="rounded-xl border-border/50 p-1 shadow-xl">
+                              <SelectItem value="Active" className="rounded-lg py-2 font-semibold text-xs text-[#10b981]">Current</SelectItem>
+                              <SelectItem value="Trial" className="rounded-lg py-2 font-semibold text-xs text-blue-500">Trial Period</SelectItem>
+                              <SelectItem value="Expired" className="rounded-lg py-2 font-semibold text-xs text-red-500">Payment Due</SelectItem>
+                              <SelectItem value="Suspended" className="rounded-lg py-2 font-semibold text-xs text-muted-foreground">Paused</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormMessage className="text-[11px]" />
+                          <FormMessage className="text-[10px]" />
                         </FormItem>
                       )}
                     />
@@ -725,29 +785,35 @@ export function OrganizationForm({ initialData }) {
                 </CardContent>
               </Card>
 
-              {/* Quick Summary (Optional) */}
-              <div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-                <p className="text-[11px] text-emerald-800 font-medium leading-relaxed">
-                  Carefully verify all profile information. These details will appear on your corporate invoices, reports, and digital receipts.
+              {/* Pro-Tips / Note */}
+              <div className="p-6 rounded-2xl bg-[#10b981]/5 border border-[#10b981]/10">
+                <p className="text-[10px] text-[#10b981]/90 font-bold uppercase tracking-widest leading-relaxed">
+                  Important Note:
+                </p>
+                <p className="text-[11px] text-muted-foreground font-medium mt-1 leading-relaxed">
+                  Verify business details carefully. This information will appear on legal invoices, tax reports, and customer receipts.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* 4. Bank Account Management (New Section) */}
-          <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden mt-8">
-            <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-1.5 rounded-lg bg-emerald-50 text-[#10b981]">
+          {/* 4. Bank Account Management */}
+          <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border border-border/10">
+            <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center justify-between">
+              <div className="flex flex-row items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#10b981]/10 text-[#10b981]">
                   <CreditCard className="h-4 w-4" />
                 </div>
-                <h3 className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Corporate Bank Accounts</h3>
+                <div>
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Bank Accounts</CardTitle>
+                  <CardDescription className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-tight">Corporate accounts for financial settlements</CardDescription>
+                </div>
               </div>
               <Button 
                 type="button"
                 variant="outline" 
                 size="sm"
-                className="h-8 rounded-lg font-bold text-[10px] uppercase tracking-wider gap-2 border-emerald-100 text-[#10b981] hover:bg-emerald-50"
+                className="h-9 px-4 rounded-xl font-bold text-[10px] uppercase tracking-wider gap-2 border-border/50 text-[#10b981] hover:bg-[#10b981]/5 active:scale-95 transition-all"
                 onClick={() => {
                   const currentAccounts = form.getValues("bank_accounts") || [];
                   form.setValue("bank_accounts", [
@@ -756,53 +822,55 @@ export function OrganizationForm({ initialData }) {
                   ]);
                 }}
               >
-                <Plus className="h-3.5 w-3.5" /> Add Account
+                <Plus className="h-4 w-4" /> Add Account
               </Button>
-            </div>
-            <CardContent className="p-6">
+            </CardHeader>
+            <CardContent className="p-8">
               <div className="space-y-4">
-                {form.watch("bank_accounts")?.length === 0 ? (
-                  <div className="text-center py-12 rounded-2xl border-2 border-dashed border-slate-100 bg-slate-50/30">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-                      <CreditCard className="h-6 w-6 text-slate-300" />
+                {(form.watch("bank_accounts")?.length === 0 || !form.watch("bank_accounts")) ? (
+                  <div className="text-center py-16 rounded-3xl border-2 border-dashed border-border/50 bg-muted/5">
+                    <div className="mx-auto w-14 h-14 rounded-full bg-muted/20 flex items-center justify-center mb-4">
+                      <CreditCard className="h-7 w-7 text-muted-foreground/30" />
                     </div>
-                    <p className="text-[13px] font-bold text-slate-400">No bank accounts added</p>
-                    <p className="text-[11px] text-slate-400 mt-1 uppercase tracking-widest">Click 'Add Account' to register a corporate account</p>
+                    <p className="text-sm font-bold text-muted-foreground">No accounts registered</p>
+                    <p className="text-[10px] text-muted-foreground/50 mt-1 uppercase tracking-[0.2em]">Begin by adding your first settlement account</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {form.watch("bank_accounts")?.map((_, index) => (
-                      <div key={index} className="p-4 rounded-2xl border border-slate-100 bg-white shadow-sm hover:border-emerald-200 transition-all duration-300 group">
-                        <div className="flex justify-between items-start mb-4">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded">Account #{index + 1}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
-                            onClick={() => {
-                              const currentAccounts = form.getValues("bank_accounts") || [];
-                              form.setValue("bank_accounts", currentAccounts.filter((__, i) => i !== index));
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                      <div key={index} className="p-6 rounded-2xl border border-border/50 bg-background shadow-sm hover:border-[#10b981]/30 transition-all group relative">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-4 right-4 h-8 w-8 rounded-xl text-muted-foreground hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                          onClick={() => {
+                            const currentAccounts = form.getValues("bank_accounts") || [];
+                            form.setValue("bank_accounts", currentAccounts.filter((__, i) => i !== index));
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        
+                        <div className="mb-4">
+                          <span className="text-[9px] font-black text-[#10b981] uppercase tracking-[0.2em] px-2.5 py-1 bg-[#10b981]/10 rounded-lg">Account {index + 1}</span>
                         </div>
+
                         <div className="space-y-4">
                           <FormField
                             control={form.control}
                             name={`bank_accounts.${index}.name`}
                             render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Bank Name</FormLabel>
+                              <FormItem className="space-y-1.5">
+                                <FormLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Bank Name</FormLabel>
                                 <FormControl>
                                   <Input 
                                     placeholder="e.g. Bank of Ceylon" 
                                     {...field} 
-                                    className="h-10 rounded-xl border-slate-100 focus:ring-emerald-500/10 focus:border-emerald-500 font-semibold text-[13px]"
+                                    className="h-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-bold text-xs transition-all"
                                   />
                                 </FormControl>
-                                <FormMessage className="text-[10px]" />
+                                <FormMessage className="text-[9px]" />
                               </FormItem>
                             )}
                           />
@@ -811,16 +879,16 @@ export function OrganizationForm({ initialData }) {
                               control={form.control}
                               name={`bank_accounts.${index}.accountNo`}
                               render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Account No</FormLabel>
+                                <FormItem className="space-y-1.5">
+                                  <FormLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Account #</FormLabel>
                                   <FormControl>
                                     <Input 
-                                      placeholder="XXXX XXXX XXXX" 
+                                      placeholder="XXXX XXXX" 
                                       {...field} 
-                                      className="h-10 rounded-xl border-slate-100 focus:ring-emerald-500/10 focus:border-emerald-500 font-semibold text-[13px]"
+                                      className="h-10 rounded-xl border-border/50 bg-background focus:ring-[#10b981]/10 focus:border-[#10b981] font-bold text-xs font-mono transition-all"
                                     />
                                   </FormControl>
-                                  <FormMessage className="text-[10px]" />
+                                  <FormMessage className="text-[9px]" />
                                 </FormItem>
                               )}
                             />
@@ -828,22 +896,20 @@ export function OrganizationForm({ initialData }) {
                               control={form.control}
                               name={`bank_accounts.${index}.currency`}
                               render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Currency</FormLabel>
+                                <FormItem className="space-y-1.5">
+                                  <FormLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Currency</FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
-                                      <SelectTrigger className="h-10 rounded-xl border-slate-100 font-semibold text-[12px]">
+                                      <SelectTrigger className="h-10 rounded-xl border-border/50 bg-background font-bold text-xs focus:ring-[#10b981]/20 transition-all">
                                         <SelectValue placeholder="CUR" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                                      <SelectItem value="LKR">LKR</SelectItem>
-                                      <SelectItem value="USD">USD</SelectItem>
-                                      <SelectItem value="EUR">EUR</SelectItem>
-                                      <SelectItem value="GBP">GBP</SelectItem>
+                                    <SelectContent className="rounded-xl border-border/50 p-1 shadow-xl">
+                                      <SelectItem value="LKR" className="rounded-lg py-1.5 font-bold text-[10px]">LKR</SelectItem>
+                                      <SelectItem value="USD" className="rounded-lg py-1.5 font-bold text-[10px]">USD</SelectItem>
+                                      <SelectItem value="EUR" className="rounded-lg py-1.5 font-bold text-[10px]">EUR</SelectItem>
                                     </SelectContent>
                                   </Select>
-                                  <FormMessage className="text-[10px]" />
                                 </FormItem>
                               )}
                             />
@@ -857,41 +923,6 @@ export function OrganizationForm({ initialData }) {
             </CardContent>
           </Card>
 
-          {/* Form ActionsBar */}
-          <div className="sticky bottom-6 left-0 right-0 z-10">
-            <div className="bg-white/80 backdrop-blur-lg border border-slate-100 shadow-xl rounded-2xl p-4 flex items-center justify-end gap-3 w-full mx-auto">
-              <Button
-                type="button"
-                variant="ghost"
-                className="rounded-xl h-11 px-6 font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all uppercase text-[11px] tracking-widest"
-                onClick={() => router.back()}
-                disabled={isSubmitting}
-              >
-                <X className="mr-2 h-4 w-4 opacity-60"/> Discard
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="rounded-xl h-11 px-8 bg-[#10b981] hover:bg-[#10b981]/90 text-white font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 uppercase text-[11px] tracking-widest"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <LoaderIcon className="h-4 w-4 animate-spin" /> Processing...
-                  </span>
-                ) : isEditMode ? (
-                  <>
-                  <Save className="mr-2 h-4 w-4"/>
-                  Commit Changes
-                  </>
-                ) : (
-                  <>
-                  <Plus className="mr-2 h-4 w-4"/>
-                  Publish Profile
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
         </form>
       </Form>
     </div>
