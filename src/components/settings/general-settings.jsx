@@ -110,7 +110,7 @@ export function GeneralSettings() {
     return TIMEZONES.filter(tz => tz.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [searchTerm]);
 
-  if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
+  if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#10b981]" /></div>;
 
   return (
     <div className="space-y-6 pb-20">
@@ -120,17 +120,17 @@ export function GeneralSettings() {
           <h2 className="text-xl font-bold tracking-tight text-slate-900">General Settings</h2>
           <p className="text-sm text-slate-500">Configure core system parameters.</p>
         </div>
-        <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 shadow-md">
+        <Button onClick={handleSave} className="bg-[#10b981] hover:bg-[#059669] shadow-lg shadow-[#10b981]/20 text-white rounded-xl font-bold text-xs uppercase tracking-widest border-none transition-all active:scale-95">
           <Save className="w-4 h-4 mr-2" /> Save All Changes
         </Button>
       </div>
 
       <Tabs defaultValue="localization" value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <ScrollArea className="w-full whitespace-nowrap rounded-md border bg-slate-50/50 p-1">
+        <ScrollArea className="w-full whitespace-nowrap rounded-xl border border-border/30 bg-muted/20 p-1">
           <TabsList className="w-full justify-start bg-transparent h-auto">
-            <TabsTrigger value="localization" className="gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"><Globe className="w-4 h-4"/> Region & Finance</TabsTrigger>
-            <TabsTrigger value="interface" className="gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"><Palette className="w-4 h-4"/> Look & Feel</TabsTrigger>
-            <TabsTrigger value="prefixes" className="gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"><Hash className="w-4 h-4"/> Prefixes</TabsTrigger>
+            <TabsTrigger value="localization" className="gap-2 rounded-lg data-[state=active]:bg-[#10b981]/10 data-[state=active]:text-[#10b981] data-[state=active]:shadow-sm font-bold text-[11px] uppercase tracking-wider"><Globe className="w-4 h-4"/> Region & Finance</TabsTrigger>
+            <TabsTrigger value="interface" className="gap-2 rounded-lg data-[state=active]:bg-[#10b981]/10 data-[state=active]:text-[#10b981] data-[state=active]:shadow-sm font-bold text-[11px] uppercase tracking-wider"><Palette className="w-4 h-4"/> Look & Feel</TabsTrigger>
+            <TabsTrigger value="prefixes" className="gap-2 rounded-lg data-[state=active]:bg-[#10b981]/10 data-[state=active]:text-[#10b981] data-[state=active]:shadow-sm font-bold text-[11px] uppercase tracking-wider"><Hash className="w-4 h-4"/> Prefixes</TabsTrigger>
           </TabsList>
         </ScrollArea>
 
@@ -168,7 +168,7 @@ export function GeneralSettings() {
                           {filteredTimezones.map((tz) => (
                             <div 
                               key={tz} 
-                              className="p-2 hover:bg-slate-100 cursor-pointer text-sm rounded flex justify-between"
+                              className="p-2 hover:bg-muted/30 cursor-pointer text-sm rounded flex justify-between"
                               onClick={() => updateSetting('localization', 'timeZone', tz)}
                             >
                               {tz}
@@ -314,9 +314,9 @@ export function GeneralSettings() {
                     </div>
                   ) : (
                     settings.bankAccounts.map((acc) => (
-                      <div key={acc.id} className="flex items-center justify-between p-3 border rounded-lg bg-white hover:border-blue-300 transition-colors">
+                      <div key={acc.id} className="flex items-center justify-between p-3 border rounded-lg bg-white hover:border-[#10b981]/40 transition-colors">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+                            <div className="h-10 w-10 bg-[#10b981]/10 text-[#10b981] rounded-lg flex items-center justify-center">
                               <CreditCard className="w-5 h-5" />
                             </div>
                             <div>
@@ -365,7 +365,7 @@ export function GeneralSettings() {
                              onClick={() => updateSetting('interface', 'theme', mode)}
                              className={cn(
                                "flex-1 p-3 text-center border rounded-lg cursor-pointer capitalize text-sm transition-all",
-                               settings.interface.theme === mode ? "border-blue-600 bg-blue-50 text-blue-700" : "hover:bg-slate-50"
+                               settings.interface.theme === mode ? "border-[#10b981] bg-[#10b981]/10 text-[#059669]" : "hover:bg-muted/20"
                              )}
                            >
                               {mode}

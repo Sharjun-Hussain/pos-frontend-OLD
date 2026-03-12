@@ -293,73 +293,57 @@ export default function OrganizationPage() {
 
   const organizationStats = calculateOrganizationStats(organizations);
   const statCards = (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <Card className="border-border/50 shadow-sm bg-card overflow-hidden group hover:border-[#10b981]/30 transition-all rounded-2xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                Total Organizations
-              </p>
-              <p className="text-2xl font-bold text-slate-900">
-                {organizationStats?.totalOrganizations}
-              </p>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Organizations</p>
+              <p className="text-2xl font-bold text-foreground">{organizationStats?.totalOrganizations}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm">
+            <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-500 border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
               <Building className="h-5 w-5" />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
+      <Card className="border-border/50 shadow-sm bg-card overflow-hidden group hover:border-[#10b981]/30 transition-all rounded-2xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                Active Profiles
-              </p>
-              <p className="text-2xl font-bold text-slate-900">
-                {organizationStats?.activeOrganizations}
-              </p>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Profiles</p>
+              <p className="text-2xl font-bold text-foreground">{organizationStats?.activeOrganizations}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm">
+            <div className="p-2.5 rounded-xl bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20 group-hover:bg-[#10b981] group-hover:text-white transition-all duration-300">
               <CheckCircle2 className="h-5 w-5" />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
+      <Card className="border-border/50 shadow-sm bg-card overflow-hidden group hover:border-[#10b981]/30 transition-all rounded-2xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                Multi-Branch
-              </p>
-              <p className="text-2xl font-bold text-slate-900">
-                {organizationStats?.multiBranchOrganizations}
-              </p>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Multi-Branch</p>
+              <p className="text-2xl font-bold text-foreground">{organizationStats?.multiBranchOrganizations}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 shadow-sm">
+            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
               <Briefcase className="h-5 w-5" />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-slate-100 shadow-sm rounded-2xl group hover:shadow-md transition-all duration-300">
+      <Card className="border-border/50 shadow-sm bg-card overflow-hidden group hover:border-[#10b981]/30 transition-all rounded-2xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                Inactive
-              </p>
-              <p className="text-2xl font-bold text-slate-900">
-                {organizationStats?.inactiveOrganizations}
-              </p>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Inactive</p>
+              <p className="text-2xl font-bold text-foreground">{organizationStats?.inactiveOrganizations}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-sm">
+            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
               <XCircle className="h-5 w-5" />
             </div>
           </div>
@@ -378,16 +362,18 @@ export default function OrganizationPage() {
       onRetry={fetchOrganizations}
       headerTitle={
         <div className="flex items-center gap-4">
-          <div className="p-2.5 rounded-xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-sm shadow-emerald-500/5">
-            <Building className="w-5 h-5 text-[#10b981]" />
+          <div className="p-3.5 rounded-2xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-inner text-[#10b981]">
+            <Building className="w-6 h-6" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Business Profiles
-            </h1>
-            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-[0.08em] opacity-80">
-              Settings • Entity Management & Branch Hierarchy
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Business Profiles</h1>
+            <div className="flex items-center gap-2 text-[13px] text-muted-foreground mt-0.5 font-medium">
+              <span>System Settings</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span>Organizations</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span className="text-[#10b981]">Profiles</span>
+            </div>
           </div>
         </div>
       }
@@ -406,9 +392,44 @@ export default function OrganizationPage() {
         ) : null
       }
       searchColumn="name"
-      searchPlaceholder="Search business profiles..."
+      searchPlaceholder="Search profiles..."
       loadingSkeleton={<OrganizationPageSkeleton />}
-      filterComponents={(table) => <OrganizationFilters table={table} />}
+      filterComponents={(table) => (
+        <div className="flex flex-wrap items-center gap-4">
+            <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Type</label>
+                <div className="flex items-center gap-3">
+                    <Select
+                        value={String(table.getColumn("is_multi_branch")?.getFilterValue() ?? "all")}
+                        onValueChange={(value) => table.getColumn("is_multi_branch")?.setFilterValue(value === "all" ? undefined : value === "true")}
+                    >
+                        <SelectTrigger className="h-10 w-[180px] rounded-xl border-border/50 bg-card font-semibold text-xs focus:ring-[#10b981]/20 focus:border-[#10b981] transition-all">
+                            <SelectValue placeholder="All Types" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-border/50 p-1 shadow-xl">
+                            <SelectItem value="all" className="rounded-lg py-2 font-semibold text-xs">All Types</SelectItem>
+                            <SelectItem value="true" className="rounded-lg py-2 font-semibold text-xs text-[#10b981]">Multi-Branch</SelectItem>
+                            <SelectItem value="false" className="rounded-lg py-2 font-semibold text-xs">Single Branch</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select
+                        value={String(table.getColumn("is_active")?.getFilterValue() ?? "all")}
+                        onValueChange={(value) => table.getColumn("is_active")?.setFilterValue(value === "all" ? undefined : value === "true")}
+                    >
+                        <SelectTrigger className="h-10 w-[160px] rounded-xl border-border/50 bg-card font-semibold text-xs focus:ring-[#10b981]/20 focus:border-[#10b981] transition-all">
+                            <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-border/50 p-1 shadow-xl">
+                            <SelectItem value="all" className="rounded-lg py-2 font-semibold text-xs">All Status</SelectItem>
+                            <SelectItem value="true" className="rounded-lg py-2 font-semibold text-xs text-[#10b981]">Active Only</SelectItem>
+                            <SelectItem value="false" className="rounded-lg py-2 font-semibold text-xs text-red-500">Inactive Only</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+        </div>
+      )}
     />
   );
 }

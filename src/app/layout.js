@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans`} style={{ zoom: zoomLevel }}>
+      <body className={`${inter.variable} font-sans`} style={{ zoom: zoomLevel, '--zoom-level': zoomLevel }}>
         <NextTopLoader showSpinner={false} color="#10b981" />
         <Providers>
           {children}

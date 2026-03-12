@@ -22,10 +22,8 @@ import { exportToCSV } from "@/lib/exportUtils";
 export function CustomersManagement() {
   const { data: session } = useSession();
   const { canCreate } = usePermission();
-  const CUSTOMER = "customer"; // Not explicitly in MODULES yet? Let's check. 
-  // Wait, I should check MODULES in permissions.js. I'll use a hardcoded string if needed, 
-  // but better to check permissions.js first if I can.
-  // Actually, I'll just use "customer" for now as it's the standard.
+  const CUSTOMER = "customer"; 
+  
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,7 +35,6 @@ export function CustomersManagement() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Create query string helper
   const createQueryString = useCallback(
     (name, value) => {
       const params = new URLSearchParams(searchParams);
@@ -47,18 +44,14 @@ export function CustomersManagement() {
     [searchParams]
   );
 
-  // Check URL for customerId on mount or update
   useEffect(() => {
     const customerId = searchParams.get("customerId");
     if (customerId) {
-        // Try to find in current list
         const customer = customers.find((c) => c.id == customerId);
         if (customer) {
             setSelectedCustomer(customer);
             setIsLedgerOpen(true);
         } else if (customers.length > 0) {
-            // Only try to fetch if we have loaded customers but didn't find this one
-            // This prevents duplicate fetches or race conditions during initial load
              fetchSingleCustomer(customerId);
         }
     } else {
@@ -165,7 +158,6 @@ export function CustomersManagement() {
   };
 
   const handleViewLedger = (customer) => {
-    // Update URL to include customerId, prevent scroll reset
     router.push(pathname + "?" + createQueryString("customerId", customer.id), { scroll: false });
   };
 
@@ -178,31 +170,43 @@ export function CustomersManagement() {
 
   if (loading && customers.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-slate-50/50">
+      <div className="flex-1 flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-10 w-10 animate-spin text-blue-600 opacity-20" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Synchronizing Profiles...</p>
+            <Loader2 className="h-10 w-10 animate-spin text-[#10b981] opacity-20" />
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Synchronizing Profiles...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 min-h-screen bg-slate-50/50 p-8 space-y-8 pb-20 overflow-y-auto">
-      {/* --- Header Actions --- */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Client Management</h1>
-          <p className="text-sm text-slate-500 font-medium">Coordinate customer relationships and loyalty portfolios</p>
+    <div className="flex-1 min-h-screen bg-background p-6 md:p-10 space-y-8 pb-32 overflow-y-auto max-w-[1600px] mx-auto w-full">
+      
+      {/* --- HEADER --- */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3.5 rounded-2xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-inner text-[#10b981]">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Client Management</h1>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1 font-medium">
+              <span>Customer Intelligence</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span>CRM</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span className="text-[#10b981]">Relationship Portfolios</span>
+            </div>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
-          <Button onClick={handleExportCSV} variant="outline" className="bg-white hover:bg-slate-50 border-slate-200 h-11 px-5 font-bold gap-2 rounded-xl transition-all shadow-sm">
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30 h-10 px-5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
             <Download className="h-4 w-4" /> Export CSV
           </Button>
           {canCreate(CUSTOMER) && (
             <AddCustomerDialog onAdd={fetchCustomers}>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95">
+              <Button className="bg-[#10b981] hover:bg-[#059669] text-white h-10 px-6 font-bold gap-2 rounded-xl transition-all shadow-lg active:scale-95 border-none">
                 <Plus className="h-5 w-5" /> Register Client
               </Button>
             </AddCustomerDialog>
@@ -210,16 +214,16 @@ export function CustomersManagement() {
         </div>
       </div>
 
-      {/* --- Stats Visualization --- */}
+      {/* --- STATS --- */}
       <CustomerStats customers={customers} />
 
-      {/* --- Search & Control Bar --- */}
-      <Card className="border-none shadow-sm bg-white/80 backdrop-blur-sm sticky top-4 z-20">
+      {/* --- FILTERS & SEARCH --- */}
+      <Card className="border-none shadow-sm bg-card/80 backdrop-blur-md sticky top-4 z-20 border-border/10 overflow-visible">
         <CardContent className="p-4 lg:p-6">
-          <div className="flex flex-col lg:flex-row gap-6 items-end">
-            <div className="w-full lg:w-72 space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Profile Filter</label>
-              <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col lg:flex-row gap-8 items-end">
+            <div className="w-full lg:w-fit space-y-2.5">
+              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Profile Category</label>
+              <div className="flex flex-wrap gap-2.5">
                 {[
                   { id: "all", label: "All Clients" },
                   { id: "active", label: "Active Status" },
@@ -230,10 +234,10 @@ export function CustomersManagement() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all border",
+                      "px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all border",
                       activeTab === tab.id
-                        ? "bg-slate-900 text-white border-slate-900 shadow-md transform scale-105"
-                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        ? "bg-[#10b981] text-white border-[#10b981] shadow-lg shadow-[#10b981]/20 scale-[1.02]"
+                        : "bg-background text-muted-foreground border-border/50 hover:border-[#10b981]/30 hover:bg-muted/20"
                     )}
                   >
                     {tab.label}
@@ -242,27 +246,27 @@ export function CustomersManagement() {
               </div>
             </div>
 
-            <div className="flex-1 space-y-2 w-full">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Discovery</label>
+            <div className="flex-1 space-y-2.5 w-full">
+              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Universal Discovery</label>
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-[#10b981] transition-colors" />
                 <Input 
                   placeholder="Query by Name, Identification, or Contact Digits..." 
-                  className="pl-11 h-12 bg-slate-50/50 border-slate-100 rounded-xl focus:bg-white transition-all font-medium"
+                  className="pl-12 h-12 bg-background/50 border-border/50 rounded-xl focus:ring-[#10b981]/20 focus:border-[#10b981] transition-all font-bold text-[11px] uppercase tracking-wider placeholder:lowercase placeholder:font-medium placeholder:text-muted-foreground/40"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
 
-            <Button onClick={fetchCustomers} variant="secondary" className="h-12 w-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all p-0 shadow-sm">
+            <Button onClick={fetchCustomers} variant="outline" className="h-12 w-12 rounded-xl bg-background border-border/50 hover:bg-muted/30 text-muted-foreground hover:text-[#10b981] transition-all p-0 shadow-sm">
               <RefreshCcw className={cn("h-5 w-5", loading && "animate-spin")} />
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* --- Data Interaction --- */}
+      {/* --- TABLE --- */}
       <CustomersTable
         customers={filteredCustomers}
         onUpdate={fetchCustomers}

@@ -9,6 +9,6 @@ const page = () => {
 export default page;
 
 export const metadata = {
-  title: "Sales Report | Sold Item Count | Inzeedo POS  ",
+  title: "Item Performance Ledger | Inzeedo POS",
   description: "Developed By : Inzeedo (PVT) Ltd.",
 };

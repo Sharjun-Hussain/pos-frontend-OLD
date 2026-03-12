@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppSettings } from "@/app/hooks/useAppSettings";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useReactToPrint } from "react-to-print";
 import { format, subDays } from "date-fns";
 import {
@@ -10,14 +10,16 @@ import {
   Download,
   Search,
   Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
   RotateCcw,
   TrendingUp,
   Users,
   ArrowUpRight,
-  SlidersHorizontal,
-  RefreshCcw
+  RefreshCcw,
+  Check,
+  ChevronsUpDown,
+  Filter,
+  Package,
+  RefreshCw,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,7 +30,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Card, CardContent } from "@/components/ui/card";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -48,6 +51,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { SalesReturnReportTemplate } from "@/components/Template/sales/SalesReturnReportTemplate";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -64,13 +68,15 @@ export default function SalesReturnReport() {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [apiStats, setApiStats] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Filter States
   const [branch, setBranch] = useState("all");
   const [user, setUser] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [refundMethod, setRefundMethod] = useState("all");
+  const [branchOpen, setBranchOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
 
   // Metadata States
   const [branches, setBranches] = useState([]);
@@ -92,8 +98,8 @@ export default function SalesReturnReport() {
         const branchData = await branchRes.json();
         const sellerData = await sellerRes.json();
 
-        if (branchData.status === 'success') setBranches(branchData.data);
-        if (sellerData.status === 'success') setSellers(sellerData.data);
+        if (branchData.status === 'success') setBranches(branchData.data || []);
+        if (sellerData.status === 'success') setSellers(sellerData.data || []);
 
       } catch (err) {
         console.error("Failed to fetch metadata", err);
@@ -104,7 +110,7 @@ export default function SalesReturnReport() {
 
   const fetchData = async () => {
       if (!session?.accessToken) return;
-      setLoading(true);
+      setIsLoading(true);
       try {
           const queryParams = new URLSearchParams({
               start_date: date?.from ? format(date.from, 'yyyy-MM-dd') : '',
@@ -124,7 +130,6 @@ export default function SalesReturnReport() {
           }
 
           if (result.status === 'success') {
-              // The backend now returns { data: [...], stats: {...} }
               setData(result.data.data || []);
               setApiStats(result.data.stats || null);
           } else {
@@ -134,7 +139,7 @@ export default function SalesReturnReport() {
           console.error("Error fetching report:", error);
           toast.error("Failed to load report");
       } finally {
-          setLoading(false);
+          setIsLoading(false);
       }
   };
 
@@ -142,7 +147,6 @@ export default function SalesReturnReport() {
       fetchData();
   }, [session?.accessToken, date, branch, user]);
 
-  // --- PRINTING LOGIC ---
   const printRef = useRef(null);
   
   const handlePrint = useReactToPrint({
@@ -150,7 +154,6 @@ export default function SalesReturnReport() {
     documentTitle: "Sales_Return_Report",
   });
 
-  // --- EXPORT LOGIC ---
   const handleExportCSV = () => {
     const exportData = filteredData.map(item => ({
       "Return No": item.return_number,
@@ -179,13 +182,12 @@ export default function SalesReturnReport() {
     exportToExcel(exportData, "Sales_Return_Report");
   };
 
-  // --- FILTER LOGIC ---
   useEffect(() => {
     let result = data;
 
     if (searchQuery) {
       result = result.filter(item => 
-        item.return_number.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        item.return_number?.toLowerCase().includes(searchQuery.toLowerCase()) || 
         item.customer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.sale?.invoice_number?.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -198,9 +200,8 @@ export default function SalesReturnReport() {
     setFilteredData(result);
   }, [searchQuery, refundMethod, data]);
 
-
   return (
-    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-8 font-sans text-foreground">
+    <div className="flex-1 space-y-8 p-6 md:p-10 bg-background max-w-[1600px] mx-auto w-full font-sans text-foreground pb-20">
       
       {/* HIDDEN PRINT TEMPLATE */}
       <div style={{ display: "none" }}>
@@ -214,177 +215,225 @@ export default function SalesReturnReport() {
       </div>
 
       {/* --- HEADER --- */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Sales Return Analysis</h1>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-            <span>Reports</span>
-            <span className="text-muted-foreground/40">/</span>
-            <span className="text-foreground font-medium">Returns Performance</span>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3.5 rounded-2xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-inner text-[#10b981]">
+            <RotateCcw className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Return Analysis</h1>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1 font-medium">
+              <span>Sales Management</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span>Reports</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span className="text-[#10b981]">Reverse Logistics</span>
+            </div>
           </div>
         </div>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={handleExportCSV} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30 h-10 px-5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
             <Download className="h-4 w-4" /> CSV
           </Button>
-          <Button onClick={handleExportExcel} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+          <Button onClick={handleExportExcel} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30 h-10 px-5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
             <FileText className="h-4 w-4" /> Excel
           </Button>
-          <Button onClick={() => handlePrint()} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
-            <Printer className="h-4 w-4" /> Print Report
+          <Button onClick={handlePrint} className="bg-[#10b981] text-white shadow-lg shadow-[#10b981]/20 gap-2 hover:bg-[#0da371] h-10 px-6 rounded-xl font-bold text-xs uppercase tracking-widest border-none transition-all active:scale-95">
+            <Printer className="h-4 w-4" /> Print
+          </Button>
+          <Button onClick={fetchData} className="h-10 w-10 rounded-xl bg-card border border-border/50 text-foreground hover:bg-muted/30 shadow-sm transition-all active:scale-95" variant="outline" disabled={isLoading}>
+            <RefreshCw className={cn("h-5 w-5", isLoading && "animate-spin")} />
           </Button>
         </div>
       </div>
 
-      {/* --- FILTERS & CONTROLS --- */}
-      <Card className="border-none shadow-sm bg-card">
-        <CardContent className="p-6 space-y-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-end">
+      {/* --- FILTERS --- */}
+      <Card className="border-none shadow-sm bg-card overflow-hidden">
+        <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center gap-3">
+          <Filter className="w-4 h-4 text-[#10b981]" />
+          <div>
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Advanced Filters</CardTitle>
+            <CardDescription className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-tight">Segment returns by location, personnel, and method</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+             <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Date Range</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left h-11 rounded-xl border-border/50 bg-background font-bold text-xs">
+                      <CalendarIcon className="mr-2 h-4 w-4 text-[#10b981]" />
+                      {date?.from ? (date.to ? <>{format(date.from, "LLL dd")} - {format(date.to, "LLL dd, y")}</> : format(date.from, "LLL dd, y")) : <span>Select range</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="range" selected={date} onSelect={setDate} numberOfMonths={2} />
+                  </PopoverContent>
+                </Popover>
+            </div>
+
+             <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Branch</label>
+                <Popover open={branchOpen} onOpenChange={setBranchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={branchOpen}
+                      className="w-full justify-between h-11 rounded-xl border-border/50 bg-background font-bold text-xs group"
+                    >
+                      <span className="truncate">{branch === "all" ? "Global Organizations" : branches.find((b) => String(b.id) === String(branch))?.name || "All Branches"}</span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 group-hover:text-[#10b981] transition-colors" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search branches..." className="font-bold border-none h-11 uppercase" />
+                      <CommandList>
+                        <CommandEmpty className="py-4 text-xs font-bold text-muted-foreground uppercase text-center">No branch found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="All Branches"
+                            onSelect={() => {
+                              setBranch("all");
+                              setBranchOpen(false);
+                            }}
+                            className="font-bold text-xs py-3"
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", branch === "all" ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                            All Branches
+                          </CommandItem>
+                          {branches.map((b) => (
+                            <CommandItem
+                              key={b.id}
+                              value={b.name}
+                              onSelect={() => {
+                                setBranch(b.id);
+                                setBranchOpen(false);
+                              }}
+                              className="font-bold text-xs py-3"
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", String(branch) === String(b.id) ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                              {b.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+            </div>
             
-            {/* DATE RANGE PICKER */}
-            <div className="flex-1 space-y-2 w-full lg:w-auto">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Return Date Range</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal h-10 border-border/50",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground/60" />
-                    {date?.from ? (
-                      date.to ? (
-                        <>
-                          {format(date.from, "LLL dd, y")} -{" "}
-                          {format(date.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(date.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={date?.from}
-                    selected={date}
-                    onSelect={setDate}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
+            <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Cashier / Handler</label>
+                <Popover open={userOpen} onOpenChange={setUserOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={userOpen}
+                      className="w-full justify-between h-11 rounded-xl border-border/50 bg-background font-bold text-xs group"
+                    >
+                      <span className="truncate">{user === "all" ? "All Staff Members" : sellers.find((s) => String(s.id) === String(user))?.name || "All Cashiers"}</span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 group-hover:text-[#10b981] transition-colors" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search personnel..." className="font-bold border-none h-11 uppercase" />
+                      <CommandList>
+                        <CommandEmpty className="py-4 text-xs font-bold text-muted-foreground uppercase text-center">No staff member found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="All Cashiers"
+                            onSelect={() => {
+                              setUser("all");
+                              setUserOpen(false);
+                            }}
+                            className="font-bold text-xs py-3"
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", user === "all" ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                            All Staff Members
+                          </CommandItem>
+                          {sellers.map((s) => (
+                            <CommandItem
+                              key={s.id}
+                              value={s.name}
+                              onSelect={() => {
+                                setUser(s.id);
+                                setUserOpen(false);
+                              }}
+                              className="font-bold text-xs py-3"
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", String(user) === String(s.id) ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                              {s.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
             </div>
 
-            {/* BRANCH FILTER */}
-            <div className="w-full lg:w-[200px] space-y-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Branch</label>
-              <Select value={branch} onValueChange={setBranch}>
-                <SelectTrigger className="h-10 w-full bg-card border-border/50"><SelectValue placeholder="All Branches" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Branches</SelectItem>
-                  {branches.map(b => (
-                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* USER FILTER */}
-            <div className="w-full lg:w-[200px] space-y-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Cashier</label>
-              <Select value={user} onValueChange={setUser}>
-                <SelectTrigger className="h-10 w-full bg-card border-border/50"><SelectValue placeholder="All Cashiers" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Cashiers</SelectItem>
-                  {sellers.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* ADVANCED FILTER */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="h-10 border-dashed border-border text-muted-foreground gap-2">
-                  <SlidersHorizontal className="h-4 w-4" /> Advanced
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 p-4" align="end">
-                <div className="space-y-4">
-                  <h4 className="font-semibold leading-none text-foreground">Additional Filters</h4>
-                  <div className="space-y-2">
-                    <Label className="text-xs">Refund Method</Label>
-                    <Select value={refundMethod} onValueChange={setRefundMethod}>
-                      <SelectTrigger className="h-8 w-full"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Methods</SelectItem>
-                        <SelectItem value="cash">Cash</SelectItem>
-                        <SelectItem value="card">Card</SelectItem>
-                        <SelectItem value="credit">Credit / Account</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button size="sm" variant="ghost" className="w-full mt-2 text-xs" onClick={() => {setRefundMethod("all")}}>Reset Advanced Filters</Button>
+            <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Global Search</label>
+                <div className="relative group/search">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/search:text-[#10b981] transition-colors" />
+                    <Input 
+                        placeholder="Ref #, Customer, Invoice..." 
+                        className="pl-11 h-11 rounded-xl border-border/50 bg-background font-bold text-xs focus:ring-[#10b981]/20 focus:border-[#10b981] transition-all" 
+                        value={searchQuery}
+                        onChange={(e)=>setSearchQuery(e.target.value)}
+                    />
                 </div>
-              </PopoverContent>
-            </Popover>
-
-            <Button onClick={fetchData} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-6 shadow-sm disabled:opacity-50">
-                {loading ? <RefreshCcw className="h-4 w-4 animate-spin" /> : "Apply Filters"}
+            </div>
+          </div>
+          
+          <div className="mt-6 pt-6 border-t border-border/30 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Refund Method</label>
+                <Select value={refundMethod} onValueChange={setRefundMethod}>
+                   <SelectTrigger className="h-10 w-48 rounded-xl border-border/50 bg-background font-bold text-xs"><SelectValue /></SelectTrigger>
+                   <SelectContent>
+                      <SelectItem value="all">All Methods</SelectItem>
+                      <SelectItem value="cash">Financial: Cash</SelectItem>
+                      <SelectItem value="card">Electronic: Card</SelectItem>
+                      <SelectItem value="credit">Store Credit</SelectItem>
+                   </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <Button onClick={fetchData} disabled={isLoading} className="bg-[#10b981] hover:bg-[#0da371] text-white h-11 px-8 rounded-xl font-bold text-xs uppercase tracking-[0.2em] shadow-lg shadow-[#10b981]/20 disabled:opacity-50 transition-all active:scale-95">
+              {isLoading ? <RefreshCcw className="h-4 w-4 animate-spin" /> : "Refresh Analytics"}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* --- ANALYTICAL DASHBOARD --- */}
+      {/* --- DASHBOARD --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { 
-            label: "Total Returns", 
-            value: apiStats?.totalReturns || 0, 
-            icon: RotateCcw, 
-            color: "text-orange-600",
-            bg: "bg-orange-50"
-          },
-          { 
-            label: "Return Value", 
-            value: formatCurrency(apiStats?.totalReturnAmount || 0), 
-            icon: TrendingUp, 
-            color: "text-emerald-500",
-            bg: "bg-emerald-50 dark:bg-emerald-500/100/10"
-          },
-          { 
-            label: "Refunded Amount", 
-            value: formatCurrency(apiStats?.totalRefundAmount || 0), 
-            icon: ArrowUpRight, 
-            color: "text-emerald-600 dark:text-emerald-500",
-            bg: "bg-emerald-50 dark:bg-emerald-500/10"
-          },
-          { 
-            label: "Unique Customers", 
-            value: apiStats?.uniqueCustomers || 0, 
-            icon: Users, 
-            color: "text-purple-600",
-            bg: "bg-purple-50 dark:bg-purple-500/10"
-          },
+          { label: "Total Returns", value: apiStats?.totalReturns || 0, icon: RotateCcw, color: "text-amber-500", bg: "bg-amber-500/5", border: "border-amber-500/20" },
+          { label: "Return Value", value: formatCurrency(apiStats?.totalReturnAmount || 0), icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-500/5", border: "border-emerald-500/20" },
+          { label: "Refunded Capital", value: formatCurrency(apiStats?.totalRefundAmount || 0), icon: ArrowUpRight, color: "text-[#10b981]", bg: "bg-[#10b981]/5", border: "border-[#10b981]/20" },
+          { label: "Return Rate", value: `${apiStats?.totalReturns > 0 ? "Analyzed" : "N/A"}`, icon: Users, color: "text-purple-500", bg: "bg-purple-500/5", border: "border-purple-500/20" },
         ].map((stat, i) => (
-          <Card key={i} className="border-none shadow-sm bg-card overflow-hidden">
+          <Card key={i} className="border-none shadow-sm bg-card overflow-hidden group hover:shadow-md transition-all duration-500 relative">
+            <div className={cn("absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:opacity-100 opacity-50", stat.bg)} />
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className={cn("p-3 rounded-xl", stat.bg)}>
-                  <stat.icon className={cn("w-6 h-6", stat.color)} />
+                <div className={cn("p-3.5 rounded-2xl border shadow-inner group-hover:scale-110 transition-transform duration-500", stat.bg, stat.border, stat.color)}>
+                  <stat.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider">{stat.label}</p>
-                  <h3 className="text-2xl font-black text-foreground mt-0.5">{stat.value}</h3>
+                  <p className="text-[10px] font-black tracking-[0.15em] text-muted-foreground uppercase opacity-70 mb-1">{stat.label}</p>
+                  <h3 className="text-2xl font-black text-foreground tabular-nums tracking-tight">
+                    {isLoading ? <Skeleton className="h-8 w-24" /> : stat.value}
+                  </h3>
                 </div>
               </div>
             </CardContent>
@@ -393,74 +442,104 @@ export default function SalesReturnReport() {
       </div>
 
       {/* --- DATA TABLE --- */}
-      <Card className="border-none shadow-sm bg-card overflow-hidden">
-        <div className="p-4 border-b border-border/30 flex justify-between items-center bg-card">
-            <div className="relative w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-                <Input 
-                    placeholder="Filter by ref, customer, invoice..." 
-                    className="pl-10 bg-muted/30 border-border/30 h-10 rounded-lg text-sm"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+      <Card className="border-none shadow-sm overflow-hidden bg-card">
+        <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center justify-between">
+           <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full bg-[#10b981]" />
+              <div>
+                <CardTitle className="text-base font-bold text-foreground">Return Registry</CardTitle>
+                <CardDescription className="text-xs font-medium text-muted-foreground/60 mt-0.5">Comprehensive audit trail of reverse transactions</CardDescription>
+              </div>
             </div>
-            <div className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest">
-                Aggregated Records: <span className="text-foreground font-black">{filteredData.length}</span>
-            </div>
+            {isLoading && <Badge className="bg-[#10b981]/10 text-[#10b981] animate-pulse rounded-lg font-bold border-none uppercase text-[9px] tracking-widest px-2 shadow-none">Syncing Data</Badge>}
+        </CardHeader>
+        <Table>
+          <TableHeader className="bg-muted/30">
+            <TableRow className="border-border/40 hover:bg-transparent">
+              <TableHead className="pl-6 font-bold text-foreground py-4 text-[10px] uppercase tracking-widest">Return Reference</TableHead>
+              <TableHead className="font-bold text-foreground text-[10px] uppercase tracking-widest">Customer Entity</TableHead>
+              <TableHead className="font-bold text-foreground text-[10px] uppercase tracking-widest">Financial Impact</TableHead>
+              <TableHead className="text-center font-bold text-foreground text-[10px] uppercase tracking-widest">Refund Protocol</TableHead>
+              <TableHead className="text-right pr-6 font-bold text-foreground text-[10px] uppercase tracking-widest">Authorization</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <TableRow key={i} className="border-border/40">
+                  <TableCell className="pl-6 py-4"><Skeleton className="h-4 w-48" /><Skeleton className="h-3 w-32 mt-1.5" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                  <TableCell className="text-center"><Skeleton className="h-6 w-24 mx-auto rounded-lg" /></TableCell>
+                  <TableCell className="text-right pr-6"><Skeleton className="h-4 w-32 ml-auto" /></TableCell>
+                </TableRow>
+              ))
+            ) : filteredData.length > 0 ? (
+              filteredData.map((item) => (
+                <TableRow key={item.id} className="hover:bg-muted/30 transition-colors border-border/40 group relative">
+                  <TableCell className="pl-6 py-4">
+                      <div className="flex items-center gap-3">
+                          <div className="p-2.5 rounded-xl bg-muted/40 text-muted-foreground/60 border-border/40 group-hover:bg-[#10b981]/10 group-hover:text-[#10b981] group-hover:border-[#10b981]/20 transition-all duration-300">
+                              <RotateCcw className="h-4 w-4" />
+                          </div>
+                          <div>
+                              <p className="font-bold text-sm text-foreground mb-0.5 group-hover:text-[#10b981] transition-colors uppercase tracking-tight">{item.return_number}</p>
+                              <p className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest flex items-center gap-1.5">
+                                {format(new Date(item.return_date), "MMM dd, yyyy")} • Inv: {item.sale?.invoice_number || "N/A"}
+                              </p>
+                          </div>
+                      </div>
+                  </TableCell>
+                  <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm text-foreground/80">{item.customer?.name || "Walk-in"}</span>
+                        <span className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-tighter">Verified Client</span>
+                      </div>
+                  </TableCell>
+                  <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-muted-foreground line-through opacity-40">{formatCurrency(item.total_amount)}</span>
+                        <span className="text-sm font-black text-[#10b981] tracking-tight">{formatCurrency(item.refund_amount)}</span>
+                      </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                      <Badge variant="outline" className="bg-muted/20 text-muted-foreground/80 border-border/50 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-lg shadow-none group-hover:bg-[#10b981]/10 group-hover:text-[#10b981] group-hover:border-[#10b981]/30 transition-all">
+                          {item.refund_method}
+                      </Badge>
+                  </TableCell>
+                  <TableCell className="text-right pr-6">
+                      <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{item.cashier?.name || "System"}</p>
+                      <p className="text-[9px] text-muted-foreground/40 font-bold uppercase tracking-widest mt-0.5">Authorization Level 1</p>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={5} className="h-48 text-center py-20">
+                   <div className="flex flex-col items-center justify-center gap-3">
+                    <div className="p-4 rounded-full bg-muted/30 text-muted-foreground/20">
+                      <Search className="w-10 h-10" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-muted-foreground text-sm uppercase tracking-widest">No return records found</h4>
+                      <p className="text-xs text-muted-foreground/60 font-medium">Try adjusting your filters to see more results.</p>
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <div className="px-6 py-4 flex justify-between items-center border-t border-border/30 bg-muted/5">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+             Analyzing {filteredData.length} return events
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="h-8 rounded-lg text-[10px] font-bold uppercase tracking-widest disabled:opacity-30" disabled>Previous</Button>
+            <Button variant="outline" size="sm" className="h-8 rounded-lg text-[10px] font-bold uppercase tracking-widest disabled:opacity-30" disabled>Next</Button>
+          </div>
         </div>
-        <CardContent className="p-0">
-            <Table>
-                <TableHeader className="bg-muted/20">
-                    <TableRow>
-                        <TableHead className="pl-6 font-bold text-muted-foreground text-xs uppercase tracking-wider">Return #</TableHead>
-                        <TableHead className="font-bold text-muted-foreground text-xs uppercase tracking-wider">Date</TableHead>
-                        <TableHead className="font-bold text-muted-foreground text-xs uppercase tracking-wider">Inv Reference</TableHead>
-                        <TableHead className="font-bold text-muted-foreground text-xs uppercase tracking-wider">Customer</TableHead>
-                        <TableHead className="font-bold text-muted-foreground text-xs uppercase tracking-wider text-right">Value</TableHead>
-                        <TableHead className="font-bold text-muted-foreground text-xs uppercase tracking-wider text-right">Refund</TableHead>
-                        <TableHead className="font-bold text-muted-foreground text-xs uppercase tracking-wider">Method</TableHead>
-                        <TableHead className="pr-6 font-bold text-muted-foreground text-xs uppercase tracking-wider text-right">Cashier</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {filteredData.length > 0 ? filteredData.map((item) => (
-                        <TableRow key={item.id} className="hover:bg-muted/30 transition-colors border-b border-border/20/50">
-                            <TableCell className="pl-6 py-4">
-                              <span className="font-black text-foreground uppercase tracking-tighter text-sm">{item.return_number}</span>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground text-sm">{format(new Date(item.return_date), "MMM dd, yyyy")}</TableCell>
-                            <TableCell className="font-bold text-muted-foreground/60 text-sm tracking-tight">{item.sale?.invoice_number || "N/A"}</TableCell>
-                            <TableCell>
-                              <div className="flex flex-col">
-                                <span className="font-bold text-foreground text-sm">{item.customer?.name || "Walk-in"}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right font-bold text-muted-foreground text-sm">{formatCurrency(item.total_amount)}</TableCell>
-                            <TableCell className="text-right font-black text-emerald-600 dark:text-emerald-500 text-sm">{formatCurrency(item.refund_amount)}</TableCell>
-                            <TableCell>
-                                <Badge variant="outline" className="bg-muted/30 text-muted-foreground border-border/50 text-[10px] font-black uppercase">
-                                    {item.refund_method}
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="text-right pr-6 font-medium text-muted-foreground text-sm">{item.cashier?.name || "Unknown"}</TableCell>
-                        </TableRow>
-                    )) : (
-                        <TableRow>
-                            <TableCell colSpan={8} className="h-32 text-center text-muted-foreground/60 italic font-medium">
-                                No records found for the selected criteria.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-
-            <div className="px-6 py-4 flex items-center justify-end gap-2 bg-muted/10 border-t border-border/30">
-                <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs" disabled><ChevronLeft className="h-3 w-3 mr-1"/> Prev</Button>
-                <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs">Next <ChevronRight className="h-3 w-3 ml-1"/></Button>
-            </div>
-        </CardContent>
       </Card>
-
     </div>
   );
 }

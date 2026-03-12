@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, Trash2, Mail, Phone, MapPin, ReceiptText, User, ChevronRight, Hash } from "lucide-react";
+import { Edit, Trash2, Mail, Phone, MapPin, ReceiptText, User, ChevronRight, Hash, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -13,111 +13,121 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EditCustomerDialog } from "./edit-customer-dialog";
 import { cn } from "@/lib/utils";
 import { usePermission } from "@/hooks/use-permission";
+import { useAppSettings } from "@/app/hooks/useAppSettings";
 
 export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) {
   const { canUpdate, canDelete } = usePermission();
+  const { formatCurrency } = useAppSettings();
   const CUSTOMER = "customer";
+
   return (
-    <Card className="border-none shadow-sm bg-white overflow-hidden rounded-2xl">
+    <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border-border/10">
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader className="bg-slate-50/50 border-b border-slate-100">
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="pl-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Client Profile</TableHead>
-              <TableHead className="py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Contact Identity</TableHead>
-              <TableHead className="text-right py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Revenue</TableHead>
-              <TableHead className="text-center py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Loyalty</TableHead>
-              <TableHead className="text-center py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</TableHead>
-              <TableHead className="text-right pr-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Audit Actions</TableHead>
+          <TableHeader className="bg-muted/30 backdrop-blur-md">
+            <TableRow className="hover:bg-transparent border-border/40">
+              <TableHead className="pl-8 py-5 text-[10px] font-black text-foreground uppercase tracking-widest">Client Identity</TableHead>
+              <TableHead className="py-5 text-[10px] font-black text-foreground uppercase tracking-widest">Contact Portfolio</TableHead>
+              <TableHead className="text-right py-5 text-[10px] font-black text-foreground uppercase tracking-widest">Asset Value</TableHead>
+              <TableHead className="text-center py-5 text-[10px] font-black text-foreground uppercase tracking-widest">Loyalty Tier</TableHead>
+              <TableHead className="text-center py-5 text-[10px] font-black text-foreground uppercase tracking-widest">Status</TableHead>
+              <TableHead className="text-right pr-8 py-5 text-[10px] font-black text-foreground uppercase tracking-widest">Audit Protocols</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {customers.length === 0 ? (
-              <TableRow>
+              <TableRow className="border-border/20">
                 <TableCell
                   colSpan={6}
-                  className="h-64 text-center"
+                  className="h-72 text-center py-20"
                 >
-                  <div className="flex flex-col items-center justify-center space-y-3 opacity-40">
-                    <User className="h-12 w-12 text-slate-300" />
-                    <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">No matching customer profiles</p>
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <div className="p-4 rounded-full bg-muted/30 text-muted-foreground/20">
+                      <User className="h-12 w-12" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-muted-foreground text-sm uppercase tracking-widest leading-6">No matching member profiles</h4>
+                      <p className="text-xs text-muted-foreground/60 font-medium">Verify your filter parameters or register a new client.</p>
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
               customers.map((customer) => (
-                <TableRow key={customer.id} className="hover:bg-slate-50 group border-b border-slate-50 transition-colors">
-                  <TableCell className="pl-8 py-4">
+                <TableRow key={customer.id} className="hover:bg-muted/30 group border-border/20 transition-all duration-300">
+                  <TableCell className="pl-8 py-5">
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-2xl bg-slate-100 flex items-center justify-center text-[13px] font-black text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
-                        {customer.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex flex-col gap-0.5">
+                      <Avatar className="h-11 w-11 border border-border/40 shadow-sm group-hover:border-[#10b981]/50 transition-all duration-500">
+                        <AvatarFallback className="bg-muted text-muted-foreground font-black uppercase text-xs group-hover:bg-[#10b981]/10 group-hover:text-[#10b981] transition-all">
+                          {customer.name.substring(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col gap-1">
                         <button 
                           onClick={() => onViewLedger(customer)}
-                          className="text-[14px] font-black text-slate-900 leading-tight hover:text-blue-600 transition-colors text-left"
+                          className="text-[14px] font-black text-foreground tracking-tight hover:text-[#10b981] transition-colors text-left uppercase"
                         >
                           {customer.name}
                         </button>
-                        <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <div className="flex items-center gap-1.5 text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">
                           <MapPin className="h-3 w-3" />
-                          {customer.address?.split(",")[0] || "No primary address"}
+                          {customer.address?.split(",")[0] || "No Geographical Anchor"}
                         </div>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2 text-[12px] font-medium text-slate-600">
-                        <Mail className="h-3 w-3 text-slate-400" />
-                        {customer.email || "No email registered"}
+                  <TableCell className="py-5">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-foreground/70">
+                        <Mail className="h-3.5 w-3.5 text-muted-foreground/30" />
+                        {customer.email || "N/A"}
                       </div>
-                      <div className="flex items-center gap-2 text-[12px] font-medium text-slate-600">
-                        <Phone className="h-3 w-3 text-slate-400" />
-                        {customer.phone || "No contact digits"}
+                      <div className="flex items-center gap-2 text-[11px] font-black text-[#10b981] tabular-nums">
+                        <Phone className="h-3.5 w-3.5 text-muted-foreground/30" />
+                        {customer.phone || "--- --- ----"}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right py-4">
-                    <div className="flex flex-col items-end">
-                      <span className="text-[14px] font-black text-slate-900 tracking-tight">
-                        LKR {parseFloat(customer.totalSpent || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  <TableCell className="text-right py-5">
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[14px] font-black text-[#10b981] tabular-nums tracking-tight">
+                        {formatCurrency(parseFloat(customer.totalSpent || 0))}
                       </span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
                         {customer.visits || 0} Transactions
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-center py-4">
+                  <TableCell className="text-center py-5">
                     <Badge
                       variant="outline"
                       className={cn(
-                        "text-[10px] font-black uppercase tracking-widest px-3 py-1 shadow-sm",
-                        customer.loyaltyPoints >= 500 
-                          ? "bg-amber-50 text-amber-600 border-amber-100" 
-                          : "bg-slate-50 text-slate-500 border-slate-100"
+                        "text-[10px] font-black uppercase tracking-widest px-3 py-1 shadow-sm border-border/50",
+                        customer.loyaltyPoints >= 1000 
+                          ? "bg-amber-500/10 text-amber-500 border-amber-500/20" 
+                          : "bg-muted/20 text-muted-foreground/60 border-border/40"
                       )}
                     >
                       {customer.loyaltyPoints || 0} pts
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center py-4">
-                    <StatusBadge value={customer.is_active} />
+                  <TableCell className="text-center py-5">
+                    <StatusBadge value={customer.is_active} className="h-6 px-3 rounded-lg font-black text-[9px] uppercase tracking-widest border-none shadow-sm" />
                   </TableCell>
-                  <TableCell className="text-right pr-8 py-4">
-                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <TableCell className="text-right pr-8 py-5">
+                    <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-9 w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl"
+                        className="h-10 w-10 text-muted-foreground/60 hover:text-[#10b981] hover:bg-[#10b981]/5 rounded-xl transition-all"
                         onClick={() => onViewLedger(customer)}
                         title="Audit Ledger"
                       >
-                        <ReceiptText className="h-4 w-4" />
+                        <ReceiptText className="h-4.5 w-4.5" />
                       </Button>
                       {canUpdate(CUSTOMER) && (
                         <EditCustomerDialog
@@ -127,9 +137,9 @@ export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) 
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
+                            className="h-10 w-10 text-muted-foreground/60 hover:text-blue-500 hover:bg-blue-500/5 rounded-xl transition-all"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-4.5 w-4.5" />
                           </Button>
                         </EditCustomerDialog>
                       )}
@@ -137,10 +147,10 @@ export function CustomersTable({ customers, onUpdate, onDelete, onViewLedger }) 
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl"
+                          className="h-10 w-10 text-muted-foreground/60 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all"
                           onClick={() => onDelete(customer.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4.5 w-4.5" />
                         </Button>
                       )}
                     </div>

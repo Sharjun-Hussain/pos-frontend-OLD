@@ -25,8 +25,6 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 
-import { useFormRestore } from "@/hooks/use-form-restore";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -212,6 +210,7 @@ export default function CreatePurchaseOrder({ initialData }) {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newItemAdded, setNewItemAdded] = useState(false);
+  const [hasPrefilled, setHasPrefilled] = useState(false);
   
   // Popover States
   const [supplierOpen, setSupplierOpen] = useState(false);
@@ -264,8 +263,6 @@ export default function CreatePurchaseOrder({ initialData }) {
       ],
     },
   });
-
-  const { clearSavedData } = useFormRestore(form);
 
   const { fields, prepend, remove } = useFieldArray({
     control: form.control,
@@ -368,6 +365,60 @@ export default function CreatePurchaseOrder({ initialData }) {
       return () => clearTimeout(timer);
     }
   }, [newItemAdded]);
+
+  // Handle URL Prefill (e.g., from Low Stock Report)
+  useEffect(() => {
+    if (typeof window === "undefined" || isEditing || hasPrefilled || products.length === 0) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const variantsParam = params.get("variants");
+    
+    if (!variantsParam) {
+      setHasPrefilled(true);
+      return;
+    }
+
+    const variantIds = variantsParam.split(",");
+    const newItems = variantIds.map(vId => {
+      // Find exact variant ID first, falling back to parent product ID
+      let p = products.find(prod => String(prod.id) === String(vId));
+      
+      if (!p) {
+        // If not found in exact IDs, check if vId matches a parent product ID. 
+        // `products` array contains flattened variants AND pseudo-variants.
+        p = products.find(prod => String(prod.parentProduct?.id) === String(vId));
+      }
+
+      if (!p) return null;
+      return {
+        productId: String(p.id), // Ensure we map to the exact internal ID of the flatten structure
+        unitCost: Number(p.cost_price) || 0,
+        quantity: 1, // Defaulting to 1 to allow user to adjust
+        discount: 0,
+        taxRate: 0,
+        notes: "",
+      };
+    }).filter(Boolean);
+
+    if (newItems.length > 0) {
+      // Optionally pick supplier from the first matched product if not set
+      const firstProduct = products.find(prod => String(prod.id) === String(newItems[0].productId));
+      if (firstProduct && !form.getValues('supplierId')) {
+         const parent = firstProduct.parentProduct || firstProduct;
+         const pSupplierId = parent.supplier_id;
+         if (pSupplierId) {
+             form.setValue("supplierId", String(pSupplierId));
+         } else if (parent.suppliers?.length > 0) {
+             form.setValue("supplierId", String(parent.suppliers[0].id));
+         }
+      }
+
+      form.setValue("items", newItems);
+      // Turn off filter by supplier out of caution so all pre-selected products show up in the dropdowns.
+      setFilterBySupplier(false);
+    }
+    setHasPrefilled(true);
+  }, [products, isEditing, hasPrefilled, form]);
 
   // Keyboard Shortcut: Ctrl + Enter to submit form
   useEffect(() => {
@@ -480,7 +531,6 @@ export default function CreatePurchaseOrder({ initialData }) {
         toast.success(
           `Purchase Order ${isEditing ? "updated" : "created"} successfully!`
         );
-        clearSavedData();
         router.push("/purchase/purchase-orders"); // Redirect to list
       } else {
         toast.error(

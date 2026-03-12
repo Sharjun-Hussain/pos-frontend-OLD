@@ -24,10 +24,10 @@ const DataTableColumnHeader = ({ column, title }) => {
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      className="hover:bg-transparent px-0 font-bold text-[11px] uppercase tracking-widest text-slate-400"
+      className="hover:bg-transparent px-0 font-bold text-[11px] uppercase tracking-widest text-muted-foreground/70 transition-colors hover:text-[#10b981]"
     >
       {title}
-      <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-50" />
+      <ArrowUpDown className="ml-2 h-3 w-3 opacity-40" />
     </Button>
   );
 };
@@ -68,19 +68,19 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
         : null;
 
       return (
-        <div className="flex items-center gap-3 py-1">
-          <Avatar className="h-10 w-10 rounded-xl border border-slate-100 shadow-sm">
-            <AvatarImage src={logoUrl} alt={organization.name} />
-            <AvatarFallback className="bg-emerald-50 text-[#10b981] rounded-xl font-bold">
+        <div className="flex items-center gap-4 py-2">
+          <Avatar className="h-11 w-11 rounded-2xl border border-border/50 shadow-sm ring-2 ring-transparent group-hover:ring-[#10b981]/10 transition-all">
+            <AvatarImage src={logoUrl} alt={organization.name} className="object-cover" />
+            <AvatarFallback className="bg-[#10b981]/10 text-[#10b981] rounded-2xl font-black text-xs uppercase tracking-tighter">
               {organization.name.substring(0, 1).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-bold text-[13px] text-slate-900 tracking-tight">
+            <span className="font-bold text-sm text-foreground tracking-tight group-hover:text-[#10b981] transition-colors">
               {organization.name}
             </span>
-            <span className="text-[11px] text-slate-400 font-medium">
-              {organization.email || "No email"}
+            <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-widest opacity-70">
+              {organization.email || "No email provided"}
             </span>
           </div>
         </div>
@@ -93,8 +93,8 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
     cell: ({ row }) => {
       const phone = row.getValue("phone");
       return (
-        <div className="text-sm text-muted-foreground">
-          {phone || <span className="opacity-50">-</span>}
+        <div className="text-[12px] font-bold text-foreground font-mono">
+          {phone || <span className="opacity-30 tracking-widest">N/A</span>}
         </div>
       );
     },
@@ -108,8 +108,8 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
       const city = row.getValue("city");
       return (
         <div className="flex items-center gap-2">
-          <span className="text-sm">
-            {city || <span className="opacity-50 text-xs">N/A</span>}
+          <span className="text-sm font-bold text-foreground">
+            {city || <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Not Set</span>}
           </span>
         </div>
       );
@@ -121,7 +121,7 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
     cell: ({ row }) => {
       const branchCount = row.original.branches?.length || 0;
       return (
-        <Badge variant="secondary" className="bg-slate-50 text-slate-600 border-slate-100 font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg">
+        <Badge variant="secondary" className="bg-muted/30 text-muted-foreground border-border/50 font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-xl">
           {branchCount} {branchCount === 1 ? "Branch" : "Branches"}
         </Badge>
       );
@@ -145,12 +145,12 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
       };
       
       return (
-        <div className="flex flex-col gap-1">
-          <Badge variant="outline" className={cn("font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-lg border-none", tierColors[tier] || 'bg-slate-100 text-slate-500')}>
+        <div className="flex flex-col gap-1.5">
+          <Badge variant="outline" className={cn("font-bold text-[10px] uppercase tracking-widest px-3 py-1 rounded-xl border-none shadow-sm", tierColors[tier] || 'bg-muted/30 text-muted-foreground')}>
             {tier}
           </Badge>
           {cycle && (
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{cycle}</span>
+            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest ml-1 opacity-50">{cycle}</span>
           )}
         </div>
       );
@@ -172,7 +172,7 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
       const config = statusConfig[status] || statusConfig.Trial;
       
       return (
-        <Badge variant={config.variant} className={cn("font-bold text-[10px] uppercase tracking-wider px-2 py-1 rounded-lg border-none shadow-none", config.className)}>
+        <Badge variant={config.variant} className={cn("font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-xl border-none shadow-sm shadow-black/3", config.className)}>
           {status || "Trial"}
         </Badge>
       );
@@ -195,11 +195,11 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
       
       return (
         <div className="flex flex-col">
-          <span className={`text-sm ${isExpired ? 'text-red-600 font-medium' : ''}`}>
+          <span className={`text-[12px] font-bold ${isExpired ? 'text-red-500' : 'text-foreground font-mono'}`}>
             {date.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
           </span>
           {!isExpired && daysUntilExpiry <= 30 && (
-            <span className="text-xs text-orange-600">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600">
               {daysUntilExpiry} days left
             </span>
           )}
@@ -223,7 +223,7 @@ export const getOrganizationColumns = ({ onDelete, onToggleStatus }) => [
     cell: ({ row }) => {
       const date = new Date(row.getValue("created_at"));
       return (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-[12px] font-bold text-muted-foreground font-mono">
             {date.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
         </div>
       );

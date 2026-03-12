@@ -1,8 +1,7 @@
 "use client";
 import { useAppSettings } from "@/app/hooks/useAppSettings";
-
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useReactToPrint } from "react-to-print"; // FIX: Updated usage below
+import { useReactToPrint } from "react-to-print";
 import { format, subDays } from "date-fns";
 import {
   Printer,
@@ -10,14 +9,17 @@ import {
   Download,
   Search,
   Calendar as CalendarIcon,
-  ChevronDown,
   Filter,
-  ArrowUpDown,
-  MoreHorizontal,
+  ArrowRight,
   SlidersHorizontal,
-  X,
-  ChevronLeft,
-  ChevronRight
+  RefreshCw,
+  Check,
+  ChevronsUpDown,
+  DollarSign,
+  Receipt,
+  Tag,
+  CreditCard,
+  CreditCard as PaymentIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,7 +30,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Card, CardContent } from "@/components/ui/card";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -49,16 +52,15 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { SalesSummaryPrintTemplate } from "@/components/Template/sales/SalesSummaryPrintTemplate";
-
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { exportToCSV, exportToExcel } from "@/lib/exportUtils";
 
-
 export default function DailySalesSummaryPage() {
   const { data: session } = useSession();
-  const { formatCurrency, formatDate, formatDateTime, localization, finance, pos } = useAppSettings();
+  const { formatCurrency, formatDateTime, localization, pos } = useAppSettings();
   
   const currencySymbol = useMemo(() => {
     const currencies = [
@@ -75,6 +77,7 @@ export default function DailySalesSummaryPage() {
     const baseMethods = pos?.paymentMethods || ['Cash', 'Card', 'Cheque', 'Voucher'];
     return [...baseMethods, 'Credit', 'Return'];
   }, [pos]);
+
   const [date, setDate] = useState({
     from: subDays(new Date(), 7),
     to: new Date(),
@@ -82,6 +85,7 @@ export default function DailySalesSummaryPage() {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [apiStats, setApiStats] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Filter States
   const [branch, setBranch] = useState("all");
@@ -93,6 +97,8 @@ export default function DailySalesSummaryPage() {
   // Metadata States
   const [branches, setBranches] = useState([]);
   const [sellers, setSellers] = useState([]);
+  const [branchOpen, setBranchOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
 
   useEffect(() => {
     const fetchMetadata = async () => {
@@ -110,8 +116,8 @@ export default function DailySalesSummaryPage() {
         const branchData = await branchRes.json();
         const sellerData = await sellerRes.json();
 
-        if (branchData.status === 'success') setBranches(branchData.data);
-        if (sellerData.status === 'success') setSellers(sellerData.data);
+        if (branchData.status === 'success') setBranches(branchData.data || []);
+        if (sellerData.status === 'success') setSellers(sellerData.data || []);
 
       } catch (err) {
         console.error("Failed to fetch metadata", err);
@@ -122,6 +128,7 @@ export default function DailySalesSummaryPage() {
 
   const fetchData = async () => {
       if (!session?.accessToken) return;
+      setIsLoading(true);
       try {
           const queryParams = new URLSearchParams({
               start_date: date?.from ? format(date.from, 'yyyy-MM-dd') : '',
@@ -141,17 +148,16 @@ export default function DailySalesSummaryPage() {
           }
 
           if (result.status === 'success') {
-              setData(result.data.transactions);
-              setApiStats(result.data.stats);
+              setData(result.data.transactions || []);
+              setApiStats(result.data.stats || null);
           } else {
               toast.error(result.message || "Failed to fetch sales data");
           }
       } catch (error) {
-          if (error.status === 401) {
-              signOut({ callbackUrl: '/login' });
-          }
           console.error("Error fetching report:", error);
           toast.error("Failed to load report");
+      } finally {
+          setIsLoading(false);
       }
   };
 
@@ -159,41 +165,31 @@ export default function DailySalesSummaryPage() {
       fetchData();
   }, [session?.accessToken, date, branch, user]);
 
-  // Auto-adjust amount range when data changes
   useEffect(() => {
     if (data.length > 0) {
       const amounts = data.map(item => Math.abs(item.total || 0));
       const maxAmount = Math.max(...amounts);
       const minAmount = Math.min(...amounts);
-      
-      // Only update if current range doesn't include all data
       if (maxAmount > amountRange[1] || minAmount < amountRange[0]) {
-        setAmountRange([0, Math.ceil(maxAmount / 1000) * 1000 + 1000]); // Round up to nearest 1000
+        setAmountRange([0, Math.ceil(maxAmount / 1000) * 1000 + 1000]);
       }
     }
   }, [data]);
 
-  // --- STATS CALCULATION ---
   const stats = apiStats || {
     totalSales: filteredData.reduce((acc, curr) => acc + (curr.total || 0), 0),
     totalTransactions: filteredData.length,
     avgValue: (filteredData.reduce((acc, curr) => acc + (curr.total || 0), 0) / (filteredData.length || 1)).toFixed(2),
     totalDiscounts: filteredData.reduce((acc, curr) => acc + (curr.discount || 0), 0),
-    paymentBreakdown: {
-      cash: 0, card: 0, credit: 0 
-    }
+    paymentBreakdown: { cash: 0, card: 0, credit: 0 }
   };
 
-  // --- PRINTING LOGIC (FIXED) ---
   const printRef = useRef(null);
-  
-  // Use contentRef directly in the options object
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: "Sales_Report",
   });
 
-  // --- EXPORT LOGIC ---
   const handleExportCSV = () => {
     const exportData = filteredData.map(item => ({
       "Invoice No": item.id,
@@ -222,69 +218,53 @@ export default function DailySalesSummaryPage() {
     exportToExcel(exportData, "Daily_Sales_Report");
   };
 
-  // --- FILTER LOGIC ---
   useEffect(() => {
     let result = data;
-
     if (searchQuery) {
       result = result.filter(item => 
-        item.customer.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        item.id.toLowerCase().includes(searchQuery.toLowerCase())
+        item.customer?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        item.id?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
     if (paymentFilter === 'credit') {
       result = result.filter(item => item.payment_status === 'unpaid' || item.payment_status === 'partially_paid');
     } else if (paymentFilter === 'return') {
       result = result.filter(item => item.status === 'Return');
     } else if (paymentFilter !== 'all') {
-      result = result.filter(item => item.type.toLowerCase() === paymentFilter);
+      result = result.filter(item => item.type?.toLowerCase() === paymentFilter);
     }
-
-    // Amount Range Logic (Absolute value to handle returns)
     result = result.filter(item => Math.abs(item.total) >= amountRange[0] && Math.abs(item.total) <= amountRange[1]);
-
     setFilteredData(result);
   }, [searchQuery, paymentFilter, amountRange, data]);
 
-
-  // --- RENDER HELPERS ---
   const PaymentBar = () => {
     const breakdown = stats.paymentBreakdown || {};
-    
-    // Normalize keys to capitalize for display and match colors
     const getPercentage = (key) => {
       const entry = Object.entries(breakdown).find(([k]) => k.toLowerCase() === key.toLowerCase());
       return entry ? entry[1] : 0;
     };
-
     const cashPct = getPercentage('cash');
     const cardPct = getPercentage('card');
     const creditPct = getPercentage('credit');
-
     return (
       <div className="w-full">
-        <div className="h-4 w-full flex rounded-full overflow-hidden mb-2">
-          {cashPct > 0 && <div style={{ width: `${cashPct}%` }} className="bg-emerald-50 dark:bg-emerald-500/100 h-full" title={`Cash: ${cashPct}%`} />}
-          {cardPct > 0 && <div style={{ width: `${cardPct}%` }} className="bg-emerald-50 dark:bg-emerald-500/100 h-full" title={`Card: ${cardPct}%`} />}
-          {creditPct > 0 && <div style={{ width: `${creditPct}%` }} className="bg-amber-50 dark:bg-amber-500/100 h-full" title={`Credit: ${creditPct}%`} />}
+        <div className="h-2 w-full flex rounded-full overflow-hidden mb-3 bg-muted/40 shadow-inner">
+          {cashPct > 0 && <div style={{ width: `${cashPct}%` }} className="bg-[#10b981] h-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />}
+          {cardPct > 0 && <div style={{ width: `${cardPct}%` }} className="bg-emerald-400 h-full opacity-80" />}
+          {creditPct > 0 && <div style={{ width: `${creditPct}%` }} className="bg-amber-500 h-full shadow-[0_0_10px_rgba(245,158,11,0.5)]" />}
         </div>
-        <div className="flex justify-between text-[10px] text-muted-foreground font-medium">
-          {cashPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/100 shrink-0"></div>Cash {cashPct}%</div>}
-          {cardPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/100 shrink-0"></div>Card {cardPct}%</div>}
-          {creditPct > 0 && <div className="flex items-center gap-1 min-w-0 truncate"><div className="w-1.5 h-1.5 rounded-full bg-amber-50 dark:bg-amber-500/100 shrink-0"></div>Credit {creditPct}%</div>}
+        <div className="grid grid-cols-3 gap-2 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
+          <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[#10b981]"></div>Cash {cashPct}%</div>
+          <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>Card {cardPct}%</div>
+          <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>Credit {creditPct}%</div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="flex-1 p-8 bg-muted/30 min-h-screen space-y-8 font-sans text-foreground">
+    <div className="flex-1 space-y-8 p-6 md:p-10 bg-background max-w-[1600px] mx-auto w-full font-sans text-foreground pb-20">
       
-      {/* HIDDEN PRINT TEMPLATE 
-        The 'display: none' ensures it doesn't clutter the UI, 
-        but the DOM element exists for react-to-print to grab.
-      */}
       <div style={{ display: "none" }}>
         <SalesSummaryPrintTemplate 
           ref={printRef} 
@@ -292,264 +272,417 @@ export default function DailySalesSummaryPage() {
           dateRange={date} 
           stats={{
             ...stats,
-            branchName: branch === 'all' ? 'All Branches' : branches.find(b => b.id === branch)?.name || 'Branch'
+            branchName: branch === 'all' ? 'All Branches' : branches.find(b => String(b.id) === String(branch))?.name || 'Branch'
           }} 
           formatDateTime={formatDateTime}
         />
       </div>
 
       {/* --- HEADER --- */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Daily Sales Summary</h1>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-            <span>Reports</span>
-            <span className="text-muted-foreground/40">/</span>
-            <span className="text-foreground font-medium">Sales Performance</span>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3.5 rounded-2xl bg-[#10b981]/10 border border-[#10b981]/20 shadow-inner text-[#10b981]">
+            <SlidersHorizontal className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Daily Sales Summary</h1>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1 font-medium">
+              <span>Sales Performance</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span>Reports</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span className="text-[#10b981]">Aggregate Analysis</span>
+            </div>
           </div>
         </div>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={() => handlePrint()} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
-            <FileText className="h-4 w-4" /> Export PDF
-          </Button>
-          <Button onClick={handleExportCSV} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button onClick={handleExportCSV} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30 h-10 px-5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
             <Download className="h-4 w-4" /> CSV
           </Button>
-          <Button onClick={handleExportExcel} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30">
+          <Button onClick={handleExportExcel} variant="outline" className="bg-card text-foreground border-border/50 shadow-sm gap-2 hover:bg-muted/30 h-10 px-5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
             <FileText className="h-4 w-4" /> Excel
           </Button>
-          <Button onClick={() => handlePrint()}>
+          <Button onClick={handlePrint} className="bg-[#10b981] text-white shadow-lg shadow-[#10b981]/20 gap-2 hover:bg-[#0da371] h-10 px-6 rounded-xl font-bold text-xs uppercase tracking-widest border-none transition-all active:scale-95">
             <Printer className="h-4 w-4" /> Print
+          </Button>
+          <Button onClick={fetchData} className="h-10 w-10 rounded-xl bg-card border border-border/50 text-foreground hover:bg-muted/30 shadow-sm transition-all active:scale-95" variant="outline" disabled={isLoading}>
+            <RefreshCw className={cn("h-5 w-5", isLoading && "animate-spin")} />
           </Button>
         </div>
       </div>
 
-      {/* --- FILTERS & CONTROLS --- */}
-      <Card className="border-none shadow-sm bg-card">
-        <CardContent className="p-6 space-y-6">
-          
-          <div className="flex flex-col lg:flex-row gap-4 items-end">
+      {/* --- FILTERS --- */}
+      <Card className="border-none shadow-sm bg-card overflow-hidden">
+        <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center gap-3">
+          <Filter className="w-4 h-4 text-[#10b981]" />
+          <div>
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Performance Filters</CardTitle>
+            <CardDescription className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-tight">Trace revenue streams across dimensions</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+             <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Date Range</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left h-11 rounded-xl border-border/50 bg-background font-bold text-xs">
+                      <CalendarIcon className="mr-2 h-4 w-4 text-[#10b981]" />
+                      {date?.from ? (date.to ? <>{format(date.from, "LLL dd")} - {format(date.to, "LLL dd, y")}</> : format(date.from, "LLL dd, y")) : <span>Select range</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="range" selected={date} onSelect={setDate} numberOfMonths={2} />
+                  </PopoverContent>
+                </Popover>
+            </div>
+
+             <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Branch / Outlet</label>
+                <Popover open={branchOpen} onOpenChange={setBranchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={branchOpen}
+                      className="w-full justify-between h-11 rounded-xl border-border/50 bg-background font-bold text-xs group"
+                    >
+                      <span className="truncate">{branch === "all" ? "All Global Locations" : branches.find((b) => String(b.id) === String(branch))?.name || "All Branches"}</span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 group-hover:text-[#10b981] transition-colors" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search branches..." className="font-bold border-none h-11 uppercase" />
+                      <CommandList>
+                        <CommandEmpty className="py-4 text-xs font-bold text-muted-foreground uppercase text-center">No location found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="All Branches"
+                            onSelect={() => {
+                              setBranch("all");
+                              setBranchOpen(false);
+                            }}
+                            className="font-bold text-xs py-3"
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", branch === "all" ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                            All Global Locations
+                          </CommandItem>
+                          {branches.map((b) => (
+                            <CommandItem
+                              key={b.id}
+                              value={b.name}
+                              onSelect={() => {
+                                setBranch(b.id);
+                                setBranchOpen(false);
+                              }}
+                              className="font-bold text-xs py-3"
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", String(branch) === String(b.id) ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                              {b.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+            </div>
             
-            {/* DATE RANGE PICKER */}
-            <div className="flex-1 space-y-2 w-full lg:w-auto">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Date Range</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal h-10 border-border/50",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date?.from ? (
-                      date.to ? (
-                        <>
-                          {format(date.from, "LLL dd, y")} -{" "}
-                          {format(date.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(date.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={date?.from}
-                    selected={date}
-                    onSelect={setDate}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
+            <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-1">Cashier / POS User</label>
+                <Popover open={userOpen} onOpenChange={setUserOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={userOpen}
+                      className="w-full justify-between h-11 rounded-xl border-border/50 bg-background font-bold text-xs group"
+                    >
+                      <span className="truncate">{user === "all" ? "All System Users" : sellers.find((s) => String(s.id) === String(user))?.name || "All Users"}</span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 group-hover:text-[#10b981] transition-colors" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search users..." className="font-bold border-none h-11 uppercase" />
+                      <CommandList>
+                        <CommandEmpty className="py-4 text-xs font-bold text-muted-foreground uppercase text-center">No user found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="All Users"
+                            onSelect={() => {
+                              setUser("all");
+                              setUserOpen(false);
+                            }}
+                            className="font-bold text-xs py-3"
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", user === "all" ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                            All System Users
+                          </CommandItem>
+                          {sellers.map((s) => (
+                            <CommandItem
+                              key={s.id}
+                              value={s.name}
+                              onSelect={() => {
+                                setUser(s.id);
+                                setUserOpen(false);
+                              }}
+                              className="font-bold text-xs py-3"
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", String(user) === String(s.id) ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                              {s.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
             </div>
 
-            {/* FILTERS */}
-            <div className="w-full lg:w-[200px] space-y-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Branch</label>
-              <Select value={branch} onValueChange={setBranch}>
-                <SelectTrigger className="h-10 w-full bg-card border-border/50"><SelectValue placeholder="All" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Stores</SelectItem>
-                  {branches.map(b => (
-                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="w-full lg:w-[200px] space-y-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">User</label>
-              <Select value={user} onValueChange={setUser}>
-                <SelectTrigger className="h-10 w-full bg-card border-border/50"><SelectValue placeholder="All Users" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Users</SelectItem>
-                  {sellers.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* ADVANCED FILTER POPOVER */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="h-10 border-dashed border-border text-muted-foreground gap-2">
-                  <SlidersHorizontal className="h-4 w-4" /> Advanced
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 p-4" align="end">
-                <div className="space-y-4">
-                  <h4 className="font-semibold leading-none text-foreground">Advanced Filters</h4>
-                  <div className="space-y-2">
-                    <Label className="text-xs">Amount Range ({currencySymbol})</Label>
-                    <Slider defaultValue={[0, 1000]} max={5000} step={10} value={amountRange} onValueChange={setAmountRange} />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{currencySymbol} {amountRange[0]}</span>
-                      <span>{currencySymbol} {amountRange[1]}</span>
+            <div className="flex gap-2">
+               <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="flex-1 h-11 rounded-xl border-dashed border-border text-muted-foreground/60 gap-2 font-bold text-[10px] uppercase tracking-widest hover:text-[#10b981] hover:border-[#10b981]/50">
+                      <SlidersHorizontal className="h-4 w-4" /> Advanced
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-6" align="end">
+                    <div className="space-y-6">
+                      <div className="space-y-4">
+                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#10b981]">Monetary Value ({currencySymbol})</Label>
+                        <Slider defaultValue={[0, 1000]} max={5000} step={10} value={amountRange} onValueChange={setAmountRange} className="py-4" />
+                        <div className="flex justify-between text-[11px] font-black tabular-nums text-muted-foreground">
+                          <span className="bg-muted px-2 py-0.5 rounded-md">{currencySymbol} {amountRange[0]}</span>
+                          <span className="bg-muted px-2 py-0.5 rounded-md">{currencySymbol} {amountRange[1]}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#10b981]">Settlement Protocol</Label>
+                        <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                          <SelectTrigger className="h-10 rounded-xl border-border/50 bg-background font-bold text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Channels</SelectItem>
+                            {paymentMethods.map(method => (
+                              <SelectItem key={method.toLowerCase()} value={method.toLowerCase()}>{method}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button variant="ghost" size="sm" className="w-full h-10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-500/10" onClick={() => {setPaymentFilter("all"); setAmountRange([0,5000])}}>Reset System Tags</Button>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">Payment Method</Label>
-                    <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                      <SelectTrigger className="h-8 w-full"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        {paymentMethods.map(method => (
-                          <SelectItem key={method.toLowerCase()} value={method.toLowerCase()}>{method}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button size="sm" className="w-full mt-2" onClick={() => {setPaymentFilter("all"); setAmountRange([0,5000])}}>Reset Filters</Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-6 shadow-sm">
-                Apply Filters
-            </Button>
+                  </PopoverContent>
+                </Popover>
+                <Button onClick={fetchData} className="flex-1 bg-[#10b981] hover:bg-[#0da371] text-white h-11 rounded-xl font-bold text-xs uppercase tracking-[0.2em] shadow-lg shadow-[#10b981]/20">
+                    Apply
+                </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* --- SUMMARY DASHBOARD --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Total Sales</p>
-            <h3 className="text-2xl font-bold text-foreground">{formatCurrency(stats.totalSales || 0)}</h3>
-         </Card>
-         <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Transactions</p>
-            <h3 className="text-2xl font-bold text-foreground">{stats.totalTransactions || 0}</h3>
-         </Card>
-         <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-1">Total Discounts</p>
-            <h3 className="text-2xl font-bold text-orange-600">{formatCurrency(Math.abs(stats.totalDiscounts || 0))}</h3>
-         </Card>
-         <Card className="border-none shadow-sm bg-card p-4 flex flex-col justify-center">
-            <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-wider mb-3">Payment Breakdown</p>
-            <PaymentBar />
-         </Card>
+      {/* --- DASHBOARD --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="border-none shadow-sm bg-[#10b981] overflow-hidden group hover:shadow-md transition-all duration-500 relative text-white">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-white/20" />
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-3">
+                <div className="p-3.5 w-fit rounded-2xl bg-white/20 border border-white/30 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black tracking-[0.15em] text-white/80 uppercase mb-1">Total Net Revenue</p>
+                  <h3 className="text-2xl font-black tabular-nums tracking-tight">
+                    {isLoading ? <Skeleton className="h-8 w-32 bg-white/20" /> : formatCurrency(stats.totalSales || 0)}
+                  </h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-card overflow-hidden group hover:shadow-md transition-all duration-500 relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-emerald-500/10" />
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-3">
+                <div className="p-3.5 w-fit rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-[#10b981] shadow-inner group-hover:scale-110 transition-transform duration-500">
+                  <Receipt className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black tracking-[0.15em] text-muted-foreground uppercase opacity-70 mb-1">Total Transactions</p>
+                  <h3 className="text-2xl font-black text-foreground tabular-nums tracking-tight">
+                    {isLoading ? <Skeleton className="h-8 w-16" /> : stats.totalTransactions || 0}
+                  </h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-card overflow-hidden group hover:shadow-md transition-all duration-500 relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-orange-500/10" />
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-3">
+                <div className="p-3.5 w-fit rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                  <Tag className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black tracking-[0.15em] text-muted-foreground uppercase opacity-70 mb-1">Marketing Discounts</p>
+                  <h3 className="text-2xl font-black text-orange-600 tabular-nums tracking-tight">
+                    {isLoading ? <Skeleton className="h-8 w-32" /> : formatCurrency(Math.abs(stats.totalDiscounts || 0))}
+                  </h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-card overflow-hidden group hover:shadow-md transition-all duration-500 relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-blue-500/10" />
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                   <p className="text-[10px] font-black tracking-[0.15em] text-muted-foreground uppercase opacity-70">Payment Velocity</p>
+                   <PaymentIcon className="w-3.5 h-3.5 text-blue-500/60" />
+                </div>
+                <PaymentBar />
+              </div>
+            </CardContent>
+          </Card>
       </div>
 
       {/* --- DATA TABLE --- */}
-      <Card className="border-none shadow-sm bg-card">
-        <div className="p-4 border-b border-border/30 flex justify-between items-center">
-            <div className="relative w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground/60" />
-                <Input 
-                    placeholder="Search invoice or customer..." 
-                    className="pl-9 bg-muted/30 border-border/50 h-9"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+      <Card className="border-none shadow-sm overflow-hidden bg-card">
+        <CardHeader className="pb-4 border-b border-border/30 bg-muted/5 flex flex-row items-center justify-between">
+           <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full bg-[#10b981]" />
+              <div>
+                <CardTitle className="text-base font-bold text-foreground">Transaction Ledger</CardTitle>
+                <CardDescription className="text-xs font-medium text-muted-foreground/60 mt-0.5">Audited chronological list of business events</CardDescription>
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground">
-                Showing <span className="font-bold text-foreground">{filteredData.length}</span> transactions
+            <div className="flex items-center gap-4">
+              <div className="relative w-72">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/search:text-[#10b981] transition-colors" />
+                  <Input 
+                      placeholder="Search customers or invoices..." 
+                      className="pl-11 h-10 rounded-xl border-border/50 bg-background font-bold text-[11px] focus:ring-[#10b981]/20 focus:border-[#10b981] transition-all" 
+                      value={searchQuery}
+                      onChange={(e)=>setSearchQuery(e.target.value)}
+                  />
+              </div>
+              {isLoading && <Badge className="bg-[#10b981]/10 text-[#10b981] animate-pulse rounded-lg font-bold border-none uppercase text-[9px] tracking-widest px-2 shadow-none">Syncing Transactions</Badge>}
             </div>
+        </CardHeader>
+        <Table>
+          <TableHeader className="bg-muted/30">
+            <TableRow className="border-border/40 hover:bg-transparent">
+              <TableHead className="pl-6 font-bold text-foreground py-4 text-[10px] uppercase tracking-widest">Execution Date</TableHead>
+              <TableHead className="font-bold text-foreground text-[10px] uppercase tracking-widest">Reference #</TableHead>
+              <TableHead className="font-bold text-foreground text-[10px] uppercase tracking-widest">Customer Profile</TableHead>
+              <TableHead className="font-bold text-foreground text-[10px] uppercase tracking-widest">Net Revenue</TableHead>
+              <TableHead className="text-center font-bold text-foreground text-[10px] uppercase tracking-widest">Settlement</TableHead>
+              <TableHead className="text-right pr-6 font-bold text-foreground text-[10px] uppercase tracking-widest">Auth Personnel</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 10 }).map((_, i) => (
+                <TableRow key={i} className="border-border/40">
+                  <TableCell className="pl-6 py-4"><Skeleton className="h-4 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24 font-mono" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                  <TableCell className="text-center"><Skeleton className="h-6 w-20 mx-auto rounded-lg" /></TableCell>
+                  <TableCell className="text-right pr-6"><Skeleton className="h-4 w-28 ml-auto" /></TableCell>
+                </TableRow>
+              ))
+            ) : filteredData.length > 0 ? (
+              filteredData.map((item) => {
+                const isReturn = item.status === 'Return';
+                const isCredit = item.payment_status === 'unpaid' || item.payment_status === 'partially_paid';
+                const unpaidAmount = item.total - (item.paid_amount || 0);
+                
+                return (
+                  <TableRow key={item.id} className={cn(
+                    "hover:bg-muted/30 transition-colors border-border/40 group relative overflow-hidden",
+                    isCredit && "bg-amber-500/[0.02]"
+                  )}>
+                    {isCredit && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]" />}
+                    <TableCell className="pl-6 py-4 text-[11px] text-muted-foreground font-bold uppercase tracking-tight">
+                        {formatDateTime(item.date)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs font-black text-foreground group-hover:text-[#10b981] transition-colors">
+                        {item.id}
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex items-center gap-2.5">
+                           <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center text-[10px] font-black text-muted-foreground/60 uppercase">
+                              {item.customer?.substring(0, 2)}
+                           </div>
+                           <span className="text-xs font-bold text-foreground/80">{item.customer || "Walk-in Market"}</span>
+                        </div>
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex flex-col">
+                            <span className={cn(
+                                "text-sm font-black tracking-tight",
+                                isReturn ? "text-red-600" : "text-foreground"
+                            )}>{formatCurrency(item.total || 0)}</span>
+                            {isCredit && (
+                                <span className="text-[10px] text-amber-600 font-black uppercase tracking-widest mt-0.5">
+                                   Due: {formatCurrency(unpaidAmount)}
+                                </span>
+                            )}
+                        </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                        <div className="flex justify-center flex-col items-center gap-1">
+                          <Badge variant="outline" className={cn(
+                              "uppercase text-[9px] font-black tracking-widest h-6 px-3 flex items-center shadow-none border-none rounded-lg transition-all",
+                              isCredit ? "bg-amber-500/10 text-amber-600" :
+                              item.type?.toLowerCase() === 'card' ? "bg-blue-500/10 text-blue-600" :
+                              item.type?.toLowerCase() === 'cash' ? "bg-emerald-500/10 text-[#10b981]" :
+                              item.type?.toLowerCase() === 'cheque' ? "bg-purple-500/10 text-purple-600" :
+                              "bg-muted/40 text-muted-foreground"
+                          )}>
+                              {isCredit ? "Deferred Credit" : item.type}
+                          </Badge>
+                          {isCredit && <span className="text-[8px] text-muted-foreground/40 font-black uppercase tracking-widest">via {item.type}</span>}
+                        </div>
+                    </TableCell>
+                    <TableCell className="text-right pr-6">
+                        <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{item.cashier}</p>
+                        <p className="text-[8px] text-muted-foreground/30 font-bold uppercase tracking-widest mt-0.5">Terminal active</p>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
+            ) : (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={6} className="h-48 text-center py-20">
+                   <div className="flex flex-col items-center justify-center gap-3">
+                    <div className="p-4 rounded-full bg-muted/30 text-muted-foreground/20">
+                      <Receipt className="w-10 h-10" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-muted-foreground text-sm uppercase tracking-widest">No transaction records found</h4>
+                      <p className="text-xs text-muted-foreground/60 font-medium">Clear search or adjust filters to expand view.</p>
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <div className="px-6 py-4 flex justify-between items-center border-t border-border/30 bg-muted/5">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+             Analyzing {filteredData.length} fiscal data points
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="h-8 rounded-lg text-[10px] font-bold uppercase tracking-widest disabled:opacity-30" disabled>Previous</Button>
+            <Button variant="outline" size="sm" className="h-8 rounded-lg text-[10px] font-bold uppercase tracking-widest disabled:opacity-30" disabled>Next</Button>
+          </div>
         </div>
-        <CardContent className="p-0">
-            <Table>
-                <TableHeader className="bg-muted/30 border-b border-border/30">
-                    <TableRow>
-                        <TableHead className="w-[180px] pl-6 font-semibold text-muted-foreground">Date</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground">Invoice No</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground">Customer</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground">Total</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground">Discount</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground">Net Amount</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground">Payment</TableHead>
-                        <TableHead className="text-right pr-6 font-semibold text-muted-foreground">Cashier</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {filteredData.length > 0 ? filteredData.map((item) => {
-                        const isReturn = item.status === 'Return';
-                        const isCredit = item.payment_status === 'unpaid' || item.payment_status === 'partially_paid';
-                        const unpaidAmount = item.total - (item.paid_amount || 0);
-                        
-                        return (
-                            <TableRow key={item.id} className={`hover:bg-muted/30 transition-colors border-b border-border/20 ${isCredit ? 'bg-amber-50/30 dark:bg-amber-500/10' : ''}`}>
-                                <TableCell className="pl-6 py-3 text-muted-foreground">{formatDateTime(item.date)}</TableCell>
-                                <TableCell className="font-medium text-foreground">{item.id}</TableCell>
-                                <TableCell className="text-muted-foreground">{item.customer}</TableCell>
-                                <TableCell className={isReturn ? "text-red-600" : "text-muted-foreground"}>{formatCurrency(item.subtotal || 0)}</TableCell>
-                                <TableCell className="text-muted-foreground">{formatCurrency(item.discount || 0)}</TableCell>
-                                <TableCell className={`font-bold ${isReturn ? "text-red-600" : "text-foreground"}`}>
-                                  <div className="flex flex-col gap-1">
-                                    <span>{formatCurrency(item.total || 0)}</span>
-                                    {isCredit && (
-                                      <span className="text-xs text-amber-600 dark:text-amber-500 font-normal">
-                                        Paid: {formatCurrency(item.paid_amount || 0)} | Due: {formatCurrency(unpaidAmount)}
-                                      </span>
-                                    )}
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex flex-col gap-1">
-                                      <Badge variant="outline" className={
-                                          isCredit ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20" :
-                                          item.type?.toLowerCase() === 'card' ? "bg-emerald-50 dark:bg-emerald-500/100/10 text-emerald-600 dark:text-emerald-500 border-emerald-500/20" :
-                                          item.type?.toLowerCase() === 'cash' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20" :
-                                          item.type?.toLowerCase() === 'cheque' ? "bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-100 dark:border-purple-500/20" :
-                                          "bg-muted/30 text-foreground border-border/30"
-                                      }>
-                                          {isCredit ? "Credit" : item.type}
-                                      </Badge>
-                                      {isCredit && (
-                                        <div className="text-[10px] text-muted-foreground/60 font-medium px-1">
-                                          via {item.type}
-                                        </div>
-                                      )}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="text-right pr-6 text-muted-foreground">{item.cashier}</TableCell>
-                            </TableRow>
-                        );
-                    }) : (
-                        <TableRow>
-                            <TableCell colSpan={8} className="h-24 text-center text-muted-foreground italic">
-                                No transactions match your filters.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-
-            {/* Pagination */}
-            <div className="px-6 py-4 flex items-center justify-end gap-2 border-t border-border/30">
-                <Button variant="outline" size="sm" disabled><ChevronLeft className="h-4 w-4 mr-1"/> Previous</Button>
-                <Button variant="outline" size="sm">Next <ChevronRight className="h-4 w-4 ml-1"/></Button>
-            </div>
-        </CardContent>
       </Card>
 
     </div>

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { toast } from "sonner";
-import { Save, Server, Mail, Layout, Smartphone } from "lucide-react";
+import { Save, Server, Mail, Layout, Smartphone, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const EMAIL_PROVIDERS = [
@@ -23,150 +23,162 @@ const SMS_PROVIDERS = [
   { id: "nexmo", name: "Nexmo (Vonage)", icon: Smartphone, fields: ["API Key", "API Secret", "From"] },
 ];
 
+const SectionHeader = ({ icon: Icon, title, rightSlot }) => (
+  <div className="bg-muted/30 border-b border-border/30 px-6 py-4 flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <Icon className="w-4 h-4 text-[#10b981]" />
+      <h3 className="text-[11px] font-black text-foreground uppercase tracking-widest">{title}</h3>
+    </div>
+    {rightSlot}
+  </div>
+);
+
+const FieldLabel = ({ children }) => (
+  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] ml-0.5">{children}</label>
+);
+
 export function CommunicationSettings() {
   const { email, setEmailSettings, sms, setSmsSettings } = useSettingsStore();
 
-  const handleSave = () => {
-    // In a real app, you might trigger an API call here
-    toast.success("Communication settings saved successfully");
-  };
+  const handleSave = () => toast.success("Communication settings saved successfully");
 
-  // Helper to update email config
-  const updateEmailConfig = (key, value) => {
-    setEmailSettings({
-        config: { ...email.config, [key]: value }
-    });
-  };
-
-  // Helper to update sms config
-  const updateSmsConfig = (key, value) => {
-    setSmsSettings({
-        config: { ...sms.config, [key]: value }
-    });
-  };
+  const updateEmailConfig = (key, value) => setEmailSettings({ config: { ...email.config, [key]: value } });
+  const updateSmsConfig = (key, value) => setSmsSettings({ config: { ...sms.config, [key]: value } });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-2">
+    <div className="space-y-6 pb-20">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900">Communication Settings</h2>
-          <p className="text-sm text-slate-500">Email & SMS gateway configuration.</p>
+          <h2 className="text-xl font-black text-foreground tracking-tight">Communication Settings</h2>
+          <p className="text-sm text-muted-foreground/60 font-medium mt-0.5">Email & SMS gateway configuration.</p>
         </div>
-        <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 shadow-sm">
-          <Save className="w-4 h-4 mr-2" /> Save All Changes
+        <Button onClick={handleSave} className="bg-[#10b981] hover:bg-[#059669] text-white h-10 px-6 rounded-xl font-bold text-xs uppercase tracking-widest border-none shadow-lg shadow-[#10b981]/20 transition-all active:scale-95 gap-2">
+          <Save className="w-4 h-4" /> Save All Changes
         </Button>
       </div>
 
-      {/* Email Settings */}
-       <Card>
-         <CardHeader className="flex flex-row items-center justify-between pb-2">
+      {/* Email Card */}
+      <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border-border/10">
+        <SectionHeader
+          icon={Mail}
+          title="Email Configuration"
+          rightSlot={
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Enable Email</span>
+              <Switch checked={email.enabled} onCheckedChange={(c) => setEmailSettings({ enabled: c })} />
+            </div>
+          }
+        />
+        {email.enabled && (
+          <CardContent className="p-6 space-y-6">
+            {/* Provider Selection */}
             <div>
-               <CardTitle>Email Configuration</CardTitle>
-               <CardDescription>Select and configure your mail transport.</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-               <Label className="text-sm">Enable Email</Label>
-               <Switch checked={email.enabled} onCheckedChange={(c) => setEmailSettings({ enabled: c })} />
-            </div>
-         </CardHeader>
-         
-         {email.enabled && (
-           <CardContent className="space-y-6">
-              {/* Provider Selection */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                 {EMAIL_PROVIDERS.map(prov => (
-                    <div 
-                       key={prov.id}
-                       onClick={() => setEmailSettings({ provider: prov.id })}
-                       className={cn(
-                          "cursor-pointer border-2 rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-all hover:bg-slate-50",
-                          email.provider === prov.id ? "border-blue-600 bg-blue-50/50" : "border-slate-100"
-                       )}
+              <FieldLabel>Mail Transport Provider</FieldLabel>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+                {EMAIL_PROVIDERS.map(prov => {
+                  const isActive = email.provider === prov.id;
+                  return (
+                    <button
+                      key={prov.id}
+                      onClick={() => setEmailSettings({ provider: prov.id })}
+                      className={cn(
+                        "cursor-pointer border-2 rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-all relative",
+                        isActive ? "border-[#10b981] bg-[#10b981]/5" : "border-border/30 bg-background hover:border-[#10b981]/40"
+                      )}
                     >
-                       <prov.icon className={cn("w-6 h-6", email.provider === prov.id ? "text-blue-600" : "text-slate-400")} />
-                       <span className="text-xs font-semibold">{prov.name}</span>
-                    </div>
-                 ))}
+                      {isActive && <CheckCircle2 className="absolute top-2 right-2 w-3.5 h-3.5 text-[#10b981]" />}
+                      <prov.icon className={cn("w-5 h-5", isActive ? "text-[#10b981]" : "text-muted-foreground/40")} />
+                      <span className={cn("text-[10px] font-black uppercase tracking-wider", isActive ? "text-[#10b981]" : "text-muted-foreground/60")}>{prov.name}</span>
+                    </button>
+                  );
+                })}
               </div>
+            </div>
 
-              {/* Dynamic Fields */}
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {EMAIL_PROVIDERS.find(p => p.id === email.provider)?.fields.map(field => (
-                    <div key={field} className="space-y-2">
-                       <Label>{field}</Label>
-                       <Input 
-                            type={field.toLowerCase().includes('password') || field.includes('Key') ? "password" : "text"} 
-                            value={email.config?.[field] || ''}
-                            onChange={(e) => updateEmailConfig(field, e.target.value)}
-                       />
-                    </div>
-                 ))}
-                 {/* Common Field */}
-                 <div className="space-y-2">
-                    <Label>From Name</Label>
-                    <Input 
-                        placeholder="Company Name" 
-                        value={email.fromName}
-                        onChange={(e) => setEmailSettings({ fromName: e.target.value })}
-                    />
-                 </div>
+            {/* Dynamic Fields */}
+            <div className="bg-muted/20 p-5 rounded-xl border border-border/20 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {EMAIL_PROVIDERS.find(p => p.id === email.provider)?.fields.map(field => (
+                <div key={field} className="space-y-1.5">
+                  <FieldLabel>{field}</FieldLabel>
+                  <Input
+                    type={field.toLowerCase().includes('password') || field.includes('Key') ? "password" : "text"}
+                    value={email.config?.[field] || ''}
+                    onChange={(e) => updateEmailConfig(field, e.target.value)}
+                    className="h-10 bg-background border-border/40 rounded-xl focus:border-[#10b981]"
+                  />
+                </div>
+              ))}
+              <div className="space-y-1.5">
+                <FieldLabel>From Name</FieldLabel>
+                <Input
+                  placeholder="Company Name"
+                  value={email.fromName}
+                  onChange={(e) => setEmailSettings({ fromName: e.target.value })}
+                  className="h-10 bg-background border-border/40 rounded-xl focus:border-[#10b981]"
+                />
               </div>
+            </div>
 
-              <div className="flex justify-start items-center pt-2">
-                 <Button variant="outline" size="sm">Send Test Email</Button>
-              </div>
-           </CardContent>
-         )}
-       </Card>
+            <Button variant="outline" size="sm" className="border-border/40 text-muted-foreground hover:text-[#10b981] hover:border-[#10b981]/40 rounded-xl font-bold text-[10px] uppercase tracking-widest">
+              Send Test Email
+            </Button>
+          </CardContent>
+        )}
+      </Card>
 
-       {/* SMS Settings */}
-       <Card>
-         <CardHeader className="flex flex-row items-center justify-between pb-2">
+      {/* SMS Card */}
+      <Card className="border-none shadow-sm bg-card overflow-hidden rounded-2xl border-border/10">
+        <SectionHeader
+          icon={Smartphone}
+          title="SMS Gateway"
+          rightSlot={
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Enable SMS</span>
+              <Switch checked={sms.enabled} onCheckedChange={(c) => setSmsSettings({ enabled: c })} />
+            </div>
+          }
+        />
+        {sms.enabled && (
+          <CardContent className="p-6 space-y-6">
             <div>
-               <CardTitle>SMS Gateway</CardTitle>
-               <CardDescription>Configure SMS notifications for customers.</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-               <Label className="text-sm">Enable SMS</Label>
-               <Switch checked={sms.enabled} onCheckedChange={(c) => setSmsSettings({ enabled: c })} />
-            </div>
-         </CardHeader>
-         
-         {sms.enabled && (
-           <CardContent className="space-y-6">
-              <div className="flex gap-4">
-                 {SMS_PROVIDERS.map(prov => (
-                    <div 
-                       key={prov.id}
-                       onClick={() => setSmsSettings({ provider: prov.id })}
-                       className={cn(
-                          "cursor-pointer px-4 py-2 border rounded-full text-sm font-medium transition-colors",
-                          sms.provider === prov.id ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 hover:border-slate-400"
-                       )}
-                    >
-                       {prov.name}
-                    </div>
-                 ))}
+              <FieldLabel>SMS Provider</FieldLabel>
+              <div className="flex gap-3 mt-2">
+                {SMS_PROVIDERS.map(prov => (
+                  <button
+                    key={prov.id}
+                    onClick={() => setSmsSettings({ provider: prov.id })}
+                    className={cn(
+                      "px-5 py-2 rounded-xl border-2 text-[10px] font-black uppercase tracking-widest transition-all",
+                      sms.provider === prov.id
+                        ? "bg-[#10b981]/10 text-[#10b981] border-[#10b981]"
+                        : "bg-background text-muted-foreground border-border/30 hover:border-[#10b981]/40"
+                    )}
+                  >
+                    {prov.name}
+                  </button>
+                ))}
               </div>
-
-               <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {SMS_PROVIDERS.find(p => p.id === sms.provider)?.fields.map(field => (
-                    <div key={field} className="space-y-2">
-                       <Label>{field}</Label>
-                       <Input 
-                            type={field.includes('Token') || field.includes('Secret') ? "password" : "text"} 
-                            value={sms.config?.[field] || ''}
-                            onChange={(e) => updateSmsConfig(field, e.target.value)}
-                       />
-                    </div>
-                 ))}
-              </div>
-               <div className="flex justify-end pt-2">
-                  <Button variant="outline" size="sm">Send Test SMS</Button>
-               </div>
-           </CardContent>
-         )}
-       </Card>
+            </div>
+            <div className="bg-muted/20 p-5 rounded-xl border border-border/20 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {SMS_PROVIDERS.find(p => p.id === sms.provider)?.fields.map(field => (
+                <div key={field} className="space-y-1.5">
+                  <FieldLabel>{field}</FieldLabel>
+                  <Input
+                    type={field.includes('Token') || field.includes('Secret') ? "password" : "text"}
+                    value={sms.config?.[field] || ''}
+                    onChange={(e) => updateSmsConfig(field, e.target.value)}
+                    className="h-10 bg-background border-border/40 rounded-xl focus:border-[#10b981]"
+                  />
+                </div>
+              ))}
+            </div>
+            <Button variant="outline" size="sm" className="border-border/40 text-muted-foreground hover:text-[#10b981] hover:border-[#10b981]/40 rounded-xl font-bold text-[10px] uppercase tracking-widest">
+              Send Test SMS
+            </Button>
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 }

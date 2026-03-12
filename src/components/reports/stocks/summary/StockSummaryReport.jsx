@@ -27,6 +27,9 @@ import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 export default function StockSummaryReportPage() {
   const { data: session } = useSession();
@@ -34,25 +37,38 @@ export default function StockSummaryReportPage() {
   const [data, setData] = useState([]);
   const [branches, setBranches] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [branch, setBranch] = useState("all");
   const [category, setCategory] = useState("all");
+  const [subCategory, setSubCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [branchOpen, setBranchOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [subCategoryOpen, setSubCategoryOpen] = useState(false);
 
   const fetchMetadata = async () => {
     if (!session?.accessToken) return;
     try {
-      const [branchRes, catRes] = await Promise.all([
+      const [branchRes, catRes, subCatRes] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/branches/active/list`, {
           headers: { Authorization: `Bearer ${session.accessToken}` }
         }),
         fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/main-categories/active/list`, {
           headers: { Authorization: `Bearer ${session.accessToken}` }
+        }),
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/sub-categories`, {
+          headers: { Authorization: `Bearer ${session.accessToken}` }
         })
       ]);
       const branchData = await branchRes.json();
       const catData = await catRes.json();
-      if (branchData.status === 'success') setBranches(branchData.data);
-      if (catData.status === 'success') setCategories(catData.data);
+      const subCatData = await subCatRes.json();
+      if (branchData.status === 'success') setBranches(branchData.data || []);
+      if (catData.status === 'success') setCategories(catData.data || []);
+      if (subCatData.status === 'success') {
+          // The /sub-categories endpoint returns paginated data (data.data.data) or a flat array (data.data)
+          setSubCategories(subCatData.data?.data || subCatData.data || []);
+      }
     } catch (err) { console.error(err); }
   };
 
@@ -61,7 +77,8 @@ export default function StockSummaryReportPage() {
     try {
       const queryParams = new URLSearchParams({
         branch_id: branch,
-        main_category_id: category
+        main_category_id: category,
+        sub_category_id: subCategory
       });
 
       const res = await fetch(
@@ -116,7 +133,7 @@ export default function StockSummaryReportPage() {
 
   useEffect(() => {
     fetchData();
-  }, [session?.accessToken, branch, category]);
+  }, [session?.accessToken, branch, category, subCategory]);
 
   const filteredData = data.filter((item) =>
     item.product?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -124,66 +141,199 @@ export default function StockSummaryReportPage() {
   );
 
   return (
-    <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-800/50 min-h-screen space-y-8">
+    <div className="flex-1 space-y-6 p-6 md:p-8 bg-background max-w-[1600px] mx-auto w-full">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Current Stock Summary
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Real-time inventory levels across all branches and products.
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-xl bg-[#10b981]/10 border border-[#10b981]/20">
+            <Package className="w-6 h-6 text-[#10b981]" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              Current Stock Summary
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Real-time inventory levels across all branches and products.
+            </p>
+          </div>
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={handleExportCSV} variant="outline" className="gap-2">
-            <Download className="h-4 w-4" /> CSV
+          <Button onClick={handleExportCSV} variant="outline" className="gap-2 bg-card border-border/50 shadow-sm hover:bg-muted/30">
+            <Download className="h-4 w-4 text-muted-foreground" /> CSV
           </Button>
-          <Button onClick={handleExportExcel} variant="outline" className="gap-2">
-            <FileText className="h-4 w-4" /> Excel
+          <Button onClick={handleExportExcel} variant="outline" className="gap-2 bg-card border-border/50 shadow-sm hover:bg-muted/30">
+            <FileText className="h-4 w-4 text-muted-foreground" /> Excel
           </Button>
-          <Button className="gap-2 bg-slate-900 text-white hover:bg-slate-800">
-            <Printer className="h-4 w-4" /> Print
+          <Button className="gap-2 bg-[#10b981] hover:bg-[#059669] shadow-sm text-white">
+            <Printer className="h-4 w-4 text-emerald-100" /> Print
           </Button>
         </div>
       </div>
 
-      <Card className="border-none shadow-sm bg-white dark:bg-slate-900">
+      <Card className="border border-border/50 shadow-sm bg-card mb-6">
         <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-end">
-             <div className="w-full lg:w-64 space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Branch</label>
-                <Select value={branch} onValueChange={setBranch}>
-                    <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="All Branches" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Branches</SelectItem>
-                        {branches.map(b => (
-                            <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+             <div className="w-full space-y-2">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Branch</label>
+                <Popover open={branchOpen} onOpenChange={setBranchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={branchOpen}
+                      className="w-full justify-between h-11 rounded-xl border-border/50 bg-background font-normal"
+                    >
+                      {branch === "all" ? "All Branches" : branches.find((b) => String(b.id) === String(branch))?.name || "All Branches"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search branch..." />
+                      <CommandList>
+                        <CommandEmpty>No branch found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="All Branches"
+                            onSelect={() => {
+                              setBranch("all");
+                              setBranchOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", branch === "all" ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                            All Branches
+                          </CommandItem>
+                          {branches.map((b) => (
+                            <CommandItem
+                              key={b.id}
+                              value={b.name}
+                              onSelect={() => {
+                                setBranch(b.id);
+                                setBranchOpen(false);
+                              }}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", String(branch) === String(b.id) ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                              {b.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
             </div>
             
-            <div className="w-full lg:w-64 space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category</label>
-                <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="All Categories" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {categories.map(c => (
-                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+            <div className="w-full space-y-2">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Category</label>
+                <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={categoryOpen}
+                      className="w-full justify-between h-11 rounded-xl border-border/50 bg-background font-normal"
+                    >
+                      {category === "all" ? "All Categories" : categories.find((c) => String(c.id) === String(category))?.name || "All Categories"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search category..." />
+                      <CommandList>
+                        <CommandEmpty>No category found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="All Categories"
+                            onSelect={() => {
+                              setCategory("all");
+                              setCategoryOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", category === "all" ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                            All Categories
+                          </CommandItem>
+                          {categories.map((c) => (
+                            <CommandItem
+                              key={c.id}
+                              value={c.name}
+                              onSelect={() => {
+                                setCategory(c.id);
+                                setCategoryOpen(false);
+                                setSubCategory("all"); // Reset subcategory when main changes
+                              }}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", String(category) === String(c.id) ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                              {c.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+            </div>
+
+            <div className="w-full space-y-2">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sub-Category</label>
+                <Popover open={subCategoryOpen} onOpenChange={setSubCategoryOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={subCategoryOpen}
+                      className="w-full justify-between h-11 rounded-xl border-border/50 bg-background font-normal"
+                      disabled={category === "all"} // Only enable if a main category is selected
+                    >
+                      {subCategory === "all" ? "All Sub-Categories" : subCategories.find((s) => String(s.id) === String(subCategory))?.name || "All Sub-Categories"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search sub-category..." />
+                      <CommandList>
+                        <CommandEmpty>No sub-category found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="All Sub-Categories"
+                            onSelect={() => {
+                              setSubCategory("all");
+                              setSubCategoryOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", subCategory === "all" ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                            All Sub-Categories
+                          </CommandItem>
+                          {subCategories
+                            .filter(s => String(s.main_category_id) === String(category))
+                            .map((s) => (
+                            <CommandItem
+                              key={s.id}
+                              value={s.name}
+                              onSelect={() => {
+                                setSubCategory(s.id);
+                                setSubCategoryOpen(false);
+                              }}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", String(subCategory) === String(s.id) ? "opacity-100 text-[#10b981]" : "opacity-0")} />
+                              {s.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
             </div>
 
             <div className="flex-1 space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Search Product</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Search Product</label>
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
                     <Input 
                         placeholder="Search product name or SKU..." 
-                        className="pl-10 h-10 border-slate-200" 
+                        className="pl-10 h-11 rounded-xl border-border/50 bg-background" 
                         value={searchQuery}
                         onChange={(e)=>setSearchQuery(e.target.value)}
                     />
@@ -193,15 +343,15 @@ export default function StockSummaryReportPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden">
+      <div className="rounded-t-xl border-x border-t border-border overflow-hidden bg-background/50 transition-colors duration-500">
         <Table>
-          <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
-            <TableRow>
-              <TableHead className="pl-6">Product & Variant</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Branch</TableHead>
-              <TableHead className="text-center">Min Level</TableHead>
-              <TableHead className="text-right pr-6">Current Stock</TableHead>
+          <TableHeader className="bg-sidebar-accent/20 backdrop-blur-md">
+            <TableRow className="border-border/30 hover:bg-transparent">
+              <TableHead className="pl-6 h-12 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Product & Variant</TableHead>
+              <TableHead className="h-12 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Category</TableHead>
+              <TableHead className="h-12 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Branch</TableHead>
+              <TableHead className="text-center h-12 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Min Level</TableHead>
+              <TableHead className="text-right pr-6 h-12 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Current Stock</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -209,41 +359,41 @@ export default function StockSummaryReportPage() {
               filteredData.map((item) => {
                 const isLow = parseFloat(item.quantity) <= parseFloat(item.product?.reorder_level || 0);
                 return (
-                    <TableRow key={item.id} className="hover:bg-slate-50 dark:bg-slate-800/50 transition-colors py-4">
+                    <TableRow key={item.id} className="hover:bg-sidebar-accent/15 border-b border-border/30 last:border-0 transition-all duration-200 group">
                     <TableCell className="pl-6 py-4">
                         <div className="flex items-center gap-3">
                             <div className={cn(
                                 "p-2 rounded-lg",
-                                isLow ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500" : "bg-blue-50 dark:bg-blue-500/10 text-blue-600"
+                                isLow ? "bg-amber-500/10 text-amber-600 dark:text-amber-500" : "bg-sidebar-accent/50 text-foreground"
                             )}>
                                 <Package className="h-4 w-4" />
                             </div>
                             <div>
-                                <p className="font-bold text-slate-900">{item.product?.name}</p>
-                                <p className="text-[10px] text-slate-400 font-mono">{item.variant?.name || "Standard"} • {item.variant?.sku || item.product?.code}</p>
+                                <p className="font-semibold text-foreground">{item.product?.name}</p>
+                                <p className="text-[11px] text-muted-foreground font-medium">{item.variant?.name || "Standard"} • {item.variant?.sku || item.product?.code}</p>
                             </div>
                         </div>
                     </TableCell>
                     <TableCell>
-                        <Badge variant="outline" className="text-[10px] bg-slate-50 dark:bg-slate-800/50 text-slate-600 border-slate-100">
+                        <Badge variant="outline" className="text-[10px] bg-background text-muted-foreground border-border/50">
                             {item.product?.main_category?.name || "Uncategorized"}
                         </Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-slate-600 font-medium">
+                    <TableCell className="text-xs text-muted-foreground font-medium">
                         {item.branch?.name}
                     </TableCell>
-                    <TableCell className="text-center text-xs text-slate-400 font-bold">
+                    <TableCell className="text-center text-xs text-muted-foreground font-semibold">
                         {item.product?.reorder_level || 0}
                     </TableCell>
                     <TableCell className="text-right pr-6">
                         <div className="flex flex-col items-end">
                             <span className={cn(
-                                "text-lg font-black",
-                                isLow ? "text-amber-600 dark:text-amber-500" : "text-slate-900"
+                                "text-[15px] font-bold font-mono tracking-tight",
+                                isLow ? "text-amber-600 dark:text-amber-500" : "text-foreground"
                             )}>{parseFloat(item.quantity).toFixed(0)}</span>
                             {isLow && (
-                                <div className="flex items-center gap-1 text-[9px] text-amber-600 dark:text-amber-500 font-bold uppercase tracking-tight">
-                                    <AlertTriangle className="h-2.5 w-2.5" /> Low Stock
+                                <div className="flex items-center gap-0.5 text-[10px] text-amber-600 dark:text-amber-500 font-bold uppercase tracking-tight">
+                                    <AlertTriangle className="h-3 w-3" /> Low Stock
                                 </div>
                             )}
                         </div>
@@ -253,12 +403,12 @@ export default function StockSummaryReportPage() {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-slate-500 italic">No stock records found matching your filters.</TableCell>
+                <TableCell colSpan={5} className="h-48 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs opacity-50">No stock records found matching your filters.</TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
-      </Card>
+      </div>
     </div>
   );
 }

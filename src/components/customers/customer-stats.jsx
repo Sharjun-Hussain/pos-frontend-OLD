@@ -9,78 +9,74 @@ export function CustomerStats({ customers }) {
   const { formatCurrency } = useAppSettings();
   
   const totalCustomers = customers.length;
-  const activeCustomers = customers.filter((c) => c.status === "active").length;
-  const vipCustomers = customers.filter((c) => c.loyaltyPoints >= 500).length;
+  const activeCustomers = customers.filter((c) => c.is_active).length;
+  const vipCustomers = customers.filter((c) => (c.loyaltyPoints || 0) >= 1000).length;
   const totalRevenue = customers.reduce((sum, c) => sum + (parseFloat(c.totalSpent) || 0), 0);
-  const avgSpent = totalCustomers > 0 ? totalRevenue / totalCustomers : 0;
 
   const stats = [
     {
-      label: "Client Base",
+      label: "Total Client Base",
       value: totalCustomers,
       icon: Users,
-      gradient: "from-blue-500 to-indigo-400",
-      shadow: "shadow-blue-100",
-      trend: "up",
-      change: "+12%"
+      color: "text-[#10b981]",
+      bg: "bg-[#10b981]/10",
+      border: "border-[#10b981]/20",
+      description: "Aggregated member profiles"
     },
     {
-      label: "Active Retention",
+      label: "Active Relationships",
       value: activeCustomers,
       icon: UserCheck,
-      gradient: "from-emerald-500 to-teal-400",
-      shadow: "shadow-emerald-100",
-      trend: "up",
-      change: "+5%"
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20",
+      description: "Recent transaction velocity"
     },
     {
-      label: "Premium Tier",
+      label: "Premium VIP Tier",
       value: vipCustomers,
       icon: Star,
-      gradient: "from-amber-500 to-orange-400",
-      shadow: "shadow-amber-100",
-      trend: "stable",
-      change: "0%"
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
+      description: "High-loyalty portfolio"
     },
     {
-      label: "Avg. Portfolio Value",
-      value: `LKR ${avgSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
-      icon: Zap,
-      gradient: "from-purple-500 to-violet-400",
-      shadow: "shadow-purple-100",
-      trend: "up",
-      change: "+8%"
+      label: "Net CRM Equity",
+      value: formatCurrency(totalRevenue),
+      icon: DollarSign,
+      color: "text-purple-500",
+      bg: "bg-purple-500/10",
+      border: "border-purple-500/20",
+      description: "Lifetime fiscal contribution"
     },
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat, idx) => (
-        <div key={idx} className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden">
-            {/* Subtle Background Decoration */}
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${stat.gradient} opacity-[0.03] rounded-bl-full group-hover:scale-150 transition-transform duration-500`} />
-
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div className={`p-3 rounded-xl bg-linear-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {stats.map((stat, i) => (
+        <Card key={i} className="border-none shadow-sm bg-card overflow-hidden group hover:shadow-md transition-all duration-500 relative">
+          <div className={cn("absolute top-0 right-0 w-24 h-24 rounded-full -mr-12 -mt-12 blur-3xl transition-all group-hover:opacity-100 opacity-50", stat.bg)} />
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className={cn("p-3 rounded-2xl border shadow-inner group-hover:scale-110 transition-transform duration-500", stat.bg, stat.border, stat.color)}>
                 <stat.icon className="w-5 h-5" />
               </div>
-            </div>
-
-            <div className="relative z-10">
-              <p className="text-sm font-semibold text-slate-500 mb-1">{stat.label}</p>
-              <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
-                {stat.value}
-              </h3>
-              
-              <div className="flex items-center mt-3">
-                <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600`}>
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  {stat.change}
-                </span>
-                <span className="text-xs text-slate-400 ml-2">vs last month</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-black tracking-[0.15em] text-muted-foreground uppercase opacity-70 mb-1 truncate">{stat.label}</p>
+                <h3 className="text-xl font-black text-foreground tabular-nums tracking-tight truncate">
+                  {stat.value}
+                </h3>
               </div>
             </div>
-        </div>
+            <div className="mt-5 flex flex-col gap-2">
+                <div className={cn("h-1 w-full rounded-full bg-muted/30 overflow-hidden")}>
+                    <div className={cn("h-full rounded-full w-[65%]", stat.color.replace('text-', 'bg-'))} />
+                </div>
+                <p className="text-[9px] font-medium text-muted-foreground/50 tracking-wide uppercase italic">{stat.description}</p>
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
